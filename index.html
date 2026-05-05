@@ -123,7 +123,9 @@
   .toggle-status-btn.btn-dirty{background:#FEE2E2;color:#991B1B}
   .toggle-status-btn.btn-dirty:hover{background:#FECACA}
   body.dark-mode .toggle-status-btn.btn-clean{background:#064e3b;color:#34d399}
+  body.dark-mode .toggle-status-btn.btn-clean:hover{background:#065f46}
   body.dark-mode .toggle-status-btn.btn-dirty{background:#450a0a;color:#f87171}
+  body.dark-mode .toggle-status-btn.btn-dirty:hover{background:#7f1d1d}
   .toggle-status-btn:disabled{cursor:default;pointer-events:none;opacity:0.8}
 
   .modal-body{padding:1.5rem}
@@ -356,7 +358,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-  import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
+  import { getDatabase, ref, onValue, set, get, child } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
   import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
 
   // ==========================================
@@ -395,7 +397,7 @@ const firebaseConfig = {
   let bookings = {};
   let notes = {};
   let generalNotes = '';
-  let authorizedUsers = {}; // Tady se budou ukládat povolené e-maily a role { "email@email.cz": "admin" }
+  let authorizedUsers = {}; 
   
   let currentUser=null;
   let editIdx=-1,curRoom=-1;
@@ -406,21 +408,24 @@ const firebaseConfig = {
   const savedTheme = localStorage.getItem('hr_theme');
   document.getElementById('themeToggleBtn').textContent = savedTheme === 'dark' ? '☀️' : '🌙';
 
-  // --- NAČÍTÁNÍ DAT Z DATABÁZE ---
+  // --- NAČÍTÁNÍ DAT Z DATABÁZE (BEZ PŘEPISOVÁNÍ!) ---
   onValue(ref(db, '/'), (snapshot) => {
     const data = snapshot.val();
     if (data) {
-      rooms = data.rooms || [];
+      rooms = (data.rooms && data.rooms.length > 0) ? data.rooms : [...defaultRooms];
       bookings = data.bookings || {};
       notes = data.notes || {};
       generalNotes = data.generalNotes || '';
       authorizedUsers = data.authorizedUsers || {};
     } else {
-      rooms = defaultRooms;
-      saveToFirebase();
+      // Pokud je databáze čistá, použijeme defaultní hodnoty pouze lokálně
+      rooms = [...defaultRooms];
+      bookings = {};
+      notes = {};
+      generalNotes = '';
     }
 
-    if(document.getElementById('screenApp').classList.contains('active')){
+    if(currentUser && document.getElementById('screenApp').classList.contains('active')){
       document.getElementById('generalNotes').value = generalNotes;
       renderRooms();
       if(document.getElementById('usersAdminBg').classList.contains('open')) renderUsersAdmin();
@@ -481,37 +486,39 @@ const firebaseConfig = {
     return state;
   }
 
-  // --- AUTENTIZACE FIREBASE ---
-  
-  // Posluchač změn přihlášení (spustí se automaticky při otevření webu i po přihlášení)
-  onAuthStateChanged(auth, (user) => {
+  // --- OPRAVENÁ AUTENTIZACE FIREBASE ---
+  onAuthStateChanged(auth, async (user) => {
     const errEl = document.getElementById('loginErr');
     if (user) {
       const email = user.email.toLowerCase();
-      
-      // Speciální pravidlo: Pokud je databáze uživatelů úplně prázdná, první přihlášený se stane Adminem (tzv. Bootstrap)
-      if(Object.keys(authorizedUsers).length === 0) {
-        authorizedUsers[email.replace(/\./g, '_')] = { email: email, role: 'admin' };
-        saveToFirebase();
-      }
+      const key = email.replace(/\./g, '_');
 
-      // Kontrola oprávnění z databáze (tečky v e-mailu Firebase klíče neumí, takže je nahrazujeme podtržítkem)
-      const userRecord = authorizedUsers[email.replace(/\./g, '_')];
+      try {
+        // Zastavíme kód a počkáme na konkrétní záznam z databáze (zabrání chybě při pomalejším internetu)
+        const snapshot = await get(child(ref(db), 'authorizedUsers/' + key));
+        const userRecord = snapshot.val();
 
-      if (userRecord && ROLE_PERMISSIONS[userRecord.role]) {
-        // Přístup povolen
-        const roleData = ROLE_PERMISSIONS[userRecord.role];
-        currentUser = { email: email, ...roleData };
-        errEl.textContent = '';
-        
-        document.getElementById('screenLogin').classList.remove('active');
-        document.getElementById('screenApp').classList.add('active');
-        document.getElementById('userInfo').innerHTML = `${currentUser.label} <span class="role-badge ${currentUser.badge}">${currentUser.role}</span>`;
-        document.getElementById('generalNotes').value = generalNotes;
-        renderRooms();
-      } else {
-        // Uživatel existuje (přes Google/Email), ale majitel mu ještě nedal práva do databáze
-        errEl.textContent = 'Váš e-mail nemá oprávnění k přístupu.';
+        if (userRecord && ROLE_PERMISSIONS[userRecord.role]) {
+          // Přístup povolen
+          const roleData = ROLE_PERMISSIONS[userRecord.role];
+          currentUser = { email: email, ...roleData };
+          errEl.textContent = '';
+          
+          document.getElementById('screenLogin').classList.remove('active');
+          document.getElementById('screenApp').classList.add('active');
+          document.getElementById('userInfo').innerHTML = `${currentUser.label} <span class="role-badge ${currentUser.badge}">${currentUser.role}</span>`;
+          
+          document.getElementById('generalNotes').value = generalNotes;
+          renderRooms();
+          if(document.getElementById('usersAdminBg').classList.contains('open')) renderUsersAdmin();
+        } else {
+          // E-mail se úspěšně přihlásil, ale není na tvém seznamu
+          errEl.textContent = 'Váš e-mail nemá oprávnění k přístupu. Kontaktujte administrátora.';
+          signOut(auth);
+        }
+      } catch(e) {
+        console.error(e);
+        errEl.textContent = 'Chyba při čtení oprávnění (Pravděpodobně omezené Firebase Rules).';
         signOut(auth);
       }
     } else {
@@ -525,7 +532,6 @@ const firebaseConfig = {
     }
   });
 
-  // Tlačítko přihlášení E-mailem a heslem
   function loginWithEmail(){
     const e = document.getElementById('loginEmail').value.trim();
     const p = document.getElementById('loginPass').value;
@@ -533,11 +539,10 @@ const firebaseConfig = {
     err.textContent = 'Přihlašování...';
     
     signInWithEmailAndPassword(auth, e, p).catch((error) => {
-      err.textContent = 'Chybný e-mail, heslo, nebo uživatel neexistuje.';
+      err.textContent = 'Špatný e-mail nebo heslo.';
     });
   }
 
-  // Tlačítko přihlášení přes Google
   function loginWithGoogle(){
     const err = document.getElementById('loginErr');
     err.textContent = 'Otevírám Google...';
@@ -585,7 +590,6 @@ const firebaseConfig = {
     const role = document.getElementById('newUserRole').value;
     if(!email) return;
 
-    // Firebase klíč nesmí obsahovat tečky
     const key = email.replace(/\./g, '_');
     authorizedUsers[key] = { email: email, role: role };
     saveToFirebase();
