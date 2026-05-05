@@ -35,12 +35,14 @@ body{font-family:'Lato',sans-serif;background:var(--color-background-secondary)}
 .badge-admin{background:#E6F1FB;color:#0C447C}
 .badge-owner{background:#FAEEDA;color:#633806}
 
-.hotel-header{text-align:center;padding:1.5rem 1rem;border-bottom:1px solid var(--color-border-tertiary);margin-bottom:2rem;position:relative;background:var(--color-background-primary)}
+.hotel-header{text-align:center;padding:1.5rem 1rem;border-bottom:1px solid var(--color-border-tertiary);margin-bottom:1.5rem;position:relative;background:var(--color-background-primary)}
 .hotel-title{font-family:'Playfair Display',serif;font-size:24px;font-weight:600;color:var(--color-text-primary);letter-spacing:1px}
 .hotel-sub{font-size:12px;color:var(--color-text-secondary);letter-spacing:3px;text-transform:uppercase;margin-top:4px}
 .logout-btn{position:absolute;right:16px;top:50%;transform:translateY(-50%);background:none;border:1px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:6px 14px;font-size:12px;cursor:pointer;color:var(--color-text-secondary);font-family:'Lato',sans-serif;letter-spacing:0.5px;transition:background 0.2s}
 .logout-btn:hover{background:var(--color-background-secondary)}
 .user-info{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--color-text-secondary);display:flex;align-items:center}
+
+.admin-actions-wrap{max-width:1200px;margin:0 auto 1.5rem;padding:0 24px;text-align:center;}
 
 .rooms-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;padding:0 24px 24px;max-width:1200px;margin:0 auto}
 .room-card{background:var(--color-background-primary);border:1px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;cursor:pointer;position:relative;transition:transform 0.2s,box-shadow 0.2s}
@@ -125,10 +127,12 @@ body{font-family:'Lato',sans-serif;background:var(--color-background-secondary)}
 .emoji-pick span{font-size:28px;cursor:pointer;padding:6px;border-radius:var(--border-radius-md);border:2px solid transparent;transition:all 0.2s;background:var(--color-background-secondary)}
 .emoji-pick span:hover{transform:scale(1.1)}
 .emoji-pick span.sel{border-color:var(--color-border-primary);background:var(--color-background-primary)}
-.edit-btns{display:flex;gap:12px;margin-top:24px}
-.edit-btns button{flex:1;padding:10px;font-size:14px;font-weight:700;border-radius:var(--border-radius-md);cursor:pointer;font-family:'Lato',sans-serif;transition:opacity 0.2s}
+.edit-btns{display:flex;gap:8px;margin-top:24px}
+.edit-btns button{flex:1;padding:10px;font-size:13px;font-weight:700;border-radius:var(--border-radius-md);cursor:pointer;font-family:'Lato',sans-serif;transition:opacity 0.2s}
 .btn-save{background:var(--color-text-primary);border:none;color:var(--color-background-primary)}
 .btn-save:hover{opacity:0.9}
+.btn-delete-room{background:var(--color-background-secondary);border:1px solid var(--color-text-danger);color:var(--color-text-danger)}
+.btn-delete-room:hover{background:#FEE2E2}
 .btn-cancel{background:var(--color-background-secondary);border:1px solid var(--color-border-tertiary);color:var(--color-text-primary)}
 .btn-cancel:hover{background:#e4e4e7}
 </style>
@@ -156,6 +160,11 @@ body{font-family:'Lato',sans-serif;background:var(--color-background-secondary)}
     <button class="logout-btn" onclick="doLogout()">Odhlásit</button>
   </div>
   
+  <!-- Tlačítko pro přidání nového pokoje -->
+  <div id="adminActionsWrap" class="admin-actions-wrap" style="display:none;">
+    <button class="add-btn" onclick="openEdit(-1)">+ Přidat nový pokoj</button>
+  </div>
+
   <div class="rooms-grid" id="roomsGrid"></div>
 
   <div class="general-notes-wrap">
@@ -209,13 +218,14 @@ body{font-family:'Lato',sans-serif;background:var(--color-background-secondary)}
 
   <div class="edit-modal-bg" id="editBg">
     <div class="edit-modal">
-      <h3>Upravit pokoj</h3>
+      <h3 id="editModalTitle">Upravit pokoj</h3>
       <label>Název pokoje</label>
       <input type="text" id="editName" maxlength="22">
       <label>Ikona</label>
       <div class="emoji-pick" id="emojiPick"></div>
       <div class="edit-btns">
         <button class="btn-save" onclick="saveEdit()">Uložit</button>
+        <button class="btn-delete-room" id="delRoomBtn" onclick="deleteRoom()">Smazat</button>
         <button class="btn-cancel" onclick="closeEdit()">Zrušit</button>
       </div>
     </div>
@@ -223,25 +233,22 @@ body{font-family:'Lato',sans-serif;background:var(--color-background-secondary)}
 </div>
 
 <script type="module">
-  // 1. IMPORT FIREBASE MODULŮ
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
   import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
 
   // ==========================================
-  // 2. SEM VLOŽÍŠ SVOJI FIREBASE KONFIGURACI
+  // ZDE NECH SVOU ZKOPÍROVANOU FIREBASE CONFIG
   // ==========================================
   const firebaseConfig = {
-    apiKey: "AIzaSyADuzLjk-9pp56rDCphkG20GGghNI2ZOCY",
-    authDomain: "penzionmanagement.firebaseapp.com",
-    databaseURL: "https://penzionmanagement-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "penzionmanagement",
-    storageBucket: "penzionmanagement.firebasestorage.app",
-    messagingSenderId: "1018503993863",
-    appId: "1:1018503993863:web:158eff0909b699b27d28a2",
-    measurementId: "G-Y2R5S6WJEP"
+    apiKey: "SEM_DAS_SVUJ_API_KEY",
+    authDomain: "TTVUJ-PROJEKT.firebaseapp.com",
+    databaseURL: "https://TVUJ-PROJEKT-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "TVUJ-PROJEKT",
+    storageBucket: "TVUJ-PROJEKT.appspot.com",
+    messagingSenderId: "123456789",
+    appId: "1:123456789:web:abcdef"
   };
 
-  // Inicializace Firebase
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
@@ -250,7 +257,7 @@ body{font-family:'Lato',sans-serif;background:var(--color-background-secondary)}
     admin:{pass:'School',role:'admin',label:'Admin',badge:'badge-admin',canEdit:true,canDelete:true,canToggle:true},
     owner:{pass:'owner',role:'owner',label:'Majitelka',badge:'badge-owner',canEdit:false,canDelete:true,canToggle:false}
   };
-  const EMOJIS=['🛏️','🏨','🌊','🌿','🔑','🛁','🍾','🌅','🌙','🏔️','🌸','🎋','🦋','🕯️','🍷'];
+  const EMOJIS=['🛏️','🏨','🌊','🌿','🔑','🛁','🍾','🌅','🌙','🏔️','🌸','🎋','🦋','🕯️','🍷','🐶','🚿','🔥'];
   const defaultRooms=[
     {name:'Pokoj 101',emoji:'🛏️', isDirty: false},
     {name:'Deluxe Suite',emoji:'🏨', isDirty: false},
@@ -259,7 +266,6 @@ body{font-family:'Lato',sans-serif;background:var(--color-background-secondary)}
     {name:'Prezidentský',emoji:'🔑', isDirty: false}
   ];
 
-  // Proměnné už nečteme z localStorage, načtou se z Firebase
   let rooms = [];
   let bookings = {};
   let notes = {};
@@ -271,24 +277,21 @@ body{font-family:'Lato',sans-serif;background:var(--color-background-secondary)}
   const MONTHS=['Leden','Únor','Březen','Duben','Květen','Červen','Červenec','Srpen','Září','Říjen','Listopad','Prosinec'];
   const DAYS=['Po','Út','St','Čt','Pá','So','Ne'];
 
-  // 3. POSLOUCHÁNÍ DAT Z FIREBASE V REÁLNÉM ČASE
   onValue(ref(db, '/'), (snapshot) => {
     const data = snapshot.val();
     if (data) {
-      rooms = data.rooms || defaultRooms;
+      rooms = data.rooms || [];
       bookings = data.bookings || {};
       notes = data.notes || {};
       generalNotes = data.generalNotes || '';
     } else {
-      // Databáze je úplně prázdná (první spuštění)
       rooms = defaultRooms;
       bookings = {};
       notes = {};
       generalNotes = '';
-      saveToFirebase(); // Pošleme výchozí data do DB
+      saveToFirebase();
     }
 
-    // Pokud je uživatel přihlášený, překreslíme obrazovku s novými daty
     if(document.getElementById('screenApp').classList.contains('active')){
       document.getElementById('generalNotes').value = generalNotes;
       renderRooms();
@@ -301,7 +304,6 @@ body{font-family:'Lato',sans-serif;background:var(--color-background-secondary)}
     }
   });
 
-  // Funkce pro odeslání dat do Firebase
   function saveToFirebase(){
     try {
       set(ref(db, '/'), {
@@ -364,13 +366,22 @@ body{font-family:'Lato',sans-serif;background:var(--color-background-secondary)}
 
   function renderRooms(){
     autoDirtyCheck();
+    
+    // Zobrazení tlačítka "+ Přidat pokoj" pro Admina a Majitelku
+    const adminWrap = document.getElementById('adminActionsWrap');
+    const canManageRooms = currentUser && (currentUser.role === 'admin' || currentUser.role === 'owner');
+    adminWrap.style.display = canManageRooms ? 'block' : 'none';
+
     const g=document.getElementById('roomsGrid');
-    const canEdit=currentUser&&currentUser.canEdit;
+    
+    // Ikonka tužky se zobrazí pokud uživatel může editovat NEBO mazat pokoje
+    const canEditRoom = currentUser && (currentUser.canEdit || currentUser.canDelete);
+
     g.innerHTML=rooms.map((r,i)=>`
       <div class="room-card" onclick="openRoom(${i})">
         <div class="room-img">
           <span class="emoji">${r.emoji}</span>
-          ${canEdit?`<button class="edit-btn" onclick="event.stopPropagation();openEdit(${i})" title="Upravit">✎</button>`:''}
+          ${canEditRoom?`<button class="edit-btn" onclick="event.stopPropagation();openEdit(${i})" title="Upravit/Smazat">✎</button>`:''}
           <div class="room-status-badge ${r.isDirty ? 'status-dirty' : 'status-clean'}">
             ${r.isDirty ? '🔴 Špinavý' : '🟢 Uklizený'}
           </div>
@@ -382,24 +393,70 @@ body{font-family:'Lato',sans-serif;background:var(--color-background-secondary)}
       </div>`).join('');
   }
 
+  // Funkce nyní zvládá Úpravu (i >= 0) i Přidání nového (i === -1)
   function openEdit(i){
-    editIdx=i;
-    document.getElementById('editName').value=rooms[i].name;
-    const ep=document.getElementById('emojiPick');
-    ep.innerHTML=EMOJIS.map(e=>`<span class="${e===rooms[i].emoji?'sel':''}" onclick="selEmoji(this,'${e}')">${e}</span>`).join('');
+    editIdx = i;
+    const isNew = (i === -1);
+    
+    document.getElementById('editModalTitle').textContent = isNew ? 'Přidat nový pokoj' : 'Upravit pokoj';
+    document.getElementById('editName').value = isNew ? '' : rooms[i].name;
+    
+    const curEmoji = isNew ? EMOJIS[0] : rooms[i].emoji;
+    const ep = document.getElementById('emojiPick');
+    ep.innerHTML = EMOJIS.map(e=>`<span class="${e===curEmoji?'sel':''}" onclick="selEmoji(this,'${e}')">${e}</span>`).join('');
+    
+    // Tlačítko pro smazání u nového pokoje skryjeme
+    document.getElementById('delRoomBtn').style.display = isNew ? 'none' : 'block';
+    
     document.getElementById('editBg').classList.add('open');
   }
+
   function selEmoji(el){document.querySelectorAll('.emoji-pick span').forEach(s=>s.classList.remove('sel'));el.classList.add('sel');}
   
   function saveEdit(){
     const name=document.getElementById('editName').value.trim();
     const sel=document.querySelector('.emoji-pick span.sel');
-    if(name&&sel){
-      rooms[editIdx]={name,emoji:sel.textContent, isDirty: rooms[editIdx].isDirty};
+    if(name && sel){
+      if(editIdx === -1) {
+        // Přidání nového pokoje
+        rooms.push({name, emoji: sel.textContent, isDirty: false});
+      } else {
+        // Uložení existujícího pokoje
+        rooms[editIdx] = {name, emoji: sel.textContent, isDirty: rooms[editIdx].isDirty};
+      }
       saveToFirebase();
     }
     closeEdit();
   }
+
+  function deleteRoom() {
+    if(!confirm('Opravdu chcete smazat tento pokoj?\n\nVšechny rezervace a poznámky k tomuto pokoji budou nenávratně ztraceny!')) return;
+    
+    // 1. Vymažeme pokoj z pole
+    rooms.splice(editIdx, 1);
+    
+    // 2. Chytře posuneme klíče v objektech bookings a notes, aby data seděla k novým indexům pokojů
+    let newBookings = {};
+    let newNotes = {};
+    const oldLen = rooms.length + 1;
+    
+    for(let j=0; j < oldLen; j++) {
+      if (j < editIdx) {
+        if (bookings[j]) newBookings[j] = bookings[j];
+        if (notes[j]) newNotes[j] = notes[j];
+      } else if (j > editIdx) {
+        if (bookings[j]) newBookings[j-1] = bookings[j];
+        if (notes[j]) newNotes[j-1] = notes[j];
+      }
+    }
+    
+    bookings = newBookings;
+    notes = newNotes;
+    
+    saveToFirebase();
+    closeEdit();
+  }
+
   function closeEdit(){document.getElementById('editBg').classList.remove('open');}
 
   function toggleDirty() {
@@ -504,6 +561,7 @@ body{font-family:'Lato',sans-serif;background:var(--color-background-secondary)}
   }
 
   function fmt(d){const p=d.split('-');return p[2]+'.'+p[1]+'.'+p[0];}
+  
   function delBooking(i){
     bookings[curRoom].splice(i,1);
     saveToFirebase();
@@ -524,7 +582,6 @@ body{font-family:'Lato',sans-serif;background:var(--color-background-secondary)}
     setTimeout(() => s.style.opacity = 0, 1800);
   }
 
-  // Přiřazení funkcí do globálního okna, aby fungovaly onclick atributy v HTML
   window.doLogin = doLogin;
   window.doLogout = doLogout;
   window.openRoom = openRoom;
@@ -537,10 +594,10 @@ body{font-family:'Lato',sans-serif;background:var(--color-background-secondary)}
   window.openEdit = openEdit;
   window.closeEdit = closeEdit;
   window.saveEdit = saveEdit;
+  window.deleteRoom = deleteRoom;
   window.selEmoji = selEmoji;
   window.toggleDirty = toggleDirty;
 
-  // Event listenery pro klávesnici a zavírání oken
   document.getElementById('loginPass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
   document.getElementById('loginUser').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('loginPass').focus();});
   document.getElementById('modalBg').addEventListener('click',function(e){if(e.target===this)closeModal();});
