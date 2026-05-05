@@ -358,22 +358,21 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-  import { getDatabase, ref, onValue, set, get, child } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
+  import { getDatabase, ref, onValue, set, get, child, off } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
   import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
 
   // ==========================================
   // ZDE NECH SVOU ZKOPÍROVANOU FIREBASE CONFIG
   // ==========================================
-const firebaseConfig = {
-  apiKey: "AIzaSyADuzLjk-9pp56rDCphkG20GGghNI2ZOCY",
-  authDomain: "penzionmanagement.firebaseapp.com",
-  databaseURL: "https://penzionmanagement-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "penzionmanagement",
-  storageBucket: "penzionmanagement.firebasestorage.app",
-  messagingSenderId: "1018503993863",
-  appId: "1:1018503993863:web:158eff0909b699b27d28a2",
-  measurementId: "G-Y2R5S6WJEP"
-};
+  const firebaseConfig = {
+    apiKey: "SEM_DAS_SVUJ_API_KEY",
+    authDomain: "TTVUJ-PROJEKT.firebaseapp.com",
+    databaseURL: "https://TVUJ-PROJEKT-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "TVUJ-PROJEKT",
+    storageBucket: "TVUJ-PROJEKT.appspot.com",
+    messagingSenderId: "123456789",
+    appId: "1:123456789:web:abcdef"
+  };
 
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
@@ -400,6 +399,7 @@ const firebaseConfig = {
   let authorizedUsers = {}; 
   
   let currentUser=null;
+  let dbListenerObj = null; // Proměnná pro uchování připojení k databázi
   let editIdx=-1,curRoom=-1;
   let calYear=new Date().getFullYear(),calMon=new Date().getMonth();
   const MONTHS=['Leden','Únor','Březen','Duben','Květen','Červen','Červenec','Srpen','Září','Říjen','Listopad','Prosinec'];
@@ -408,35 +408,100 @@ const firebaseConfig = {
   const savedTheme = localStorage.getItem('hr_theme');
   document.getElementById('themeToggleBtn').textContent = savedTheme === 'dark' ? '☀️' : '🌙';
 
-  // --- NAČÍTÁNÍ DAT Z DATABÁZE (BEZ PŘEPISOVÁNÍ!) ---
-  onValue(ref(db, '/'), (snapshot) => {
-    const data = snapshot.val();
-    if (data) {
-      rooms = (data.rooms && data.rooms.length > 0) ? data.rooms : [...defaultRooms];
-      bookings = data.bookings || {};
-      notes = data.notes || {};
-      generalNotes = data.generalNotes || '';
-      authorizedUsers = data.authorizedUsers || {};
-    } else {
-      // Pokud je databáze čistá, použijeme defaultní hodnoty pouze lokálně
-      rooms = [...defaultRooms];
-      bookings = {};
-      notes = {};
-      generalNotes = '';
-    }
+  // --- KROK 1: NEJPRVE SE POUZE ČEKÁ NA OVĚŘENÍ AUTENTIZACE ---
+  onAuthStateChanged(auth, async (user) => {
+    const errEl = document.getElementById('loginErr');
+    
+    if (user) {
+      const email = user.email.toLowerCase();
+      const key = email.replace(/\./g, '_');
 
-    if(currentUser && document.getElementById('screenApp').classList.contains('active')){
-      document.getElementById('generalNotes').value = generalNotes;
-      renderRooms();
-      if(document.getElementById('usersAdminBg').classList.contains('open')) renderUsersAdmin();
-      if(document.getElementById('modalBg').classList.contains('open') && curRoom !== -1) {
-        document.getElementById('roomNotes').value = notes[curRoom] || '';
-        renderCalendar();
-        renderBookings();
-        updateStatusBtn();
+      try {
+        errEl.textContent = 'Ověřuji oprávnění v databázi...';
+        
+        // Zastavíme a zeptáme se databáze POUZE na záznam tohoto konkrétního uživatele
+        const snapshot = await get(child(ref(db), 'authorizedUsers/' + key));
+        let userRecord = snapshot.val();
+
+        // Speciální pravidlo (Bootstrap): Pokud databáze povolených lidí vůbec neexistuje, uděláme prvního člověka Adminem
+        if (!userRecord) {
+           const allUsersSnap = await get(child(ref(db), 'authorizedUsers'));
+           if (!allUsersSnap.exists()) {
+              userRecord = { email: email, role: 'admin' };
+              await set(ref(db, 'authorizedUsers/' + key), userRecord);
+           }
+        }
+
+        if (userRecord && ROLE_PERMISSIONS[userRecord.role]) {
+          // Uživatel byl úspěšně nalezen na seznamu povolených
+          const roleData = ROLE_PERMISSIONS[userRecord.role];
+          currentUser = { email: email, ...roleData };
+          errEl.textContent = '';
+          
+          document.getElementById('screenLogin').classList.remove('active');
+          document.getElementById('screenApp').classList.add('active');
+          document.getElementById('userInfo').innerHTML = `${currentUser.label} <span class="role-badge ${currentUser.badge}">${currentUser.role}</span>`;
+          
+          // --- KROK 2: AŽ TEĎ ZAPNEME STANOVÁNÍ DATABÁZE A SPUSTÍME APP ---
+          startDatabaseListener();
+          
+        } else {
+          errEl.textContent = 'Váš e-mail nemá oprávnění k přístupu. Kontaktujte administrátora.';
+          signOut(auth);
+        }
+      } catch(e) {
+        console.error(e);
+        errEl.textContent = 'Chyba při čtení oprávnění ze serveru.';
+        signOut(auth);
       }
+    } else {
+      // Nikdo není přihlášen
+      currentUser = null;
+      if(dbListenerObj) {
+        // Vypneme poslouchání změn v DB
+        dbListenerObj(); 
+        dbListenerObj = null;
+      }
+      document.getElementById('screenApp').classList.remove('active');
+      document.getElementById('screenLogin').classList.add('active');
+      document.getElementById('loginEmail').value = '';
+      document.getElementById('loginPass').value = '';
+      closeModal();
     }
   });
+
+  // --- KROK 2: FUNKCE NA PŘIPOJENÍ K DATABÁZI (Spustí se až po ověření) ---
+  function startDatabaseListener() {
+    if (dbListenerObj) return; // Pokud už stahujeme, nepouštíme dvakrát
+    
+    dbListenerObj = onValue(ref(db, '/'), (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        rooms = (data.rooms && data.rooms.length > 0) ? data.rooms : [...defaultRooms];
+        bookings = data.bookings || {};
+        notes = data.notes || {};
+        generalNotes = data.generalNotes || '';
+        authorizedUsers = data.authorizedUsers || {};
+      } else {
+        rooms = [...defaultRooms];
+        bookings = {};
+        notes = {};
+        generalNotes = '';
+      }
+
+      if(currentUser && document.getElementById('screenApp').classList.contains('active')){
+        document.getElementById('generalNotes').value = generalNotes;
+        renderRooms();
+        if(document.getElementById('usersAdminBg').classList.contains('open')) renderUsersAdmin();
+        if(document.getElementById('modalBg').classList.contains('open') && curRoom !== -1) {
+          document.getElementById('roomNotes').value = notes[curRoom] || '';
+          renderCalendar();
+          renderBookings();
+          updateStatusBtn();
+        }
+      }
+    });
+  }
 
   function saveToFirebase(){
     try {
@@ -485,52 +550,6 @@ const firebaseConfig = {
     }
     return state;
   }
-
-  // --- OPRAVENÁ AUTENTIZACE FIREBASE ---
-  onAuthStateChanged(auth, async (user) => {
-    const errEl = document.getElementById('loginErr');
-    if (user) {
-      const email = user.email.toLowerCase();
-      const key = email.replace(/\./g, '_');
-
-      try {
-        // Zastavíme kód a počkáme na konkrétní záznam z databáze (zabrání chybě při pomalejším internetu)
-        const snapshot = await get(child(ref(db), 'authorizedUsers/' + key));
-        const userRecord = snapshot.val();
-
-        if (userRecord && ROLE_PERMISSIONS[userRecord.role]) {
-          // Přístup povolen
-          const roleData = ROLE_PERMISSIONS[userRecord.role];
-          currentUser = { email: email, ...roleData };
-          errEl.textContent = '';
-          
-          document.getElementById('screenLogin').classList.remove('active');
-          document.getElementById('screenApp').classList.add('active');
-          document.getElementById('userInfo').innerHTML = `${currentUser.label} <span class="role-badge ${currentUser.badge}">${currentUser.role}</span>`;
-          
-          document.getElementById('generalNotes').value = generalNotes;
-          renderRooms();
-          if(document.getElementById('usersAdminBg').classList.contains('open')) renderUsersAdmin();
-        } else {
-          // E-mail se úspěšně přihlásil, ale není na tvém seznamu
-          errEl.textContent = 'Váš e-mail nemá oprávnění k přístupu. Kontaktujte administrátora.';
-          signOut(auth);
-        }
-      } catch(e) {
-        console.error(e);
-        errEl.textContent = 'Chyba při čtení oprávnění (Pravděpodobně omezené Firebase Rules).';
-        signOut(auth);
-      }
-    } else {
-      // Uživatel odhlášen
-      currentUser = null;
-      document.getElementById('screenApp').classList.remove('active');
-      document.getElementById('screenLogin').classList.add('active');
-      document.getElementById('loginEmail').value = '';
-      document.getElementById('loginPass').value = '';
-      closeModal();
-    }
-  });
 
   function loginWithEmail(){
     const e = document.getElementById('loginEmail').value.trim();
@@ -606,7 +625,7 @@ const firebaseConfig = {
     }
   }
 
-  // --- ZBYTEK APLIKACE (Beze změny) ---
+  // --- ZBYTEK APLIKACE ---
   function renderRooms(){
     autoDirtyCheck();
     
