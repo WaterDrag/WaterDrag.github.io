@@ -444,6 +444,9 @@ const firebaseConfig = {
           document.getElementById('screenLogin').classList.remove('active');
           document.getElementById('screenApp').classList.add('active');
           document.getElementById('userInfo').innerHTML = `${currentUser.label} <span class="role-badge ${currentUser.badge}">${currentUser.role}</span>`;
+
+          // ---> TADY ZAVOLÁŠ ŽÁDOST O NOTIFIKACE <---
+          requestNotificationPermission(key);
           
           // --- KROK 2: AŽ TEĎ ZAPNEME STANOVÁNÍ DATABÁZE A SPUSTÍME APP ---
           startDatabaseListener();
