@@ -22,7 +22,6 @@
     --border-radius-xl: 16px;
   }
 
-  /* --- TMAVÝ REŽIM --- */
   body.dark-mode {
     --color-background-primary: #18181b;
     --color-background-secondary: #09090b;
@@ -43,12 +42,24 @@
   body.dark-mode .login-card { box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
   .login-title{font-family:'Playfair Display',serif;font-size:24px;font-weight:600;color:var(--color-text-primary);text-align:center;margin-bottom:4px}
   .login-sub{font-size:12px;color:var(--color-text-secondary);text-align:center;letter-spacing:2px;text-transform:uppercase;margin-bottom:2rem}
+  
   .login-label{font-size:12px;color:var(--color-text-secondary);font-weight:700;letter-spacing:0.5px;display:block;margin-bottom:6px;margin-top:16px}
   .login-card input{width:100%;padding:12px 14px;font-size:16px;border:1px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);font-family:'Lato',sans-serif;outline:none;transition:border-color 0.2s}
   .login-card input:focus{border-color:var(--color-border-primary)}
+  
   .login-btn{width:100%;margin-top:1.5rem;padding:14px;font-size:14px;font-weight:700;font-family:'Lato',sans-serif;border:none;border-radius:var(--border-radius-md);background:var(--color-text-primary);color:var(--color-background-primary);cursor:pointer;letter-spacing:0.5px;transition:opacity 0.2s}
   .login-btn:hover{opacity:0.9}
+  
+  .google-btn{width:100%;margin-top:1rem;padding:12px;font-size:14px;font-weight:700;font-family:'Lato',sans-serif;border:1px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);cursor:pointer;letter-spacing:0.5px;transition:background 0.2s; display:flex; align-items:center; justify-content:center; gap:8px;}
+  .google-btn:hover{background:var(--color-background-secondary)}
+  
   .login-err{font-size:12px;color:var(--color-text-danger);text-align:center;margin-top:12px;min-height:16px}
+  
+  .divider {display:flex; align-items:center; text-align:center; margin:1.5rem 0; color:var(--color-text-secondary); font-size:12px;}
+  .divider::before, .divider::after {content:''; flex:1; border-bottom:1px solid var(--color-border-secondary);}
+  .divider:not(:empty)::before {margin-right:.5em;}
+  .divider:not(:empty)::after {margin-left:.5em;}
+
   .role-badge{display:inline-block;padding:3px 10px;border-radius:var(--border-radius-md);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-left:8px}
   .badge-staff{background:#E1F5EE;color:#085041}
   .badge-admin{background:#E6F1FB;color:#0C447C}
@@ -61,23 +72,19 @@
   .logout-btn:hover{background:var(--color-background-secondary)}
   .user-info{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--color-text-secondary);display:flex;align-items:center}
   
-  /* Tlačítko pro tmavý režim */
   .theme-btn {position:absolute; right:100px; top:50%; transform:translateY(-50%); background:none; border:1px solid var(--color-border-tertiary); border-radius:var(--border-radius-md); padding:5px 10px; font-size:15px; cursor:pointer; color:var(--color-text-secondary); transition:background 0.2s;}
   .theme-btn:hover {background:var(--color-background-secondary)}
 
-  .admin-actions-wrap{max-width:1200px;margin:0 auto 1.5rem;padding:0 24px;text-align:center;}
+  .admin-actions-wrap{max-width:1200px;margin:0 auto 1.5rem;padding:0 24px;text-align:center; display:flex; justify-content:center; gap:12px; flex-wrap:wrap;}
 
   .rooms-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;padding:0 24px 24px;max-width:1200px;margin:0 auto}
   .room-card{border:1px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;cursor:pointer;position:relative;transition:transform 0.2s,box-shadow 0.2s, background-color 0.3s;}
   .room-card:hover{transform:translateY(-4px);box-shadow:0 10px 15px rgba(0,0,0,0.05);border-color:var(--color-border-secondary)}
   body.dark-mode .room-card:hover { box-shadow:0 10px 15px rgba(0,0,0,0.5); }
   
-  /* STAVY POKOJŮ (Semafor) */
   .bg-state-free { background: var(--color-background-primary); }
-  
   .bg-state-soon { background: #fff7ed; border-color: #fdba74; }
   body.dark-mode .bg-state-soon { background: #431407; border-color: #c2410c; }
-  
   .bg-state-active { background: #fef2f2; border-color: #fca5a5; }
   body.dark-mode .bg-state-active { background: #450a0a; border-color: #b91c1c; }
 
@@ -116,13 +123,11 @@
   .toggle-status-btn.btn-dirty{background:#FEE2E2;color:#991B1B}
   .toggle-status-btn.btn-dirty:hover{background:#FECACA}
   body.dark-mode .toggle-status-btn.btn-clean{background:#064e3b;color:#34d399}
-  body.dark-mode .toggle-status-btn.btn-clean:hover{background:#065f46}
   body.dark-mode .toggle-status-btn.btn-dirty{background:#450a0a;color:#f87171}
-  body.dark-mode .toggle-status-btn.btn-dirty:hover{background:#7f1d1d}
   .toggle-status-btn:disabled{cursor:default;pointer-events:none;opacity:0.8}
 
   .modal-body{padding:1.5rem}
-  .section-label{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--color-text-secondary);margin-bottom:12px}
+  .section-label{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--color-text-secondary);margin-bottom:12px; margin-top:1.25rem;}
   .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
   .cal-nav-btn{background:var(--color-background-primary);border:1px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:8px 16px;cursor:pointer;font-size:14px;color:var(--color-text-primary);transition:background 0.2s}
   .cal-nav-btn:hover{background:var(--color-background-secondary)}
@@ -137,8 +142,8 @@
   .cal-day.today{border:2px solid var(--color-text-primary);font-weight:700}
 
   .booking-form{background:var(--color-background-secondary);padding:1rem;border-radius:var(--border-radius-lg);display:grid;gap:12px}
-  .booking-form input,.booking-form textarea{width:100%;padding:12px 14px;font-size:16px;border:1px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);font-family:'Lato',sans-serif;outline:none;appearance:none;}
-  .booking-form input:focus,.booking-form textarea:focus{border-color:var(--color-border-primary)}
+  .booking-form input,.booking-form textarea, .admin-form input, .admin-form select{width:100%;padding:12px 14px;font-size:16px;border:1px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);font-family:'Lato',sans-serif;outline:none;appearance:none;}
+  .booking-form input:focus,.booking-form textarea:focus, .admin-form input:focus, .admin-form select:focus{border-color:var(--color-border-primary)}
   .booking-form textarea{min-height:80px;resize:vertical}
   .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   .add-btn{background:var(--color-text-primary);border:none;border-radius:var(--border-radius-md);padding:12px 16px;font-size:14px;cursor:pointer;color:var(--color-background-primary);font-family:'Lato',sans-serif;font-weight:700;transition:opacity 0.2s}
@@ -181,26 +186,28 @@
   .btn-cancel:hover{background:#e4e4e7}
   body.dark-mode .btn-cancel:hover{background:#27272a}
 
+  /* Admin tabulka uživatelů */
+  .users-table {width:100%; border-collapse:collapse; margin-top:12px; font-size:14px;}
+  .users-table th, .users-table td {padding:10px; text-align:left; border-bottom:1px solid var(--color-border-secondary); color:var(--color-text-primary);}
+  .users-table th {font-weight:700; color:var(--color-text-secondary); font-size:12px; text-transform:uppercase;}
+
   @media (max-width: 640px) {
     .hotel-header { padding-top: 3.5rem; padding-bottom: 1.25rem; }
     .user-info { top: 1.25rem; left: 1rem; transform: none; font-size: 13px; }
     .logout-btn { top: 1.25rem; right: 1rem; transform: none; padding: 6px 12px; font-size: 12px; }
     .theme-btn { top: 1.25rem; right: 5.5rem; transform: none; padding: 5px 10px; font-size:14px; }
     .hotel-title { font-size: 22px; margin-top: 0.5rem; }
-
     .rooms-grid { grid-template-columns: repeat(2, 1fr); padding: 0 16px 24px; gap: 12px; }
     .room-img .emoji { font-size: 40px; }
     .room-name { font-size: 14px; }
     .edit-btn { opacity: 1; background: rgba(255,255,255,0.9); color:#18181b;} 
-
+    body.dark-mode .edit-btn { background: rgba(0,0,0,0.8); color: #fff; }
     .modal-bg { padding: 0; align-items: flex-end; }
     .modal { border-radius: 24px 24px 0 0; max-height: 85vh; border: none; }
     .modal-top { border-radius: 24px 24px 0 0; padding: 1.5rem 1.5rem 1rem; }
     .modal-body { padding: 1.25rem 1.25rem 2.5rem; }
-    
     .edit-modal-bg { padding: 0; align-items: flex-end; }
     .edit-modal { border-radius: 24px 24px 0 0; padding: 1.5rem 1.5rem 2.5rem; border: none; }
-
     .cal-day { font-size: 12px; padding: 8px 0; }
     .booking-form { padding: 1rem 0.75rem; }
     .add-btn, .btn-save, .btn-cancel, .btn-delete-room { padding: 14px 10px; }
@@ -210,7 +217,6 @@
 </head>
 <body>
 
-<!-- Rychlý start tmavého režimu, aby stránka "neblikla" -->
 <script>
   if(localStorage.getItem('hr_theme') === 'dark') document.body.classList.add('dark-mode');
 </script>
@@ -219,12 +225,20 @@
   <div class="login-wrap">
     <div class="login-card">
       <div class="login-title">Penzion Rezervace</div>
-      <div class="login-sub">přihlášení personálu</div>
-      <label class="login-label">Přihlašovací jméno</label>
-      <input type="text" id="loginUser" placeholder="zadejte login" autocomplete="username">
+      <div class="login-sub">Ověření přístupu</div>
+      
+      <button class="google-btn" onclick="loginWithGoogle()">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Přihlásit přes Google
+      </button>
+
+      <div class="divider">Nebo e-mailem</div>
+
+      <label class="login-label">E-mail</label>
+      <input type="email" id="loginEmail" placeholder="vas@email.cz" autocomplete="email">
       <label class="login-label">Heslo</label>
       <input type="password" id="loginPass" placeholder="zadejte heslo" autocomplete="current-password">
-      <button class="login-btn" onclick="doLogin()">Přihlásit se</button>
+      <button class="login-btn" onclick="loginWithEmail()">Přihlásit se</button>
       <div class="login-err" id="loginErr"></div>
     </div>
   </div>
@@ -241,6 +255,7 @@
   
   <div id="adminActionsWrap" class="admin-actions-wrap" style="display:none;">
     <button class="add-btn" onclick="openEdit(-1)">+ Přidat nový pokoj</button>
+    <button class="save-note-btn" onclick="openUsersAdmin()">👥 Správa přístupů</button>
   </div>
 
   <div class="rooms-grid" id="roomsGrid"></div>
@@ -254,6 +269,7 @@
     </div>
   </div>
 
+  <!-- MODAL PRO POKOJ -->
   <div class="modal-bg" id="modalBg">
     <div class="modal">
       <div class="modal-top">
@@ -263,7 +279,7 @@
         <button class="close-btn" onclick="closeModal()">✕</button>
       </div>
       <div class="modal-body">
-        <div class="section-label">Kalendář rezervací</div>
+        <div class="section-label" style="margin-top:0">Kalendář rezervací</div>
         <div class="cal-nav">
           <button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button>
           <span class="cal-month" id="calMonth"></span>
@@ -272,7 +288,7 @@
         <div class="calendar-grid" id="calGrid"></div>
         
         <div id="bookingFormWrap">
-          <div class="section-label" style="margin-top:1.25rem">Přidat rezervaci</div>
+          <div class="section-label">Přidat rezervaci</div>
           <div class="booking-form">
             <div class="form-row">
               <input type="date" id="dateFrom">
@@ -284,7 +300,7 @@
         </div>
         
         <div id="bookingsList" class="bookings-list" style="margin-top:1.25rem"></div>
-        <div class="section-label" style="margin-top:1.25rem">Poznámky k pokoji</div>
+        <div class="section-label">Poznámky k pokoji</div>
         <textarea class="notes-area" id="roomNotes" placeholder="Stav pokoje, vybavení, opravy..."></textarea>
         <div style="display:flex;align-items:center">
           <button class="save-note-btn" id="saveNoteBtn" onclick="saveNote()">Uložit poznámky</button>
@@ -294,6 +310,7 @@
     </div>
   </div>
 
+  <!-- MODAL ÚPRAVY POKOJE -->
   <div class="edit-modal-bg" id="editBg">
     <div class="edit-modal">
       <h3 id="editModalTitle">Upravit pokoj</h3>
@@ -308,44 +325,77 @@
       </div>
     </div>
   </div>
+
+  <!-- MODAL SPRÁVY UŽIVATELŮ (ADMIN) -->
+  <div class="edit-modal-bg" id="usersAdminBg">
+    <div class="edit-modal" style="width: min(500px, 100%)">
+      <h3>Správa přístupů</h3>
+      <p style="font-size:12px; color:var(--color-text-secondary); margin-bottom:1rem;">Přidejte e-mail zaměstnance a zvolte mu oprávnění. Bez e-mailu na tomto seznamu se do systému nikdo nepřihlásí.</p>
+      
+      <div class="admin-form" style="display:flex; gap:8px; margin-bottom:1rem;">
+        <input type="email" id="newUserEmail" placeholder="E-mail uživatele" style="flex:2">
+        <select id="newUserRole" style="flex:1">
+          <option value="staff">Staff</option>
+          <option value="admin">Admin</option>
+          <option value="owner">Owner</option>
+        </select>
+        <button class="add-btn" onclick="addUserRole()" style="padding:12px">Přidat</button>
+      </div>
+
+      <table class="users-table">
+        <thead><tr><th>E-mail</th><th>Role</th><th></th></tr></thead>
+        <tbody id="usersTableBody"></tbody>
+      </table>
+
+      <div class="edit-btns" style="margin-top:1.5rem">
+        <button class="btn-cancel" onclick="closeUsersAdmin()">Zavřít</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
   import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
+  import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyADuzLjk-9pp56rDCphkG20GGghNI2ZOCY",
-    authDomain: "penzionmanagement.firebaseapp.com",
-    databaseURL: "https://penzionmanagement-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "penzionmanagement",
-    storageBucket: "penzionmanagement.firebasestorage.app",
-    messagingSenderId: "1018503993863",
-    appId: "1:1018503993863:web:158eff0909b699b27d28a2",
-    measurementId: "G-Y2R5S6WJEP"
-  };
+  // ==========================================
+  // ZDE NECH SVOU ZKOPÍROVANOU FIREBASE CONFIG
+  // ==========================================
+const firebaseConfig = {
+  apiKey: "AIzaSyADuzLjk-9pp56rDCphkG20GGghNI2ZOCY",
+  authDomain: "penzionmanagement.firebaseapp.com",
+  databaseURL: "https://penzionmanagement-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "penzionmanagement",
+  storageBucket: "penzionmanagement.firebasestorage.app",
+  messagingSenderId: "1018503993863",
+  appId: "1:1018503993863:web:158eff0909b699b27d28a2",
+  measurementId: "G-Y2R5S6WJEP"
+};
 
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
+  const auth = getAuth(app);
+  const googleProvider = new GoogleAuthProvider();
 
-  const USERS={
-    staff:{pass:'staffheslo',role:'staff',label:'Zaměstnanec',badge:'badge-staff',canEdit:false,canDelete:false,canToggle:true},
-    admin:{pass:'School',role:'admin',label:'Admin',badge:'badge-admin',canEdit:true,canDelete:true,canToggle:true},
-    owner:{pass:'owner',role:'owner',label:'Majitelka',badge:'badge-owner',canEdit:false,canDelete:true,canToggle:false}
+  // Oprávnění spojená s rolemi
+  const ROLE_PERMISSIONS = {
+    staff: { role:'staff', label:'Zaměstnanec', badge:'badge-staff', canEdit:false, canDelete:false, canToggle:true },
+    admin: { role:'admin', label:'Admin', badge:'badge-admin', canEdit:true, canDelete:true, canToggle:true },
+    owner: { role:'owner', label:'Majitelka', badge:'badge-owner', canEdit:false, canDelete:true, canToggle:false }
   };
+
   const EMOJIS=['🛏️','🏨','🌊','🌿','🔑','🛁','🍾','🌅','🌙','🏔️','🌸','🎋','🦋','🕯️','🍷','🐶','🚿','🔥'];
   const defaultRooms=[
     {name:'Pokoj 101',emoji:'🛏️', isDirty: false},
-    {name:'Deluxe Suite',emoji:'🏨', isDirty: false},
-    {name:'Výhled na moře',emoji:'🌊', isDirty: false},
-    {name:'Zahradní pokoj',emoji:'🌿', isDirty: false},
-    {name:'Prezidentský',emoji:'🔑', isDirty: false}
+    {name:'Deluxe Suite',emoji:'🏨', isDirty: false}
   ];
 
   let rooms = [];
   let bookings = {};
   let notes = {};
   let generalNotes = '';
+  let authorizedUsers = {}; // Tady se budou ukládat povolené e-maily a role { "email@email.cz": "admin" }
   
   let currentUser=null;
   let editIdx=-1,curRoom=-1;
@@ -353,10 +403,10 @@
   const MONTHS=['Leden','Únor','Březen','Duben','Květen','Červen','Červenec','Srpen','Září','Říjen','Listopad','Prosinec'];
   const DAYS=['Po','Út','St','Čt','Pá','So','Ne'];
 
-  // --- NASTAVENÍ TLAČÍTKA TÉMATU PO NAČTENÍ ---
   const savedTheme = localStorage.getItem('hr_theme');
   document.getElementById('themeToggleBtn').textContent = savedTheme === 'dark' ? '☀️' : '🌙';
 
+  // --- NAČÍTÁNÍ DAT Z DATABÁZE ---
   onValue(ref(db, '/'), (snapshot) => {
     const data = snapshot.val();
     if (data) {
@@ -364,17 +414,16 @@
       bookings = data.bookings || {};
       notes = data.notes || {};
       generalNotes = data.generalNotes || '';
+      authorizedUsers = data.authorizedUsers || {};
     } else {
       rooms = defaultRooms;
-      bookings = {};
-      notes = {};
-      generalNotes = '';
       saveToFirebase();
     }
 
     if(document.getElementById('screenApp').classList.contains('active')){
       document.getElementById('generalNotes').value = generalNotes;
       renderRooms();
+      if(document.getElementById('usersAdminBg').classList.contains('open')) renderUsersAdmin();
       if(document.getElementById('modalBg').classList.contains('open') && curRoom !== -1) {
         document.getElementById('roomNotes').value = notes[curRoom] || '';
         renderCalendar();
@@ -390,7 +439,8 @@
         rooms: rooms,
         bookings: bookings,
         notes: notes,
-        generalNotes: generalNotes
+        generalNotes: generalNotes,
+        authorizedUsers: authorizedUsers
       });
     } catch(e) {
       console.error("Chyba uložení do databáze:", e);
@@ -419,62 +469,152 @@
     if(changed) saveToFirebase();
   }
 
-  // --- LOGIKA BAREV PRO SEMAFOR (Červená / Oranžová / Bílá) ---
   function getRoomStateClass(roomIdx) {
     const todayStr = getLocalIsoDate(0);
-    const plus3Str = getLocalIsoDate(3); // Datum za 3 dny
-    
-    let state = 'bg-state-free'; // Výchozí (Bílá/Tmavá)
+    const plus3Str = getLocalIsoDate(3);
+    let state = 'bg-state-free';
     const bks = bookings[roomIdx] || [];
-    
     for (const b of bks) {
-      if (b.from <= todayStr && b.to >= todayStr) {
-        return 'bg-state-active'; // Červená (Rezervace probíhá právě dnes) - Nejvyšší priorita
-      } else if (b.from > todayStr && b.from <= plus3Str) {
-        state = 'bg-state-soon'; // Oranžová (Rezervace začne za 1-3 dny)
-      }
+      if (b.from <= todayStr && b.to >= todayStr) return 'bg-state-active';
+      else if (b.from > todayStr && b.from <= plus3Str) state = 'bg-state-soon';
     }
     return state;
   }
 
-  function doLogin(){
-    const u=document.getElementById('loginUser').value.trim();
-    const p=document.getElementById('loginPass').value;
-    const err=document.getElementById('loginErr');
-    if(USERS[u]&&USERS[u].pass===p){
-      currentUser={login:u,...USERS[u]};
-      err.textContent='';
-      document.getElementById('screenLogin').classList.remove('active');
-      document.getElementById('screenApp').classList.add('active');
-      document.getElementById('userInfo').innerHTML=`${currentUser.label} <span class="role-badge ${currentUser.badge}">${currentUser.role}</span>`;
-      document.getElementById('generalNotes').value = generalNotes;
-      renderRooms();
+  // --- AUTENTIZACE FIREBASE ---
+  
+  // Posluchač změn přihlášení (spustí se automaticky při otevření webu i po přihlášení)
+  onAuthStateChanged(auth, (user) => {
+    const errEl = document.getElementById('loginErr');
+    if (user) {
+      const email = user.email.toLowerCase();
+      
+      // Speciální pravidlo: Pokud je databáze uživatelů úplně prázdná, první přihlášený se stane Adminem (tzv. Bootstrap)
+      if(Object.keys(authorizedUsers).length === 0) {
+        authorizedUsers[email.replace(/\./g, '_')] = { email: email, role: 'admin' };
+        saveToFirebase();
+      }
+
+      // Kontrola oprávnění z databáze (tečky v e-mailu Firebase klíče neumí, takže je nahrazujeme podtržítkem)
+      const userRecord = authorizedUsers[email.replace(/\./g, '_')];
+
+      if (userRecord && ROLE_PERMISSIONS[userRecord.role]) {
+        // Přístup povolen
+        const roleData = ROLE_PERMISSIONS[userRecord.role];
+        currentUser = { email: email, ...roleData };
+        errEl.textContent = '';
+        
+        document.getElementById('screenLogin').classList.remove('active');
+        document.getElementById('screenApp').classList.add('active');
+        document.getElementById('userInfo').innerHTML = `${currentUser.label} <span class="role-badge ${currentUser.badge}">${currentUser.role}</span>`;
+        document.getElementById('generalNotes').value = generalNotes;
+        renderRooms();
+      } else {
+        // Uživatel existuje (přes Google/Email), ale majitel mu ještě nedal práva do databáze
+        errEl.textContent = 'Váš e-mail nemá oprávnění k přístupu.';
+        signOut(auth);
+      }
     } else {
-      err.textContent='Nesprávné přihlašovací údaje.';
+      // Uživatel odhlášen
+      currentUser = null;
+      document.getElementById('screenApp').classList.remove('active');
+      document.getElementById('screenLogin').classList.add('active');
+      document.getElementById('loginEmail').value = '';
+      document.getElementById('loginPass').value = '';
+      closeModal();
     }
+  });
+
+  // Tlačítko přihlášení E-mailem a heslem
+  function loginWithEmail(){
+    const e = document.getElementById('loginEmail').value.trim();
+    const p = document.getElementById('loginPass').value;
+    const err = document.getElementById('loginErr');
+    err.textContent = 'Přihlašování...';
+    
+    signInWithEmailAndPassword(auth, e, p).catch((error) => {
+      err.textContent = 'Chybný e-mail, heslo, nebo uživatel neexistuje.';
+    });
+  }
+
+  // Tlačítko přihlášení přes Google
+  function loginWithGoogle(){
+    const err = document.getElementById('loginErr');
+    err.textContent = 'Otevírám Google...';
+    signInWithPopup(auth, googleProvider).catch((error) => {
+      err.textContent = 'Přihlášení přes Google bylo zrušeno nebo selhalo.';
+    });
   }
 
   function doLogout(){
-    currentUser=null;
-    document.getElementById('screenApp').classList.remove('active');
-    document.getElementById('screenLogin').classList.add('active');
-    document.getElementById('loginUser').value='';
-    document.getElementById('loginPass').value='';
-    closeModal();
+    signOut(auth);
   }
 
+  // --- SPRÁVA UŽIVATELŮ (ADMIN PANEL) ---
+  function openUsersAdmin() {
+    renderUsersAdmin();
+    document.getElementById('usersAdminBg').classList.add('open');
+  }
+
+  function closeUsersAdmin() {
+    document.getElementById('usersAdminBg').classList.remove('open');
+  }
+
+  function renderUsersAdmin() {
+    const tbody = document.getElementById('usersTableBody');
+    let html = '';
+    
+    for (const key in authorizedUsers) {
+      const u = authorizedUsers[key];
+      const badge = ROLE_PERMISSIONS[u.role].badge;
+      html += `
+        <tr>
+          <td>${u.email}</td>
+          <td><span class="role-badge ${badge}">${u.role}</span></td>
+          <td style="text-align:right">
+            ${u.email !== currentUser.email ? `<button class="del-btn" onclick="deleteUserRole('${key}')">✕</button>` : ''}
+          </td>
+        </tr>
+      `;
+    }
+    tbody.innerHTML = html;
+  }
+
+  function addUserRole() {
+    const email = document.getElementById('newUserEmail').value.trim().toLowerCase();
+    const role = document.getElementById('newUserRole').value;
+    if(!email) return;
+
+    // Firebase klíč nesmí obsahovat tečky
+    const key = email.replace(/\./g, '_');
+    authorizedUsers[key] = { email: email, role: role };
+    saveToFirebase();
+    
+    document.getElementById('newUserEmail').value = '';
+    renderUsersAdmin();
+  }
+
+  function deleteUserRole(key) {
+    if(confirm('Opravdu chcete tomuto e-mailu odebrat přístup?')) {
+      delete authorizedUsers[key];
+      saveToFirebase();
+      renderUsersAdmin();
+    }
+  }
+
+  // --- ZBYTEK APLIKACE (Beze změny) ---
   function renderRooms(){
     autoDirtyCheck();
     
     const adminWrap = document.getElementById('adminActionsWrap');
     const canManageRooms = currentUser && (currentUser.role === 'admin' || currentUser.role === 'owner');
-    adminWrap.style.display = canManageRooms ? 'block' : 'none';
+    adminWrap.style.display = canManageRooms ? 'flex' : 'none';
 
     const g=document.getElementById('roomsGrid');
     const canEditRoom = currentUser && (currentUser.canEdit || currentUser.canDelete);
 
     g.innerHTML=rooms.map((r,i)=> {
-      const stateClass = getRoomStateClass(i); // Zjistíme barvu pokoje
+      const stateClass = getRoomStateClass(i);
       return `
       <div class="room-card ${stateClass}" onclick="openRoom(${i})">
         <div class="room-img">
@@ -495,16 +635,12 @@
   function openEdit(i){
     editIdx = i;
     const isNew = (i === -1);
-    
     document.getElementById('editModalTitle').textContent = isNew ? 'Přidat nový pokoj' : 'Upravit pokoj';
     document.getElementById('editName').value = isNew ? '' : rooms[i].name;
-    
     const curEmoji = isNew ? EMOJIS[0] : rooms[i].emoji;
     const ep = document.getElementById('emojiPick');
     ep.innerHTML = EMOJIS.map(e=>`<span class="${e===curEmoji?'sel':''}" onclick="selEmoji(this,'${e}')">${e}</span>`).join('');
-    
     document.getElementById('delRoomBtn').style.display = isNew ? 'none' : 'block';
-    
     document.getElementById('editBg').classList.add('open');
   }
 
@@ -514,11 +650,8 @@
     const name=document.getElementById('editName').value.trim();
     const sel=document.querySelector('.emoji-pick span.sel');
     if(name && sel){
-      if(editIdx === -1) {
-        rooms.push({name, emoji: sel.textContent, isDirty: false});
-      } else {
-        rooms[editIdx] = {name, emoji: sel.textContent, isDirty: rooms[editIdx].isDirty};
-      }
+      if(editIdx === -1) rooms.push({name, emoji: sel.textContent, isDirty: false});
+      else rooms[editIdx] = {name, emoji: sel.textContent, isDirty: rooms[editIdx].isDirty};
       saveToFirebase();
     }
     closeEdit();
@@ -526,13 +659,10 @@
 
   function deleteRoom() {
     if(!confirm('Opravdu chcete smazat tento pokoj?\n\nVšechny rezervace a poznámky k tomuto pokoji budou nenávratně ztraceny!')) return;
-    
     rooms.splice(editIdx, 1);
-    
     let newBookings = {};
     let newNotes = {};
     const oldLen = rooms.length + 1;
-    
     for(let j=0; j < oldLen; j++) {
       if (j < editIdx) {
         if (bookings[j]) newBookings[j] = bookings[j];
@@ -542,10 +672,8 @@
         if (notes[j]) newNotes[j-1] = notes[j];
       }
     }
-    
     bookings = newBookings;
     notes = newNotes;
-    
     saveToFirebase();
     closeEdit();
   }
@@ -561,7 +689,6 @@
   function updateStatusBtn() {
     const btn = document.getElementById('toggleStatusBtn');
     const canToggle = currentUser && currentUser.canToggle;
-    
     if (rooms[curRoom].isDirty) {
       btn.textContent = canToggle ? '🧹 Označit jako Uklizený' : '🔴 Stav: Špinavý';
       btn.className = 'toggle-status-btn btn-dirty';
@@ -577,13 +704,11 @@
     document.getElementById('modalTitle').textContent=rooms[i].name;
     document.getElementById('modalSub').textContent='Pokoj '+(i+1)+' · sdílený kalendář';
     document.getElementById('roomNotes').value=notes[i]||'';
-    
     updateStatusBtn();
     
     const canBook = currentUser && currentUser.role !== 'staff';
     const formWrap = document.getElementById('bookingFormWrap');
     formWrap.style.display = canBook ? '' : 'none';
-    
     document.getElementById('roomNotes').disabled = false;
     document.getElementById('saveNoteBtn').style.display = '';
     
@@ -625,14 +750,10 @@
   function addBooking(){
     const from=document.getElementById('dateFrom').value;
     const to=document.getElementById('dateTo').value;
-    
     if(!from||!to)return; 
-    
     if(!bookings[curRoom])bookings[curRoom]=[];
     bookings[curRoom].push({from,to,note:document.getElementById('bookingNote').value.trim(), dirtyTriggered: false});
-    
     saveToFirebase();
-    
     document.getElementById('dateFrom').value='';
     document.getElementById('dateTo').value='';
     document.getElementById('bookingNote').value='';
@@ -654,19 +775,13 @@
   }
 
   function fmt(d){const p=d.split('-');return p[2]+'.'+p[1]+'.'+p[0];}
-  
-  function delBooking(i){
-    bookings[curRoom].splice(i,1);
-    saveToFirebase();
-  }
-
+  function delBooking(i){bookings[curRoom].splice(i,1);saveToFirebase();}
   function saveNote(){
     notes[curRoom]=document.getElementById('roomNotes').value;
     saveToFirebase();
     const s=document.getElementById('noteSaved');
     s.style.opacity=1;setTimeout(()=>s.style.opacity=0,1800);
   }
-
   function saveGeneralNote() {
     generalNotes = document.getElementById('generalNotes').value;
     saveToFirebase();
@@ -674,15 +789,14 @@
     s.style.opacity = 1;
     setTimeout(() => s.style.opacity = 0, 1800);
   }
-
-  // Funkce na přepnutí režimu ručně uživatelem
   function toggleTheme() {
     const isDark = document.body.classList.toggle('dark-mode');
     localStorage.setItem('hr_theme', isDark ? 'dark' : 'light');
     document.getElementById('themeToggleBtn').textContent = isDark ? '☀️' : '🌙';
   }
 
-  window.doLogin = doLogin;
+  window.loginWithEmail = loginWithEmail;
+  window.loginWithGoogle = loginWithGoogle;
   window.doLogout = doLogout;
   window.openRoom = openRoom;
   window.closeModal = closeModal;
@@ -698,11 +812,16 @@
   window.selEmoji = selEmoji;
   window.toggleDirty = toggleDirty;
   window.toggleTheme = toggleTheme;
+  window.openUsersAdmin = openUsersAdmin;
+  window.closeUsersAdmin = closeUsersAdmin;
+  window.addUserRole = addUserRole;
+  window.deleteUserRole = deleteUserRole;
 
-  document.getElementById('loginPass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
-  document.getElementById('loginUser').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('loginPass').focus();});
+  document.getElementById('loginPass').addEventListener('keydown',function(e){if(e.key==='Enter')loginWithEmail();});
+  document.getElementById('loginEmail').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('loginPass').focus();});
   document.getElementById('modalBg').addEventListener('click',function(e){if(e.target===this)closeModal();});
   document.getElementById('editBg').addEventListener('click',function(e){if(e.target===this)closeEdit();});
+  document.getElementById('usersAdminBg').addEventListener('click',function(e){if(e.target===this)closeUsersAdmin();});
 </script>
 </body>
 </html>
