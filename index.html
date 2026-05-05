@@ -240,19 +240,19 @@ body{font-family:'Lato',sans-serif;background:var(--color-background-secondary)}
   // ZDE NECH SVOU ZKOPÍROVANOU FIREBASE CONFIG
   // ==========================================
   const firebaseConfig = {
-  apiKey: "AIzaSyADuzLjk-9pp56rDCphkG20GGghNI2ZOCY",
-  authDomain: "penzionmanagement.firebaseapp.com",
-  databaseURL: "https://penzionmanagement-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "penzionmanagement",
-  storageBucket: "penzionmanagement.firebasestorage.app",
-  messagingSenderId: "1018503993863",
-  appId: "1:1018503993863:web:158eff0909b699b27d28a2",
-  measurementId: "G-Y2R5S6WJEP"
-};
+    apiKey: "AIzaSyADuzLjk-9pp56rDCphkG20GGghNI2ZOCY",
+    authDomain: "penzionmanagement.firebaseapp.com",
+    databaseURL: "https://penzionmanagement-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "penzionmanagement",
+    storageBucket: "penzionmanagement.firebasestorage.app",
+    messagingSenderId: "1018503993863",
+    appId: "1:1018503993863:web:158eff0909b699b27d28a2",
+    measurementId: "G-Y2R5S6WJEP"
+  };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
 
   const USERS={
     staff:{pass:'staffheslo',role:'staff',label:'Zaměstnanec',badge:'badge-staff',canEdit:false,canDelete:false,canToggle:true},
