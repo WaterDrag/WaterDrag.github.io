@@ -360,6 +360,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
   import { getDatabase, ref, onValue, set, get, child, off } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
   import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+  import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-messaging.js";
 
   // ==========================================
   // ZDE NECH SVOU ZKOPÍROVANOU FIREBASE CONFIG
@@ -378,6 +379,7 @@ const firebaseConfig = {
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
   const auth = getAuth(app);
+  const messaging = getMessaging(app);
   const googleProvider = new GoogleAuthProvider();
 
   // Oprávnění spojená s rolemi
@@ -627,6 +629,29 @@ const firebaseConfig = {
   }
 
   // --- ZBYTEK APLIKACE ---
+  async function requestNotificationPermission(userEmailKey) {
+  try {
+    console.log('Žádám o povolení notifikací...');
+    const permission = await Notification.requestPermission();
+    
+    if (permission === 'granted') {
+      console.log('Povolení uděleno!');
+      
+      // ZDE VLOŽ TEN DLOUHÝ VAPID KLÍČ Z KROKU 1
+      const currentToken = await getToken(messaging, { vapidKey: 'TVUJ_VAPID_KLIC_BEl6...' });
+      
+      if (currentToken) {
+        // Uložíme token k uživateli do databáze
+        await set(ref(db, `authorizedUsers/${userEmailKey}/notificationToken`), currentToken);
+        console.log('Token uložen:', currentToken);
+      }
+    } else {
+      console.log('Uživatel notifikace nepovolil.');
+    }
+  } catch (error) {
+    console.error('Chyba při žádosti o notifikace:', error);
+  }
+}
   function renderRooms(){
     autoDirtyCheck();
     
