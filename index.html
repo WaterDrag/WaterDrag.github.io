@@ -105,7 +105,7 @@
   .room-card:hover .edit-btn{opacity:1}
   .edit-btn:hover{transform:scale(1.1)}
 
-  .general-notes-wrap{max-width:1200px;margin:0 auto 2rem;padding:0 24px}
+  .general-notes-wrap{max-width:1200px;margin:0 auto 1.5rem;padding:0 24px}
 
   .modal-bg{display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;padding:1rem;z-index:9999}
   .modal-bg.open{display:flex}
@@ -146,7 +146,7 @@
   .booking-form{background:var(--color-background-secondary);padding:1rem;border-radius:var(--border-radius-lg);display:grid;gap:12px}
   .booking-form input,.booking-form textarea, .admin-form input, .admin-form select{width:100%;padding:12px 14px;font-size:16px;border:1px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);font-family:'Lato',sans-serif;outline:none;appearance:none;}
   .booking-form input:focus,.booking-form textarea:focus, .admin-form input:focus, .admin-form select:focus{border-color:var(--color-border-primary)}
-  .booking-form textarea{min-height:80px;resize:vertical}
+  .booking-form textarea{min-height:80px;resize:none;overflow:hidden}
   .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   .add-btn{background:var(--color-text-primary);border:none;border-radius:var(--border-radius-md);padding:12px 16px;font-size:14px;cursor:pointer;color:var(--color-background-primary);font-family:'Lato',sans-serif;font-weight:700;transition:opacity 0.2s}
   .add-btn:hover{opacity:0.9}
@@ -158,7 +158,7 @@
   .del-btn{background:none;border:none;cursor:pointer;color:var(--color-text-danger);font-size:16px;padding:4px 8px;opacity:0.7;transition:opacity 0.2s}
   .del-btn:hover{opacity:1}
 
-  .notes-area{width:100%;min-height:100px;padding:12px;font-size:16px;border:1px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);font-family:'Lato',sans-serif;resize:vertical;line-height:1.5;outline:none;appearance:none;}
+  .notes-area{width:100%;min-height:80px;padding:12px;font-size:16px;border:1px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);font-family:'Lato',sans-serif;resize:none;overflow:hidden;line-height:1.5;outline:none;appearance:none;}
   .notes-area:focus{border-color:var(--color-border-primary)}
   .notes-area:disabled {background: var(--color-background-secondary); opacity: 0.8; cursor: not-allowed}
   .save-note-btn{margin-top:12px;background:var(--color-background-primary);border:1px solid var(--color-border-primary);border-radius:var(--border-radius-md);padding:10px 16px;font-size:13px;font-weight:700;cursor:pointer;color:var(--color-text-primary);font-family:'Lato',sans-serif;transition:background 0.2s}
@@ -192,6 +192,11 @@
   .users-table {width:100%; border-collapse:collapse; margin-top:12px; font-size:14px;}
   .users-table th, .users-table td {padding:10px; text-align:left; border-bottom:1px solid var(--color-border-secondary); color:var(--color-text-primary);}
   .users-table th {font-weight:700; color:var(--color-text-secondary); font-size:12px; text-transform:uppercase;}
+
+  /* Úkoly pro personál */
+  .task-item {display:flex; align-items:center; justify-content:space-between; background:var(--color-background-primary); padding:10px 14px; border:1px solid var(--color-border-tertiary); border-radius:var(--border-radius-md); margin-bottom:8px;}
+  .task-label {display:flex; align-items:center; gap:12px; cursor:pointer; flex:1;}
+  .task-checkbox {width:18px; height:18px; accent-color:var(--color-text-primary);}
 
   @media (max-width: 640px) {
     .hotel-header { padding-top: 3.5rem; padding-bottom: 1.25rem; }
@@ -264,10 +269,20 @@
 
   <div class="general-notes-wrap">
     <div class="section-label">Poznámky</div>
-    <textarea class="notes-area" id="generalNotes" placeholder="Co chybí, co se rozbilo na recepci, požadavky na dokoupení..."></textarea>
+    <textarea class="notes-area" id="generalNotes" oninput="autoResize(this)" placeholder="Co chybí, co se rozbilo na recepci, požadavky na dokoupení..."></textarea>
     <div style="display:flex;align-items:center">
       <button class="save-note-btn" onclick="saveGeneralNote()">Uložit vzkaz</button>
       <span class="note-saved" id="genNoteSaved">✓ Uloženo</span>
+    </div>
+  </div>
+
+  <!-- Tajné úkoly pro personál (Nezobrazí se majitelce) -->
+  <div class="general-notes-wrap" id="staffTasksWrap" style="display:none;">
+    <div class="section-label">Úkoly pro personál (Skryté pro majitelku)</div>
+    <div id="staffTasksList"></div>
+    <div style="display:flex; gap:8px; margin-top:12px;">
+      <input type="text" id="newStaffTask" placeholder="Nový úkol (např. vynést tříděný odpad)..." style="flex:1; padding:12px 14px; border-radius:var(--border-radius-md); border:1px solid var(--color-border-secondary); background:var(--color-background-primary); color:var(--color-text-primary); font-family:'Lato',sans-serif; outline:none;">
+      <button class="add-btn" onclick="addStaffTask()">Přidat úkol</button>
     </div>
   </div>
 
@@ -296,14 +311,14 @@
               <input type="date" id="dateFrom">
               <input type="date" id="dateTo">
             </div>
-            <textarea id="bookingNote" placeholder="Speciální poznámky (VIP, atd.)"></textarea>
+            <textarea id="bookingNote" oninput="autoResize(this)" placeholder="Speciální poznámky (VIP, atd.)"></textarea>
             <button class="add-btn" onclick="addBooking()">+ Přidat rezervaci</button>
           </div>
         </div>
         
         <div id="bookingsList" class="bookings-list" style="margin-top:1.25rem"></div>
         <div class="section-label">Poznámky k pokoji</div>
-        <textarea class="notes-area" id="roomNotes" placeholder="Stav pokoje, vybavení, opravy..."></textarea>
+        <textarea class="notes-area" id="roomNotes" oninput="autoResize(this)" placeholder="Stav pokoje, vybavení, opravy..."></textarea>
         <div style="display:flex;align-items:center">
           <button class="save-note-btn" id="saveNoteBtn" onclick="saveNote()">Uložit poznámky</button>
           <span class="note-saved" id="noteSaved">✓ Uloženo</span>
@@ -362,9 +377,6 @@
   import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
   import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-messaging.js";
 
-  // ==========================================
-  // ZDE NECH SVOU ZKOPÍROVANOU FIREBASE CONFIG
-  // ==========================================
 const firebaseConfig = {
   apiKey: "AIzaSyADuzLjk-9pp56rDCphkG20GGghNI2ZOCY",
   authDomain: "penzionmanagement.firebaseapp.com",
@@ -382,11 +394,11 @@ const firebaseConfig = {
   const messaging = getMessaging(app);
   const googleProvider = new GoogleAuthProvider();
 
-  // Oprávnění spojená s rolemi
+  // Oprávnění spojená s rolemi (Owner má zablokované úpravy a mazání)
   const ROLE_PERMISSIONS = {
     staff: { role:'staff', label:'Zaměstnanec', badge:'badge-staff', canEdit:false, canDelete:false, canToggle:true },
     admin: { role:'admin', label:'Admin', badge:'badge-admin', canEdit:true, canDelete:true, canToggle:true },
-    owner: { role:'owner', label:'Majitelka', badge:'badge-owner', canEdit:false, canDelete:true, canToggle:false }
+    owner: { role:'owner', label:'Majitelka', badge:'badge-owner', canEdit:false, canDelete:false, canToggle:false }
   };
 
   const EMOJIS=['🛏️','🏨','🌊','🌿','🔑','🛁','🍾','🌅','🌙','🏔️','🌸','🎋','🦋','🕯️','🍷','🐶','🚿','🔥'];
@@ -399,10 +411,11 @@ const firebaseConfig = {
   let bookings = {};
   let notes = {};
   let generalNotes = '';
+  let staffTasks = [];
   let authorizedUsers = {}; 
   
   let currentUser=null;
-  let dbListenerObj = null; // Proměnná pro uchování připojení k databázi
+  let dbListenerObj = null; 
   let editIdx=-1,curRoom=-1;
   let calYear=new Date().getFullYear(),calMon=new Date().getMonth();
   const MONTHS=['Leden','Únor','Březen','Duben','Květen','Červen','Červenec','Srpen','Září','Říjen','Listopad','Prosinec'];
@@ -422,11 +435,9 @@ const firebaseConfig = {
       try {
         errEl.textContent = 'Ověřuji oprávnění v databázi...';
         
-        // Zastavíme a zeptáme se databáze POUZE na záznam tohoto konkrétního uživatele
         const snapshot = await get(child(ref(db), 'authorizedUsers/' + key));
         let userRecord = snapshot.val();
 
-        // Speciální pravidlo (Bootstrap): Pokud databáze povolených lidí vůbec neexistuje, uděláme prvního člověka Adminem
         if (!userRecord) {
            const allUsersSnap = await get(child(ref(db), 'authorizedUsers'));
            if (!allUsersSnap.exists()) {
@@ -436,7 +447,6 @@ const firebaseConfig = {
         }
 
         if (userRecord && ROLE_PERMISSIONS[userRecord.role]) {
-          // Uživatel byl úspěšně nalezen na seznamu povolených
           const roleData = ROLE_PERMISSIONS[userRecord.role];
           currentUser = { email: email, ...roleData };
           errEl.textContent = '';
@@ -445,10 +455,7 @@ const firebaseConfig = {
           document.getElementById('screenApp').classList.add('active');
           document.getElementById('userInfo').innerHTML = `${currentUser.label} <span class="role-badge ${currentUser.badge}">${currentUser.role}</span>`;
 
-          // ---> TADY ZAVOLÁŠ ŽÁDOST O NOTIFIKACE <---
           requestNotificationPermission(key);
-          
-          // --- KROK 2: AŽ TEĎ ZAPNEME STANOVÁNÍ DATABÁZE A SPUSTÍME APP ---
           startDatabaseListener();
           
         } else {
@@ -461,10 +468,8 @@ const firebaseConfig = {
         signOut(auth);
       }
     } else {
-      // Nikdo není přihlášen
       currentUser = null;
       if(dbListenerObj) {
-        // Vypneme poslouchání změn v DB
         dbListenerObj(); 
         dbListenerObj = null;
       }
@@ -476,9 +481,9 @@ const firebaseConfig = {
     }
   });
 
-  // --- KROK 2: FUNKCE NA PŘIPOJENÍ K DATABÁZI (Spustí se až po ověření) ---
+  // --- KROK 2: FUNKCE NA PŘIPOJENÍ K DATABÁZI ---
   function startDatabaseListener() {
-    if (dbListenerObj) return; // Pokud už stahujeme, nepouštíme dvakrát
+    if (dbListenerObj) return; 
     
     dbListenerObj = onValue(ref(db, '/'), (snapshot) => {
       const data = snapshot.val();
@@ -487,17 +492,21 @@ const firebaseConfig = {
         bookings = data.bookings || {};
         notes = data.notes || {};
         generalNotes = data.generalNotes || '';
+        staffTasks = data.staffTasks || [];
         authorizedUsers = data.authorizedUsers || {};
       } else {
         rooms = [...defaultRooms];
         bookings = {};
         notes = {};
         generalNotes = '';
+        staffTasks = [];
       }
 
       if(currentUser && document.getElementById('screenApp').classList.contains('active')){
         document.getElementById('generalNotes').value = generalNotes;
+        autoResize(document.getElementById('generalNotes'));
         renderRooms();
+        renderStaffTasks();
         if(document.getElementById('usersAdminBg').classList.contains('open')) renderUsersAdmin();
         if(document.getElementById('modalBg').classList.contains('open') && curRoom !== -1) {
           document.getElementById('roomNotes').value = notes[curRoom] || '';
@@ -516,6 +525,7 @@ const firebaseConfig = {
         bookings: bookings,
         notes: notes,
         generalNotes: generalNotes,
+        staffTasks: staffTasks,
         authorizedUsers: authorizedUsers
       });
     } catch(e) {
@@ -580,6 +590,14 @@ const firebaseConfig = {
     signOut(auth);
   }
 
+  // --- AUTOMATICKÉ ZVĚTŠOVÁNÍ TEXTU ---
+  function autoResize(el) {
+    if(!el) return;
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';
+  }
+  window.autoResize = autoResize;
+
   // --- SPRÁVA UŽIVATELŮ (ADMIN PANEL) ---
   function openUsersAdmin() {
     renderUsersAdmin();
@@ -631,6 +649,54 @@ const firebaseConfig = {
     }
   }
 
+  // --- ÚKOLY PRO PERSONÁL ---
+  function renderStaffTasks() {
+    const wrap = document.getElementById('staffTasksWrap');
+    // Owner nesmí vidět tyto tajné úkoly
+    if (!currentUser || currentUser.role === 'owner') {
+      wrap.style.display = 'none';
+      return;
+    }
+    wrap.style.display = 'block';
+
+    const list = document.getElementById('staffTasksList');
+    if (!staffTasks.length) {
+      list.innerHTML = '<div style="font-size:13px; color:var(--color-text-secondary); margin-bottom:12px;">Aktuálně nejsou žádné úkoly.</div>';
+      return;
+    }
+
+    list.innerHTML = staffTasks.map((t, i) => `
+      <div class="task-item">
+        <label class="task-label">
+          <input type="checkbox" class="task-checkbox" ${t.done ? 'checked' : ''} onchange="toggleStaffTask(${i})">
+          <span style="${t.done ? 'text-decoration:line-through; color:var(--color-text-secondary);' : 'color:var(--color-text-primary);'} font-size:14px; word-break:break-word;">
+            ${t.text}
+          </span>
+        </label>
+        <button class="del-btn" onclick="deleteStaffTask(${i})">✕</button>
+      </div>
+    `).join('');
+  }
+
+  function addStaffTask() {
+    const input = document.getElementById('newStaffTask');
+    const text = input.value.trim();
+    if (!text) return;
+    staffTasks.push({ text: text, done: false });
+    saveToFirebase();
+    input.value = '';
+  }
+
+  function toggleStaffTask(i) {
+    staffTasks[i].done = !staffTasks[i].done;
+    saveToFirebase();
+  }
+
+  function deleteStaffTask(i) {
+    staffTasks.splice(i, 1);
+    saveToFirebase();
+  }
+
   // --- ZBYTEK APLIKACE ---
   async function requestNotificationPermission(userEmailKey) {
   try {
@@ -640,11 +706,9 @@ const firebaseConfig = {
     if (permission === 'granted') {
       console.log('Povolení uděleno!');
       
-      // ZDE VLOŽ TEN DLOUHÝ VAPID KLÍČ Z KROKU 1
       const currentToken = await getToken(messaging, { vapidKey: 'BIoCmJ-hEN_QLVC2sVdcBtHc-n92Ojf7No6T2GYPX90oydHJQLkGFvnBR7N2JLVzPgisDn_ZzFXvmCmVIVHW7BU' });
       
       if (currentToken) {
-        // Uložíme token k uživateli do databáze
         await set(ref(db, `authorizedUsers/${userEmailKey}/notificationToken`), currentToken);
         console.log('Token uložen:', currentToken);
       }
@@ -658,12 +722,12 @@ const firebaseConfig = {
   function renderRooms(){
     autoDirtyCheck();
     
+    // POUZE ADMIN VIDÍ HORNÍ MENU
     const adminWrap = document.getElementById('adminActionsWrap');
-    const canManageRooms = currentUser && (currentUser.role === 'admin' || currentUser.role === 'owner');
-    adminWrap.style.display = canManageRooms ? 'flex' : 'none';
+    adminWrap.style.display = (currentUser && currentUser.role === 'admin') ? 'flex' : 'none';
 
     const g=document.getElementById('roomsGrid');
-    const canEditRoom = currentUser && (currentUser.canEdit || currentUser.canDelete);
+    const canEditRoom = currentUser && currentUser.canEdit; // Pouze admin může editovat
 
     g.innerHTML=rooms.map((r,i)=> {
       const stateClass = getRoomStateClass(i);
@@ -764,8 +828,16 @@ const firebaseConfig = {
     document.getElementById('roomNotes').disabled = false;
     document.getElementById('saveNoteBtn').style.display = '';
     
-    renderCalendar();renderBookings();
+    renderCalendar();
+    renderBookings();
+    
     document.getElementById('modalBg').classList.add('open');
+    
+    // Zarovnání výšky textarea po načtení
+    setTimeout(() => {
+        autoResize(document.getElementById('roomNotes'));
+        autoResize(document.getElementById('bookingNote'));
+    }, 10);
   }
 
   function closeModal(){document.getElementById('modalBg').classList.remove('open');}
@@ -809,12 +881,13 @@ const firebaseConfig = {
     document.getElementById('dateFrom').value='';
     document.getElementById('dateTo').value='';
     document.getElementById('bookingNote').value='';
+    autoResize(document.getElementById('bookingNote'));
   }
 
   function renderBookings(){
     const list=bookings[curRoom]||[];
     const el=document.getElementById('bookingsList');
-    const canDel=currentUser&&currentUser.canDelete;
+    const canDel=currentUser&&currentUser.canDelete; // Owner už mazat nesmí
     if(!list.length){el.innerHTML='';return;}
     el.innerHTML=list.sort((a,b)=>a.from>b.from?1:-1).map((b,i)=>`
       <div class="booking-item">
@@ -868,6 +941,9 @@ const firebaseConfig = {
   window.closeUsersAdmin = closeUsersAdmin;
   window.addUserRole = addUserRole;
   window.deleteUserRole = deleteUserRole;
+  window.addStaffTask = addStaffTask;
+  window.toggleStaffTask = toggleStaffTask;
+  window.deleteStaffTask = deleteStaffTask;
 
   document.getElementById('loginPass').addEventListener('keydown',function(e){if(e.key==='Enter')loginWithEmail();});
   document.getElementById('loginEmail').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('loginPass').focus();});
