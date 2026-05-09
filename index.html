@@ -294,6 +294,18 @@
     </div>
   </div>
 
+  <!-- NOVÉ MODAL: Upozornění na nové rezervace (pro personál) -->
+  <div class="edit-modal-bg" id="newBookingsModalBg" style="z-index: 99999;">
+    <div class="edit-modal" style="width: min(500px, 100%)">
+      <h3>🔔 Nové rezervace</h3>
+      <p style="font-size:13px; color:var(--color-text-secondary); margin-bottom:16px;">Od vašeho posledního přihlášení byly přidány tyto nové termíny:</p>
+      <div id="newBookingsList" style="max-height: 400px; overflow-y: auto; margin-bottom: 16px; padding: 8px;"></div>
+      <div class="edit-btns">
+        <button class="btn-save" onclick="closeNewBookingsModal()">Rozumím, zavřít</button>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL PRO POKOJ -->
   <div class="modal-bg" id="modalBg">
     <div class="modal">
@@ -445,6 +457,7 @@
   let tempCustomItems = []; let tempCustomStatuses = []; let tempPaidTasks = [];
   let currentUser=null; let dbListenerObj = null; let editIdx=-1,curRoom=-1; let editingUserKey=null;
   let calYear=new Date().getFullYear(),calMon=new Date().getMonth();
+  let hasShownNewBookingsModal = false;
   const MONTHS=['Leden','Únor','Březen','Duben','Květen','Červen','Červenec','Srpen','Září','Říjen','Listopad','Prosinec'];
   const DAYS=['Po','Út','St','Čt','Pá','So','Ne'];
 
@@ -457,9 +470,9 @@
       try {
         errEl.textContent = 'Ověřuji oprávnění v databázi...';
         const snapshot = await get(child(ref(db), 'authorizedUsers/' + key)); let userRecord = snapshot.val();
-        if (!userRecord) { const allUsersSnap = await get(child(ref(db), 'authorizedUsers')); if (!allUsersSnap.exists()) { userRecord = { email: email, role: 'admin' }; await set(ref(db, 'authorizedUsers/' + key), userRecord); } }
+        if (!userRecord) { const allUsersSnap = await get(child(ref(db), 'authorizedUsers')); if (!allUsersSnap.exists()) { userRecord = { email: email, role: 'admin', lastViewedBookings: 0 }; await set(ref(db, 'authorizedUsers/' + key), userRecord); } }
         if (userRecord && ROLE_PERMISSIONS[userRecord.role]) {
-          currentUser = { email: email, ...ROLE_PERMISSIONS[userRecord.role] }; errEl.textContent = '';
+          currentUser = { email: email, ...ROLE_PERMISSIONS[userRecord.role], lastViewedBookings: userRecord.lastViewedBookings || 0 }; errEl.textContent = '';
           document.getElementById('screenLogin').classList.remove('active'); document.getElementById('screenApp').classList.add('active');
           document.getElementById('userInfo').innerHTML = `${currentUser.label} <span class="role-badge ${currentUser.badge}">${currentUser.role}</span>`;
           document.getElementById('myShiftBtn').style.display = currentUser.canLogShift ? 'inline-block' : 'none';
@@ -467,7 +480,7 @@
         } else { errEl.textContent = 'Váš e-mail nemá oprávnění k přístupu.'; signOut(auth); }
       } catch(e) { errEl.textContent = 'Chyba při čtení oprávnění ze serveru.'; signOut(auth); }
     } else {
-      currentUser = null; if(dbListenerObj) { dbListenerObj(); dbListenerObj = null; }
+      currentUser = null; hasShownNewBookingsModal = false; if(dbListenerObj) { dbListenerObj(); dbListenerObj = null; }
       document.getElementById('screenApp').classList.remove('active'); document.getElementById('screenLogin').classList.add('active');
       document.getElementById('loginEmail').value = ''; document.getElementById('loginPass').value = ''; closeModal();
     }
@@ -487,6 +500,7 @@
       if(currentUser && document.getElementById('screenApp').classList.contains('active')) {
         document.getElementById('generalNotes').value = generalNotes; autoResize(document.getElementById('generalNotes'));
         renderRooms(); renderMiniStats(); renderStaffTasks(); renderStatsPanel();
+        checkAndShowNewBookings();
         if(document.getElementById('usersAdminBg').classList.contains('open')) { renderUsersAdmin(); }
         if(document.getElementById('modalBg').classList.contains('open') && curRoom !== -1) {
           document.getElementById('roomNotes').value = notes[curRoom] || '';
@@ -494,6 +508,44 @@
         }
       }
     });
+  }
+
+  function checkAndShowNewBookings() {
+    if (hasShownNewBookingsModal || !currentUser || currentUser.role === 'owner') return;
+    
+    let newBks = [];
+    const lastViewed = currentUser.lastViewedBookings || 0;
+    
+    for (const rIdx in bookings) {
+      (bookings[rIdx] || []).forEach(b => {
+        if (b.addedAt && b.addedAt > lastViewed) {
+          newBks.push({ roomName: rooms[rIdx].name, from: b.from, to: b.to, note: b.note });
+        }
+      });
+    }
+    
+    if (newBks.length > 0) {
+      const html = newBks.map(b => `
+        <div style="background:var(--color-background-secondary); padding:8px 12px; border-radius:var(--border-radius-md); margin-bottom:8px; border:1px solid var(--color-border-secondary);">
+          <strong style="color:var(--color-text-primary); font-size:15px;">${b.roomName}</strong><br>
+          <span style="font-size:14px; color:var(--color-text-secondary);">${fmt(b.from)} &rarr; ${fmt(b.to)}</span>
+          ${b.note ? `<br><span style="font-size:13px; color:var(--color-text-secondary); display:block; margin-top:4px;">Poznámka: ${b.note}</span>` : ''}
+        </div>
+      `).join('');
+      document.getElementById('newBookingsList').innerHTML = html;
+      document.getElementById('newBookingsModalBg').classList.add('open');
+    }
+    hasShownNewBookingsModal = true;
+  }
+
+  function closeNewBookingsModal() {
+    document.getElementById('newBookingsModalBg').classList.remove('open');
+    const myKey = currentUser.email.replace(/\./g, '_');
+    if (authorizedUsers[myKey]) {
+      authorizedUsers[myKey].lastViewedBookings = Date.now();
+      currentUser.lastViewedBookings = authorizedUsers[myKey].lastViewedBookings;
+      saveToFirebase();
+    }
   }
 
   function renderMiniStats() {
@@ -581,7 +633,8 @@
     
     if(editingUserKey && editingUserKey !== key) { delete authorizedUsers[editingUserKey]; }
     
-    authorizedUsers[key] = { email: email, role: role, nickname: nick, hourlyRate: hr }; 
+    const curLastViewed = authorizedUsers[key] ? authorizedUsers[key].lastViewedBookings : 0;
+    authorizedUsers[key] = { email: email, role: role, nickname: nick, hourlyRate: hr, lastViewedBookings: curLastViewed || 0 }; 
     editingUserKey = null; document.getElementById('addBtnAdmin').textContent = 'Přidat';
     
     saveToFirebase();
@@ -599,8 +652,6 @@
     if (!tempMyShift.dailyLogs) tempMyShift.dailyLogs = {};
 
     const todayStr = getLocalIsoDate();
-    
-    // Migrace starých dat na nový deníkový formát (aby se to nepodělalo)
     if (tempMyShift.hours && Object.keys(tempMyShift.dailyLogs).length === 0) {
         let legacyNote = '';
         if(tempMyShift.notes && tempMyShift.notes.length > 0) {
@@ -660,15 +711,9 @@
     
     if (!tempMyShift.dailyLogs) tempMyShift.dailyLogs = {};
     
-    if (h === 0 && n === '') {
-        delete tempMyShift.dailyLogs[todayStr];
-    } else {
-        tempMyShift.dailyLogs[todayStr] = { hours: h, note: n };
-    }
+    if (h === 0 && n === '') { delete tempMyShift.dailyLogs[todayStr]; } else { tempMyShift.dailyLogs[todayStr] = { hours: h, note: n }; }
     
-    // Vyčistíme staré proměnné po migraci
-    delete tempMyShift.hours;
-    delete tempMyShift.notes;
+    delete tempMyShift.hours; delete tempMyShift.notes;
 
     shiftData[myKey] = tempMyShift;
     saveToFirebase();
@@ -681,26 +726,21 @@
     const nick = user ? (user.nickname || user.email) : key;
     const rate = parseFloat(user?.hourlyRate) || 0;
 
-    let totalHours = 0;
-    let logsHtml = '';
+    let totalHours = 0; let logsHtml = '';
     
     if (d.dailyLogs && Object.keys(d.dailyLogs).length > 0) {
         const dates = Object.keys(d.dailyLogs).sort();
         logsHtml = '<strong style="margin-top:12px; display:block;">Výkaz hodin podle dní:</strong>';
         dates.forEach(date => {
-            const log = d.dailyLogs[date];
-            totalHours += (log.hours || 0);
+            const log = d.dailyLogs[date]; totalHours += (log.hours || 0);
             const noteTxt = log.note ? ` <span style="color:var(--color-text-secondary);">- ${log.note}</span>` : '';
             logsHtml += `<div style="background:var(--color-background-secondary); padding:8px; border-radius:6px; margin-top:4px; font-size:13px;"><strong>${fmt(date)}:</strong> ${log.hours || 0} hod${noteTxt}</div>`;
         });
     } else {
-        // Fallback na legacy data (kdyby neprošlo přes moje směna)
         totalHours = d.hours || 0;
         if (d.notes && d.notes.length > 0) {
             logsHtml = '<strong style="margin-top:12px; display:block;">Poznámky k hodinám:</strong>';
-            d.notes.forEach(n => {
-                logsHtml += `<div style="background:var(--color-background-secondary); padding:8px; border-radius:6px; margin-top:4px; font-size:13px;"><strong>${fmt(n.date)}:</strong> ${n.text}</div>`;
-            });
+            d.notes.forEach(n => { logsHtml += `<div style="background:var(--color-background-secondary); padding:8px; border-radius:6px; margin-top:4px; font-size:13px;"><strong>${fmt(n.date)}:</strong> ${n.text}</div>`; });
         }
     }
 
@@ -735,22 +775,14 @@
     if (!currentUser || !currentUser.canSeeStats) { panel.style.display = 'none'; return; }
     panel.style.display = 'block';
     
-    let html = '<h4>Výkazy úklidů</h4>';
-    let empty = true;
+    let html = '<h4>Výkazy úklidů</h4>'; let empty = true;
     for(const key in shiftData) {
       const d = shiftData[key]; const user = authorizedUsers[key];
-      const nick = user ? (user.nickname || user.email) : key;
-      const rate = parseFloat(user?.hourlyRate) || 0;
+      const nick = user ? (user.nickname || user.email) : key; const rate = parseFloat(user?.hourlyRate) || 0;
 
-      let totalHours = 0;
-      let hasLogs = false;
-      if (d.dailyLogs && Object.keys(d.dailyLogs).length > 0) {
-          Object.values(d.dailyLogs).forEach(log => totalHours += (log.hours || 0));
-          hasLogs = true;
-      } else {
-          totalHours = d.hours || 0;
-          if (d.notes && d.notes.length > 0) hasLogs = true;
-      }
+      let totalHours = 0; let hasLogs = false;
+      if (d.dailyLogs && Object.keys(d.dailyLogs).length > 0) { Object.values(d.dailyLogs).forEach(log => totalHours += (log.hours || 0)); hasLogs = true; } 
+      else { totalHours = d.hours || 0; if (d.notes && d.notes.length > 0) hasLogs = true; }
 
       const hoursMoney = totalHours * rate;
       
@@ -850,7 +882,6 @@
     }).join('');
   }
 
-  // --- EDITACE POKOJE: PLACENÉ ÚKONY ---
   function renderEditPaidTasks() {
     const list = document.getElementById('editPaidTasksList');
     if (!tempPaidTasks || tempPaidTasks.length === 0) { list.innerHTML = ''; return; }
@@ -867,7 +898,6 @@
   }
   function removePaidTaskFromEdit(idx) { tempPaidTasks.splice(idx, 1); renderEditPaidTasks(); }
 
-  // --- EDITACE POKOJE: ŠTÍTKY A ODKAZY ---
   function renderEditCustomItems() {
     const list = document.getElementById('editCustomItemsList');
     if (!tempCustomItems || tempCustomItems.length === 0) { list.innerHTML = ''; return; }
@@ -885,7 +915,6 @@
   }
   function removeCustomItemFromEdit(idx) { tempCustomItems.splice(idx, 1); renderEditCustomItems(); }
 
-  // --- EDITACE POKOJE: VLASTNÍ STAVOVÁ TLAČÍTKA ---
   function renderEditCustomStatuses() {
     const list = document.getElementById('editCustomStatusesList');
     if (!tempCustomStatuses || tempCustomStatuses.length === 0) { list.innerHTML = ''; return; }
@@ -940,13 +969,11 @@
       const pendingPaidPrice = parseFloat(document.getElementById('newPaidTaskPrice').value) || 0;
       tempPaidTasks.push({ name: pendingPaidName, price: pendingPaidPrice });
     }
-
     const pendingCustomText = document.getElementById('newCustomText').value.trim();
     if (pendingCustomText) {
       const pendingCustomLink = document.getElementById('newCustomLink').value.trim();
       tempCustomItems.push({ text: pendingCustomText, link: pendingCustomLink });
     }
-
     const pendingRed = document.getElementById('newCustomStatusRed').value.trim();
     if (pendingRed) {
       const pendingGreen = document.getElementById('newCustomStatusGreen').value.trim();
@@ -1042,7 +1069,7 @@
 
   function addBooking() {
     const from = document.getElementById('dateFrom').value; const to = document.getElementById('dateTo').value; if(!from || !to) return; 
-    if(!bookings[curRoom]) bookings[curRoom] = []; bookings[curRoom].push({ from, to, note: document.getElementById('bookingNote').value.trim(), dirtyTriggered: false }); saveToFirebase();
+    if(!bookings[curRoom]) bookings[curRoom] = []; bookings[curRoom].push({ from, to, note: document.getElementById('bookingNote').value.trim(), dirtyTriggered: false, addedAt: Date.now() }); saveToFirebase();
     document.getElementById('dateFrom').value = ''; document.getElementById('dateTo').value = ''; document.getElementById('bookingNote').value = ''; autoResize(document.getElementById('bookingNote'));
   }
 
@@ -1063,15 +1090,15 @@
   window.saveEdit = saveEdit; window.deleteRoom = deleteRoom; window.selEmoji = selEmoji; window.toggleDirty = toggleDirty;
   window.toggleCustomStatus = toggleCustomStatus; window.toggleTheme = toggleTheme; window.openUsersAdmin = openUsersAdmin; 
   window.closeUsersAdmin = closeUsersAdmin; window.addUserRole = addUserRole; window.deleteUserRole = deleteUserRole; 
-  window.editUserRole = editUserRole;
-  window.addStaffTask = addStaffTask; window.toggleStaffTask = toggleStaffTask; window.deleteStaffTask = deleteStaffTask;
+  window.editUserRole = editUserRole; window.addStaffTask = addStaffTask; window.toggleStaffTask = toggleStaffTask; window.deleteStaffTask = deleteStaffTask;
   window.addCustomItemToEdit = addCustomItemToEdit; window.removeCustomItemFromEdit = removeCustomItemFromEdit;
   window.addCustomStatusToEdit = addCustomStatusToEdit; window.removeCustomStatusFromEdit = removeCustomStatusFromEdit;
   window.addPaidTaskToEdit = addPaidTaskToEdit; window.removePaidTaskFromEdit = removePaidTaskFromEdit;
   window.clearEmojiSelection = clearEmojiSelection; window.openMyShift = openMyShift; window.closeMyShift = closeMyShift;
   window.changeShiftTask = changeShiftTask; window.saveMyShift = saveMyShift; window.resetShiftData = resetShiftData;
-  window.openShiftDetails = openShiftDetails; window.closeShiftDetails = closeShiftDetails; fmt = fmt;
-
+  window.openShiftDetails = openShiftDetails; window.closeShiftDetails = closeShiftDetails;
+  window.closeNewBookingsModal = closeNewBookingsModal;
+  
   document.getElementById('loginPass').addEventListener('keydown', function(e) { if(e.key === 'Enter') loginWithEmail(); });
   document.getElementById('loginEmail').addEventListener('keydown', function(e) { if(e.key === 'Enter') document.getElementById('loginPass').focus(); });
   document.getElementById('modalBg').addEventListener('click', function(e) { if(e.target === this) closeModal(); });
