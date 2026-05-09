@@ -183,6 +183,7 @@
   .edit-modal input[type="text"], .edit-modal input[type="number"], .admin-form input[type="email"], .admin-form input[type="text"], .admin-form input[type="number"], .edit-modal input[type="date"] {width:100%;padding:12px 14px;font-size:16px;border:1px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);font-family:'Lato',sans-serif;outline:none;appearance:none;}
   .edit-modal input[type="text"]:focus, .edit-modal input[type="number"]:focus, .edit-modal input[type="date"]:focus, .admin-form input[type="email"]:focus, .admin-form input[type="text"]:focus, .admin-form input[type="number"]:focus {border-color:var(--color-border-primary);}
   
+  /* VYLEPŠENÁ BARVA ZAŠKRTÁVÁTEK PRO LEPŠÍ VIDITELNOST */
   input[type="checkbox"] {appearance: auto !important; -webkit-appearance: checkbox !important; width: 18px !important; height: 18px !important; margin: 0; cursor: pointer; accent-color: #16A34A;}
   body.dark-mode input[type="checkbox"] {accent-color: #22c55e;}
 
@@ -229,6 +230,7 @@
     .modal-top { border-radius: 24px 24px 0 0; padding: 1.5rem 1.5rem 1rem; } .modal-body { padding: 1.25rem 1.25rem 2.5rem; }
     .edit-modal-bg { padding: 0; align-items: flex-end; } .edit-modal { border-radius: 24px 24px 0 0; padding: 1.5rem 1.5rem 2.5rem; border: none; }
     
+    /* Vlastní animace pro mobil (vysunutí zezdola) */
     @keyframes modalSlideUpPhone { 0% { opacity: 0; transform: translateY(100%); } 100% { opacity: 1; transform: translateY(0); } }
     .modal-bg.open .modal, .edit-modal-bg.open .edit-modal { animation: modalSlideUpPhone 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     
@@ -386,8 +388,8 @@
                <button id="cancelEditBtn" onclick="cancelBookingEdit()" style="display:none; background:none; border:none; color:var(--color-text-danger); font-size:12px; cursor:pointer; font-weight:bold; padding:4px;">Zrušit úpravu</button>
             </div>
             <div class="form-row">
-              <input type="text" id="dateFrom" placeholder="Příjezd" readonly style="cursor:pointer; background:var(--color-background-secondary); text-align:center;" onclick="cancelBookingEdit()">
-              <input type="text" id="dateTo" placeholder="Odjezd" readonly style="cursor:pointer; background:var(--color-background-secondary); text-align:center;" onclick="cancelBookingEdit()">
+              <input type="text" id="dateFrom" placeholder="Příjezd" readonly style="cursor:pointer; background:var(--color-background-secondary); text-align:center;" onclick="resetCalendarSelection()">
+              <input type="text" id="dateTo" placeholder="Odjezd" readonly style="cursor:pointer; background:var(--color-background-secondary); text-align:center;" onclick="resetCalendarSelection()">
             </div>
             <textarea id="bookingNote" oninput="autoResize(this)" placeholder="Speciální poznámky (VIP, atd.)"></textarea>
             <button class="add-btn" id="saveBookingBtn" onclick="saveBooking()">+ Přidat rezervaci</button>
@@ -510,11 +512,12 @@
 
   const app = initializeApp(firebaseConfig); const db = getDatabase(app); const auth = getAuth(app); const messaging = getMessaging(app); const googleProvider = new GoogleAuthProvider();
 
+  // ZMĚNA PRÁV PRO MAJITELKU: Odemčeny funkce mazání, úpravy pokojů a správa výkazů
   const ROLE_PERMISSIONS = {
     staff: { role:'staff', label:'Zaměstnanec', badge:'badge-staff', canEdit:false, canDelete:false, canToggle:true, canSeeStatsPanel:true, canSeeAllStats:false, canLogShift:true },
     main_staff: { role:'main_staff', label:'Hlavní Staff', badge:'badge-admin', canEdit:false, canDelete:false, canToggle:true, canSeeStatsPanel:true, canSeeAllStats:true, canLogShift:true },
     admin: { role:'admin', label:'Admin', badge:'badge-admin', canEdit:true, canDelete:true, canToggle:true, canSeeStatsPanel:true, canSeeAllStats:false, canLogShift:true },
-    owner: { role:'owner', label:'Majitelka', badge:'badge-owner', canEdit:false, canDelete:false, canToggle:false, canSeeStatsPanel:false, canSeeAllStats:false, canLogShift:false }
+    owner: { role:'owner', label:'Majitelka', badge:'badge-owner', canEdit:true, canDelete:true, canToggle:true, canSeeStatsPanel:true, canSeeAllStats:true, canLogShift:false }
   };
   const EMOJIS=['🛏️','🏨','🍳','🍽️','☕','🚗','🚲','⛺','🌊','🌿','🔑','🛁','🍾','🌅','🌙','🏔️','🌸','🎋','🦋','🕯️','🍷','🐶','🚿','🔥'];
   const BOOKING_COLORS = ['#60A5FA', '#FB923C', '#84CC16', '#F472B6', '#FBBF24', '#C084FC', '#2DD4BF', '#F87171'];
@@ -960,8 +963,7 @@
   }
 
   function openRoom(i) {
-    curRoom = i; 
-    cancelBookingEdit(); // vyčistí kalendář výběru
+    curRoom = i; resetCalendarSelection();
     document.getElementById('modalTitle').textContent = rooms[i].name; document.getElementById('modalSub').textContent = 'Pokoj '+(i+1)+' · sdílený kalendář';
     document.getElementById('roomNotes').value = notes[i]||'';
     const customItemsWrap = document.getElementById('roomCustomItemsWrap'); const cItems = rooms[i].customItems || [];
@@ -980,9 +982,9 @@
     const map = {};
     (bookings[curRoom]||[]).forEach((b, i) => {
       const color = BOOKING_COLORS[i % BOOKING_COLORS.length];
-      let d = new Date(b.from); const end = new Date(b.to);
+      let d = new Date(b.from + 'T00:00:00'); const end = new Date(b.to + 'T00:00:00');
       while(d <= end) {
-        const ds = d.toISOString().slice(0,10);
+        const ds = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
         if(!map[ds]) map[ds] = [];
         if(!map[ds].includes(color)) map[ds].push(color);
         d.setDate(d.getDate() + 1);
@@ -991,17 +993,16 @@
     return map;
   }
 
-  // --- NOVÉ ZADÁVÁNÍ REZERVACÍ V KALENDÁŘI ---
   function calDayClick(ds) {
     if (!currentUser || currentUser.role === 'staff') return; 
-    if (!selStart || (selStart && selEnd)) {
-        selStart = ds; selEnd = null;
-    } else {
-        if (ds < selStart) { selEnd = selStart; selStart = ds; } else { selEnd = ds; }
-    }
-    document.getElementById('dateFrom').value = selStart ? fmt(selStart) : '';
-    document.getElementById('dateTo').value = selEnd ? fmt(selEnd) : (selStart ? fmt(selStart) : '');
+    if (!selStart || (selStart && selEnd)) { selStart = ds; selEnd = null; } 
+    else { if (ds < selStart) { selEnd = selStart; selStart = ds; } else { selEnd = ds; } }
+    document.getElementById('dateFrom').value = selStart ? fmt(selStart) : ''; document.getElementById('dateTo').value = selEnd ? fmt(selEnd) : (selStart ? fmt(selStart) : '');
     renderCalendar();
+  }
+
+  function resetCalendarSelection() {
+    selStart = null; selEnd = null; document.getElementById('dateFrom').value = ''; document.getElementById('dateTo').value = ''; renderCalendar();
   }
 
   function renderCalendar() {
@@ -1014,34 +1015,22 @@
     for(let d=1; d<=days; d++) {
       const ds = `${calYear}-${String(calMon+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; 
       const isT = today.getFullYear()===calYear && today.getMonth()===calMon && today.getDate()===d;
-      
       let cls = 'cal-day' + (isT ? ' today' : ''); let style = '';
-      
-      // Existující rezervace
       if(dayMap[ds]) {
           cls += ' booked';
           if(dayMap[ds].length === 1) style = `background: ${dayMap[ds][0]}; border-color: rgba(0,0,0,0.1);`;
           else style = `background: linear-gradient(135deg, ${dayMap[ds][0]} 50%, ${dayMap[ds][1]} 50%); border-color: rgba(0,0,0,0.1);`;
       }
-      
-      // Výběr pro novou/editovanou rezervaci
-      if (selStart === ds || selEnd === ds) cls += ' sel-node';
-      else if (selStart && selEnd && ds > selStart && ds < selEnd) cls += ' sel-mid';
-
+      if (selStart === ds || selEnd === ds) cls += ' sel-node'; else if (selStart && selEnd && ds > selStart && ds < selEnd) cls += ' sel-mid';
       html += `<div class="${cls}" style="${style}" onclick="calDayClick('${ds}')">${d}</div>`;
     } g.innerHTML = html;
   }
 
   function saveBooking() {
     if (!selStart || !selEnd) { alert('Prosím, vyberte termín kliknutím do kalendáře (2 kliknutí: začátek a konec).'); return; }
-    if(!bookings[curRoom]) bookings[curRoom] = []; 
-    const note = document.getElementById('bookingNote').value.trim();
-
-    if (editBookingIdx > -1) {
-        bookings[curRoom][editBookingIdx].from = selStart; bookings[curRoom][editBookingIdx].to = selEnd; bookings[curRoom][editBookingIdx].note = note;
-    } else {
-        bookings[curRoom].push({ from: selStart, to: selEnd, note: note, dirtyTriggered: false, addedAt: Date.now() }); 
-    }
+    if(!bookings[curRoom]) bookings[curRoom] = []; const note = document.getElementById('bookingNote').value.trim();
+    if (editBookingIdx > -1) { bookings[curRoom][editBookingIdx].from = selStart; bookings[curRoom][editBookingIdx].to = selEnd; bookings[curRoom][editBookingIdx].note = note;
+    } else { bookings[curRoom].push({ from: selStart, to: selEnd, note: note, dirtyTriggered: false, addedAt: Date.now() }); }
     saveToFirebase(); cancelBookingEdit(); 
   }
 
@@ -1049,11 +1038,9 @@
     editBookingIdx = idx; const b = bookings[curRoom][idx]; selStart = b.from; selEnd = b.to;
     document.getElementById('dateFrom').value = fmt(selStart); document.getElementById('dateTo').value = fmt(selEnd);
     document.getElementById('bookingNote').value = b.note || ''; autoResize(document.getElementById('bookingNote'));
-    
     document.getElementById('saveBookingBtn').textContent = '💾 Uložit úpravy'; document.getElementById('saveBookingBtn').style.background = '#16A34A';
     document.getElementById('cancelEditBtn').style.display = 'inline-block'; document.getElementById('bookingHelpText').innerHTML = '✏️ Upravujete existující rezervaci';
-    
-    const sd = new Date(selStart); calYear = sd.getFullYear(); calMon = sd.getMonth();
+    const sd = new Date(selStart + 'T00:00:00'); calYear = sd.getFullYear(); calMon = sd.getMonth();
     renderCalendar(); document.getElementById('bookingFormWrap').scrollIntoView({ behavior: 'smooth' });
   }
 
@@ -1068,7 +1055,6 @@
   function renderBookings() {
     const list = bookings[curRoom] || []; const el = document.getElementById('bookingsList'); const canDel = currentUser && currentUser.canDelete; 
     if(!list.length) { el.innerHTML = ''; return; }
-    
     el.innerHTML = list.map((b,i) => {
         const color = BOOKING_COLORS[i % BOOKING_COLORS.length];
         return `<div class="booking-item" style="border-left: 4px solid ${color};"><div><div class="booking-dates">${fmt(b.from)} → ${fmt(b.to)}</div>${b.note ? `<div class="booking-note">${b.note}</div>` : ''}</div><div style="display:flex; gap:4px;">${canDel ? `<button class="del-btn" style="color:var(--color-text-primary); font-size:14px;" onclick="editBooking(${i})" title="Upravit">✎</button> <button class="del-btn" style="font-size:14px;" onclick="delBooking(${i})" title="Smazat">✕</button>` : ''}</div></div>`;
@@ -1078,16 +1064,12 @@
   function delBooking(i) { bookings[curRoom].splice(i, 1); saveToFirebase(); cancelBookingEdit(); }
   
   function saveNote() { 
-      notes[curRoom] = document.getElementById('roomNotes').value; 
-      saveToFirebase(); 
-      const s = document.getElementById('noteSaved'); 
-      s.classList.add('show'); setTimeout(() => s.classList.remove('show'), 1800); 
+      notes[curRoom] = document.getElementById('roomNotes').value; saveToFirebase(); 
+      const s = document.getElementById('noteSaved'); s.classList.add('show'); setTimeout(() => s.classList.remove('show'), 1800); 
   }
   function saveGeneralNote() { 
-      generalNotes = document.getElementById('generalNotes').value; 
-      saveToFirebase(); 
-      const s = document.getElementById('genNoteSaved'); 
-      s.classList.add('show'); setTimeout(() => s.classList.remove('show'), 1800); 
+      generalNotes = document.getElementById('generalNotes').value; saveToFirebase(); 
+      const s = document.getElementById('genNoteSaved'); s.classList.add('show'); setTimeout(() => s.classList.remove('show'), 1800); 
   }
   
   function toggleTheme() { const isDark = document.body.classList.toggle('dark-mode'); localStorage.setItem('hr_theme', isDark ? 'dark' : 'light'); document.getElementById('themeToggleBtn').textContent = isDark ? '☀️' : '🌙'; }
@@ -1119,7 +1101,7 @@
   function viewPhoto(dataUrl) { document.getElementById('photoViewerImg').src = dataUrl; document.getElementById('photoViewerBg').classList.add('open'); }
   function deletePhoto(idx) { if(confirm("Opravdu smazat tuto fotku?")) { rooms[curRoom].photos.splice(idx, 1); saveToFirebase(); renderPhotos(); } }
 
-  window.loginWithEmail = loginWithEmail; window.loginWithGoogle = loginWithGoogle; window.doLogout = doLogout; window.openRoom = openRoom; window.closeModal = closeModal; window.changeMonth = changeMonth; window.addBooking = addBooking; window.delBooking = delBooking; window.saveNote = saveNote; window.saveGeneralNote = saveGeneralNote; window.openEdit = openEdit; window.closeEdit = closeEdit; window.saveEdit = saveEdit; window.deleteRoom = deleteRoom; window.selEmoji = selEmoji; window.toggleDirty = toggleDirty; window.toggleCustomStatus = toggleCustomStatus; window.toggleTheme = toggleTheme; window.toggleColorMode = toggleColorMode; window.openUsersAdmin = openUsersAdmin; window.closeUsersAdmin = closeUsersAdmin; window.addUserRole = addUserRole; window.deleteUserRole = deleteUserRole; window.editUserRole = editUserRole; window.addStaffTask = addStaffTask; window.toggleStaffTask = toggleStaffTask; window.deleteStaffTask = deleteStaffTask; window.addCustomItemToEdit = addCustomItemToEdit; window.removeCustomItemFromEdit = removeCustomItemFromEdit; window.addCustomStatusToEdit = addCustomStatusToEdit; window.removeCustomStatusFromEdit = removeCustomStatusFromEdit; window.addPaidTaskToEdit = addPaidTaskToEdit; window.removePaidTaskFromEdit = removePaidTaskFromEdit; window.clearEmojiSelection = clearEmojiSelection; window.openMyShift = openMyShift; window.closeMyShift = closeMyShift; window.changeShiftDate = changeShiftDate; window.changeShiftTask = changeShiftTask; window.saveMyShift = saveMyShift; window.resetShiftData = resetShiftData; window.openShiftDetails = openShiftDetails; window.closeShiftDetails = closeShiftDetails; window.closeNewBookingsModal = closeNewBookingsModal; window.handlePhotoUpload = handlePhotoUpload; window.viewPhoto = viewPhoto; window.deletePhoto = deletePhoto; window.calDayClick = calDayClick; window.cancelBookingEdit = cancelBookingEdit; window.editBooking = editBooking;
+  window.loginWithEmail = loginWithEmail; window.loginWithGoogle = loginWithGoogle; window.doLogout = doLogout; window.openRoom = openRoom; window.closeModal = closeModal; window.changeMonth = changeMonth; window.addBooking = addBooking; window.delBooking = delBooking; window.saveNote = saveNote; window.saveGeneralNote = saveGeneralNote; window.openEdit = openEdit; window.closeEdit = closeEdit; window.saveEdit = saveEdit; window.deleteRoom = deleteRoom; window.selEmoji = selEmoji; window.toggleDirty = toggleDirty; window.toggleCustomStatus = toggleCustomStatus; window.toggleTheme = toggleTheme; window.toggleColorMode = toggleColorMode; window.openUsersAdmin = openUsersAdmin; window.closeUsersAdmin = closeUsersAdmin; window.addUserRole = addUserRole; window.deleteUserRole = deleteUserRole; window.editUserRole = editUserRole; window.addStaffTask = addStaffTask; window.toggleStaffTask = toggleStaffTask; window.deleteStaffTask = deleteStaffTask; window.addCustomItemToEdit = addCustomItemToEdit; window.removeCustomItemFromEdit = removeCustomItemFromEdit; window.addCustomStatusToEdit = addCustomStatusToEdit; window.removeCustomStatusFromEdit = removeCustomStatusFromEdit; window.addPaidTaskToEdit = addPaidTaskToEdit; window.removePaidTaskFromEdit = removePaidTaskFromEdit; window.clearEmojiSelection = clearEmojiSelection; window.openMyShift = openMyShift; window.closeMyShift = closeMyShift; window.changeShiftDate = changeShiftDate; window.changeShiftTask = changeShiftTask; window.saveMyShift = saveMyShift; window.resetShiftData = resetShiftData; window.openShiftDetails = openShiftDetails; window.closeShiftDetails = closeShiftDetails; window.closeNewBookingsModal = closeNewBookingsModal; window.handlePhotoUpload = handlePhotoUpload; window.viewPhoto = viewPhoto; window.deletePhoto = deletePhoto; window.calDayClick = calDayClick; window.cancelBookingEdit = cancelBookingEdit; window.editBooking = editBooking; window.resetCalendarSelection = resetCalendarSelection;
   
   document.getElementById('loginPass').addEventListener('keydown', function(e) { if(e.key === 'Enter') loginWithEmail(); });
   document.getElementById('loginEmail').addEventListener('keydown', function(e) { if(e.key === 'Enter') document.getElementById('loginPass').focus(); });
