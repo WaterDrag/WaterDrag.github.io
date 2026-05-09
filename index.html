@@ -354,8 +354,8 @@
         
         <!-- FOTKY ZÁVAD -->
         <label class="photo-upload-label">
-            📸 Přidat fotku z mobilu
-            <input type="file" accept="image/*" capture="environment" style="display:none;" onchange="handlePhotoUpload(this)">
+            📸 Přidat fotku (Fotoaparát / Galerie)
+            <input type="file" accept="image/*" style="display:none;" onchange="handlePhotoUpload(this)">
         </label>
         <div class="photo-grid" id="roomPhotosGrid"></div>
 
@@ -471,7 +471,6 @@
     owner: { role:'owner', label:'Majitelka', badge:'badge-owner', canEdit:false, canDelete:false, canToggle:false, canSeeStats:false, canLogShift:false }
   };
   const EMOJIS=['🛏️','🏨','🍳','🍽️','☕','🚗','🚲','⛺','🌊','🌿','🔑','🛁','🍾','🌅','🌙','🏔️','🌸','🎋','🦋','🕯️','🍷','🐶','🚿','🔥'];
-  // Nová paleta sytějších a kontrastnějších barev (Blue, Green, Yellow, Red, Purple, Orange, Teal, Pink)
   const BOOKING_COLORS = ['#60A5FA', '#34D399', '#FBBF24', '#F87171', '#C084FC', '#FB923C', '#2DD4BF', '#F472B6'];
   const defaultRooms=[{name:'Pokoj 101',emoji:'🛏️', isDirty: false}, {name:'Deluxe Suite',emoji:'🏨', isDirty: false}];
 
@@ -577,6 +576,20 @@
 
   function autoDirtyCheck() {
     const todayStr = getLocalIsoDate(); let changed = false;
+
+    // --- NOVÉ: Promazávání starých rezervací (starší než 90 dní) ---
+    const cutoffDate = new Date(); cutoffDate.setDate(cutoffDate.getDate() - 90);
+    const cutoffStr = cutoffDate.getFullYear() + '-' + String(cutoffDate.getMonth()+1).padStart(2,'0') + '-' + String(cutoffDate.getDate()).padStart(2,'0');
+
+    for (const roomIdx in bookings) {
+      if(bookings[roomIdx]) {
+        const originalLen = bookings[roomIdx].length;
+        bookings[roomIdx] = bookings[roomIdx].filter(b => b.to >= cutoffStr);
+        if (bookings[roomIdx].length !== originalLen) changed = true;
+      }
+    }
+    // ---------------------------------------------------------------
+
     rooms.forEach((r, i) => {
       if(r.isDirty === undefined) { r.isDirty = false; changed = true; }
       (bookings[i]||[]).forEach(b => {
