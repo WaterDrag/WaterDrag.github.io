@@ -137,10 +137,13 @@
   .cal-day:active:not(.empty){transform:scale(0.9)}
   .cal-day.empty{cursor:default}
   .cal-day.booked{color:#18181b !important;font-weight:700;} 
-  .cal-day.today{border:2px solid var(--color-text-primary);font-weight:700}
+  
+  /* VYLEPŠENÉ ZVÝRAZNĚNÍ DNEŠNÍHO DNE */
+  .cal-day.today { border: 3px solid var(--color-text-primary) !important; font-weight: 900 !important; font-size: 15px; transform: scale(1.15); position: relative; z-index: 5; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+  .cal-day.today.booked { color: #000 !important; text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0 0 8px #fff !important; }
   
   /* --- KRESLENÍ VÝBĚRU REZERVACE V KALENDÁŘI --- */
-  .cal-day.sel-node { background: var(--color-text-primary) !important; color: var(--color-background-primary) !important; border-color: var(--color-text-primary) !important; font-weight:bold; transform: scale(1.05); z-index:2; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+  .cal-day.sel-node { background: var(--color-text-primary) !important; color: var(--color-background-primary) !important; border-color: var(--color-text-primary) !important; font-weight:bold; transform: scale(1.05); z-index:6; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
   .cal-day.sel-mid { background: var(--color-border-secondary) !important; color: var(--color-text-primary) !important; }
 
   /* SPOLEČNÉ CHOVÁNÍ TLAČÍTEK (ANIMACE KLIKNUTÍ) */
@@ -1038,7 +1041,6 @@
       const occupied = isRoomOccupied(i);
       const stateClass = getRoomStateClass(i); let badgesHtml = '';
       
-      // Skrytí štítku Uklizeno/Špinavé, pokud je pokoj obsazený a je po 15:00
       if (!r.hideDefaultStatus && !occupied) { 
           badgesHtml += `<div class="room-status-badge ${r.isDirty ? 'status-dirty' : 'status-clean'}">${r.isDirty ? '🔴 Špinavý' : '🟢 Uklizený'}</div>`; 
       }
@@ -1139,7 +1141,6 @@
     const btn = document.getElementById('toggleStatusBtn'); const canToggle = currentUser && currentUser.canToggle;
     const occupied = isRoomOccupied(curRoom);
     
-    // Tlačítko se schová pokud je u pokoje nastaveno skrývání NEBO pokud je zrovna obsazený hostem
     if (rooms[curRoom].hideDefaultStatus || occupied) { 
         btn.style.display = 'none'; 
     } else {
