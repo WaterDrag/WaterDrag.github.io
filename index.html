@@ -117,6 +117,14 @@
   .close-btn{position:absolute;top:1.5rem;right:1.5rem;background:var(--color-background-secondary);border:none;border-radius:50%;width:32px;height:32px;font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--color-text-primary);transition:background 0.2s}
   .close-btn:hover{background:var(--color-border-secondary)}
 
+  /* Vlastní štítky a tlačítka v detailu pokoje */
+  .custom-items-wrap { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; margin-bottom: 4px; }
+  .custom-badge { background: var(--color-background-secondary); border: 1px solid var(--color-border-tertiary); padding: 6px 12px; border-radius: var(--border-radius-md); font-size: 13px; font-weight: 700; color: var(--color-text-primary); }
+  .custom-btn { background: var(--color-text-primary); color: var(--color-background-primary); border: 1px solid var(--color-border-primary); padding: 6px 12px; border-radius: var(--border-radius-md); font-size: 13px; font-weight: 700; text-decoration: none; display: inline-block; transition: opacity 0.2s; }
+  .custom-btn:hover { opacity: 0.85; }
+  
+  .edit-custom-item { display:flex; gap:8px; align-items:center; background: var(--color-background-secondary); padding: 8px 12px; border-radius: var(--border-radius-md); margin-bottom: 6px; border: 1px solid var(--color-border-secondary);}
+
   .toggle-status-btn{margin-top:12px;padding:8px 12px;border:none;border-radius:var(--border-radius-md);font-size:12px;font-weight:700;cursor:pointer;font-family:'Lato',sans-serif;transition:background 0.2s}
   .toggle-status-btn.btn-clean{background:#DCFCE7;color:#166534}
   .toggle-status-btn.btn-clean:hover{background:#BBF7D0}
@@ -168,15 +176,15 @@
 
   .edit-modal-bg{display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;padding:1rem;z-index:9999}
   .edit-modal-bg.open{display:flex}
-  .edit-modal{background:var(--color-background-primary);border-radius:var(--border-radius-xl);width:min(400px,100%);padding:2rem;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25)}
+  .edit-modal{background:var(--color-background-primary);border-radius:var(--border-radius-xl);width:min(400px,100%);padding:2rem;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25); max-height:95vh; overflow-y:auto;}
   .edit-modal h3{font-family:'Playfair Display',serif;font-size:20px;margin-bottom:1.5rem;color:var(--color-text-primary)}
   .edit-modal label{font-size:12px;font-weight:700;color:var(--color-text-secondary);display:block;margin-bottom:6px;margin-top:16px}
   
-  /* OPRAVENO: Nyní styl upravuje POUZE textové políčko pro jméno a e-mail, neovlivní čtverečky */
+  /* OPRAVENO: Textová pole neovlivňují zaškrtávací čtverečky */
   .edit-modal input[type="text"], .admin-form input[type="email"] {width:100%;padding:12px 14px;font-size:16px;border:1px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);font-family:'Lato',sans-serif;outline:none;appearance:none;}
   .edit-modal input[type="text"]:focus, .admin-form input[type="email"]:focus {border-color:var(--color-border-primary);}
   
-  /* Jistota pro všechny zaškrtávací čtverečky, aby vypadaly klasicky */
+  /* Zajištění správného vzhledu pro čtverečky */
   input[type="checkbox"] {
     appearance: auto !important;
     -webkit-appearance: checkbox !important;
@@ -293,7 +301,7 @@
     </div>
   </div>
 
-  <!-- Tajné úkoly pro personál (Nezobrazí se majitelce) -->
+  <!-- Tajné úkoly pro personál -->
   <div class="general-notes-wrap" id="staffTasksWrap" style="display:none;">
     <div class="section-label">Úkoly pro personál (Skryté pro majitelku)</div>
     <div id="staffTasksList"></div>
@@ -309,6 +317,10 @@
       <div class="modal-top">
         <div class="modal-room-title" id="modalTitle"></div>
         <div class="modal-room-sub" id="modalSub"></div>
+        
+        <!-- Zde se zobrazí vlastní štítky a tlačítka po rozkliknutí pokoje -->
+        <div id="roomCustomItemsWrap" class="custom-items-wrap"></div>
+        
         <button id="toggleStatusBtn" class="toggle-status-btn" onclick="toggleDirty()"></button>
         <button class="close-btn" onclick="closeModal()">✕</button>
       </div>
@@ -353,6 +365,15 @@
       <label>Ikona</label>
       <div class="emoji-pick" id="emojiPick"></div>
       
+      <!-- Nová sekce: Vlastní nápisy a tlačítka -->
+      <label style="margin-top:20px;">Vlastní štítky a odkazy (PINy, návody...)</label>
+      <div id="editCustomItemsList" style="margin-bottom:8px;"></div>
+      <div style="display:flex; gap:8px;">
+        <input type="text" id="newCustomText" placeholder="Nápis (např. PIN 1234)" style="flex:1">
+        <input type="text" id="newCustomLink" placeholder="Odkaz (http...)" style="flex:1">
+        <button type="button" class="add-btn" onclick="addCustomItemToEdit()" style="padding:12px 16px;">+</button>
+      </div>
+
       <!-- Kontejner pro vazby (pro sdílené pokoje) -->
       <div id="linkedRoomsWrap"></div>
 
@@ -433,6 +454,9 @@
   let generalNotes = '';
   let staffTasks = [];
   let authorizedUsers = {}; 
+  
+  // Proměnná pro ukládání štítků při editaci, než se modal uloží
+  let tempCustomItems = []; 
   
   let currentUser=null;
   let dbListenerObj = null; 
@@ -757,6 +781,41 @@
     }).join('');
   }
 
+  // --- FUNKCE PRO VLASTNÍ ŠTÍTKY A TLAČÍTKA ---
+  function renderEditCustomItems() {
+    const list = document.getElementById('editCustomItemsList');
+    if (!tempCustomItems || tempCustomItems.length === 0) {
+      list.innerHTML = '';
+      return;
+    }
+    list.innerHTML = tempCustomItems.map((item, idx) => `
+      <div class="edit-custom-item">
+        <div style="flex:1; font-size:13px; color:var(--color-text-primary);">
+          <strong>${item.text}</strong>
+          ${item.link ? `<br><a href="${item.link}" target="_blank" style="color:var(--color-text-secondary);font-size:11px;">${item.link}</a>` : ''}
+        </div>
+        <button type="button" class="del-btn" onclick="removeCustomItemFromEdit(${idx})">✕</button>
+      </div>
+    `).join('');
+  }
+
+  function addCustomItemToEdit() {
+    const text = document.getElementById('newCustomText').value.trim();
+    const link = document.getElementById('newCustomLink').value.trim();
+    if (!text) return;
+    
+    tempCustomItems.push({ text, link });
+    document.getElementById('newCustomText').value = '';
+    document.getElementById('newCustomLink').value = '';
+    renderEditCustomItems();
+  }
+
+  function removeCustomItemFromEdit(idx) {
+    tempCustomItems.splice(idx, 1);
+    renderEditCustomItems();
+  }
+  // ---------------------------------------------
+
   function openEdit(i) {
     editIdx = i;
     const isNew = (i === -1);
@@ -767,6 +826,10 @@
     const ep = document.getElementById('emojiPick');
     ep.innerHTML = EMOJIS.map(e => `<span class="${e===curEmoji?'sel':''}" onclick="selEmoji(this,'${e}')">${e}</span>`).join('');
     
+    // Natažení uložených štítků
+    tempCustomItems = (isNew || !rooms[i].customItems) ? [] : JSON.parse(JSON.stringify(rooms[i].customItems));
+    renderEditCustomItems();
+
     let lrHtml = '<label style="margin-top:20px;">Propojit s pokoji (zašpiní se, když z nich někdo odjede):</label><div class="linked-rooms-list">';
     const curLinked = (!isNew && rooms[i].linkedRooms) ? rooms[i].linkedRooms : [];
     let hasOthers = false;
@@ -797,9 +860,9 @@
 
     if(name && sel) {
       if(editIdx === -1) {
-        rooms.push({name, emoji: sel.textContent, isDirty: false, linkedRooms});
+        rooms.push({name, emoji: sel.textContent, isDirty: false, linkedRooms, customItems: tempCustomItems});
       } else {
-        rooms[editIdx] = {name, emoji: sel.textContent, isDirty: rooms[editIdx].isDirty, linkedRooms};
+        rooms[editIdx] = {name, emoji: sel.textContent, isDirty: rooms[editIdx].isDirty, linkedRooms, customItems: tempCustomItems};
       }
       saveToFirebase();
     }
@@ -869,6 +932,17 @@
     document.getElementById('modalSub').textContent = 'Pokoj '+(i+1)+' · sdílený kalendář';
     document.getElementById('roomNotes').value = notes[i]||'';
     
+    // Vykreslení vlastních štítků a tlačítek u pokoje
+    const customItemsWrap = document.getElementById('roomCustomItemsWrap');
+    const cItems = rooms[i].customItems || [];
+    customItemsWrap.innerHTML = cItems.map(item => {
+      if(item.link) {
+        return `<a href="${item.link}" target="_blank" class="custom-btn">${item.text}</a>`;
+      } else {
+        return `<span class="custom-badge">${item.text}</span>`;
+      }
+    }).join('');
+
     updateStatusBtn();
     
     const canBook = currentUser && currentUser.role !== 'staff';
@@ -1037,6 +1111,8 @@
   window.addStaffTask = addStaffTask; 
   window.toggleStaffTask = toggleStaffTask; 
   window.deleteStaffTask = deleteStaffTask;
+  window.addCustomItemToEdit = addCustomItemToEdit;
+  window.removeCustomItemFromEdit = removeCustomItemFromEdit;
 
   document.getElementById('loginPass').addEventListener('keydown', function(e) { if(e.key === 'Enter') loginWithEmail(); });
   document.getElementById('loginEmail').addEventListener('keydown', function(e) { if(e.key === 'Enter') document.getElementById('loginPass').focus(); });
