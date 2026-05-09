@@ -532,8 +532,9 @@
 
   const app = initializeApp(firebaseConfig); const db = getDatabase(app); const auth = getAuth(app); const messaging = getMessaging(app); const googleProvider = new GoogleAuthProvider();
 
+  // STAFF TEĎ VIDÍ STATS (canSeeStatsPanel: true). Owner nevidí panel.
   const ROLE_PERMISSIONS = {
-    staff: { role:'staff', label:'Zaměstnanec', badge:'badge-staff', canEdit:false, canDelete:false, canToggle:true, canSeeStatsPanel:false, canSeeAllStats:false, canLogShift:true },
+    staff: { role:'staff', label:'Zaměstnanec', badge:'badge-staff', canEdit:false, canDelete:false, canToggle:true, canSeeStatsPanel:true, canSeeAllStats:false, canLogShift:true },
     main_staff: { role:'main_staff', label:'Hlavní Staff', badge:'badge-admin', canEdit:false, canDelete:false, canToggle:true, canSeeStatsPanel:true, canSeeAllStats:true, canLogShift:true },
     admin: { role:'admin', label:'Admin', badge:'badge-admin', canEdit:true, canDelete:true, canToggle:true, canSeeStatsPanel:true, canSeeAllStats:false, canLogShift:true },
     owner: { role:'owner', label:'Majitelka', badge:'badge-owner', canEdit:true, canDelete:true, canToggle:true, canSeeStatsPanel:false, canSeeAllStats:false, canLogShift:false }
@@ -549,6 +550,8 @@
   let calYear=new Date().getFullYear(),calMon=new Date().getMonth();
   let hasShownNewBookingsModal = false;
   let selStart = null, selEnd = null, editBookingIdx = -1;
+  let initialRoomsRender = true; // Pamatuje si, že má přehrát animaci pokojů jen poprvé
+
   const MONTHS=['Leden','Únor','Březen','Duben','Květen','Červen','Červenec','Srpen','Září','Říjen','Listopad','Prosinec'];
   const DAYS=['Po','Út','St','Čt','Pá','So','Ne'];
 
@@ -567,11 +570,16 @@
           document.getElementById('screenLogin').classList.remove('active'); document.getElementById('screenApp').classList.add('active');
           document.getElementById('userInfo').innerHTML = `${currentUser.label} <span class="role-badge ${currentUser.badge}">${currentUser.role}</span>`;
           document.getElementById('myShiftBtn').style.display = currentUser.canLogShift ? 'inline-block' : 'none';
+          
+          const statsBtn = document.getElementById('openStatsBtn');
+          statsBtn.style.display = currentUser.canSeeStatsPanel ? 'block' : 'none';
+
           requestNotificationPermission(key); startDatabaseListener();
         } else { errEl.textContent = 'Váš e-mail nemá oprávnění k přístupu.'; signOut(auth); }
       } catch(e) { errEl.textContent = 'Chyba při čtení oprávnění ze serveru.'; signOut(auth); }
     } else {
-      currentUser = null; hasShownNewBookingsModal = false; if(dbListenerObj) { dbListenerObj(); dbListenerObj = null; }
+      currentUser = null; hasShownNewBookingsModal = false; initialRoomsRender = true;
+      if(dbListenerObj) { dbListenerObj(); dbListenerObj = null; }
       document.getElementById('screenApp').classList.remove('active'); document.getElementById('screenLogin').classList.add('active');
       document.getElementById('loginEmail').value = ''; document.getElementById('loginPass').value = ''; closeModal();
     }
@@ -813,9 +821,7 @@
   }
 
   function renderStatsPanel() {
-    const btn = document.getElementById('openStatsBtn'); 
-    if (!currentUser || !currentUser.canSeeStatsPanel) { btn.style.display = 'none'; return; }
-    btn.style.display = 'block';
+    if (!currentUser || !currentUser.canSeeStatsPanel) return;
     
     const myKey = currentUser.email.replace(/\./g, '_'); 
     const panelContent = document.getElementById('statsPanelContent'); 
@@ -876,6 +882,7 @@
   function renderRooms() {
     autoDirtyCheck(); document.getElementById('adminActionsWrap').style.display = (currentUser && currentUser.role === 'admin') ? 'flex' : 'none';
     const g = document.getElementById('roomsGrid'); const canEditRoom = currentUser && currentUser.canEdit;
+    
     g.innerHTML = rooms.map((r, i) => {
       const stateClass = getRoomStateClass(i); let badgesHtml = '';
       if (!r.hideDefaultStatus) { badgesHtml += `<div class="room-status-badge ${r.isDirty ? 'status-dirty' : 'status-clean'}">${r.isDirty ? '🔴 Špinavý' : '🟢 Uklizený'}</div>`; }
@@ -886,8 +893,13 @@
            badgesHtml += `<div class="room-status-badge ${cls}">${txt}</div>`;
          });
       }
-      return `<div class="room-card ${stateClass}" onclick="openRoom(${i})" style="animation: cardSlideUp 0.4s ease-out forwards; opacity: 0; animation-delay: ${i * 0.04}s"><div class="room-img"><span class="emoji">${r.emoji}</span>${canEditRoom ? `<button class="edit-btn" onclick="event.stopPropagation();openEdit(${i})" title="Upravit/Smazat">✎</button>` : ''}<div class="room-badges-wrap">${badgesHtml}</div></div><div class="room-label"><div class="room-name">${r.name}</div><div class="room-num">${(bookings[i]||[]).length} rezervací</div></div></div>`;
+      
+      const animStyle = initialRoomsRender ? `animation: cardSlideUp 0.4s ease-out forwards; opacity: 0; animation-delay: ${i * 0.04}s` : `opacity: 1;`;
+      
+      return `<div class="room-card ${stateClass}" onclick="openRoom(${i})" style="${animStyle}"><div class="room-img"><span class="emoji">${r.emoji}</span>${canEditRoom ? `<button class="edit-btn" onclick="event.stopPropagation();openEdit(${i})" title="Upravit/Smazat">✎</button>` : ''}<div class="room-badges-wrap">${badgesHtml}</div></div><div class="room-label"><div class="room-name">${r.name}</div><div class="room-num">${(bookings[i]||[]).length} rezervací</div></div></div>`;
     }).join('');
+    
+    initialRoomsRender = false;
   }
 
   function renderEditPaidTasks() {
