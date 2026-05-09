@@ -275,7 +275,6 @@
       <label>Placené úkony (napříč pokoji):</label>
       <div id="myShiftRoomsList" style="margin-bottom:16px; border-top:1px solid var(--color-border-secondary); padding-top:8px;"></div>
 
-      <!-- NOVÉ: Poznámky ke směně -->
       <label>Poznámka k dnešní směně/hodinám:</label>
       <textarea id="myShiftNote" placeholder="Dnes jsem pracovala navíc, protože..." style="width:100%; min-height:60px; padding:12px; border-radius:var(--border-radius-md); border:1px solid var(--color-border-secondary); background:var(--color-background-primary); color:var(--color-text-primary); font-family:'Lato',sans-serif; resize:vertical; outline:none; margin-bottom:16px;"></textarea>
 
@@ -286,7 +285,7 @@
     </div>
   </div>
 
-  <!-- NOVÝ MODAL: Detaily výkazu práce pro vedení -->
+  <!-- MODAL: Detaily výkazu práce pro vedení -->
   <div class="edit-modal-bg" id="shiftDetailsBg">
     <div class="edit-modal" style="width: min(500px, 100%)">
       <h3 id="sdName">Detaily výkazu</h3>
@@ -392,7 +391,6 @@
       <h3>Správa přístupů</h3>
       <p style="font-size:12px; color:var(--color-text-secondary); margin-bottom:1rem;">Přidejte e-mail zaměstnance a zvolte mu oprávnění. Bez e-mailu na tomto seznamu se nikdo nepřihlásí.</p>
       
-      <!-- Formulář pro uživatele byl rozšířen o Hodinovou mzdu -->
       <div class="admin-form" style="display:flex; gap:8px; margin-bottom:1rem; flex-wrap:wrap; align-items:center;">
         <input type="email" id="newUserEmail" placeholder="E-mail" style="flex:2; min-width:120px;">
         <input type="text" id="newUserNick" placeholder="Přezdívka" style="flex:1; min-width:90px;">
@@ -595,10 +593,14 @@
   // --- SMĚNY A POČÍTADLA PLACENÝCH ÚKONŮ ---
   function openMyShift() {
     const myKey = currentUser.email.replace(/\./g, '_');
-    const data = shiftData[myKey] || { hours: 0, tasks: {}, notes: [] };
+    const data = shiftData[myKey] || {};
     tempMyShift = JSON.parse(JSON.stringify(data));
+    if (!tempMyShift.hours) tempMyShift.hours = 0;
+    if (!tempMyShift.tasks) tempMyShift.tasks = {};
+    if (!tempMyShift.notes) tempMyShift.notes = [];
+    
     document.getElementById('myShiftHours').value = tempMyShift.hours || '';
-    document.getElementById('myShiftNote').value = ''; // vyprázdnit políčko pro novou poznámku
+    document.getElementById('myShiftNote').value = ''; 
     renderMyShiftRooms();
     document.getElementById('shiftBg').classList.add('open');
   }
@@ -633,6 +635,7 @@
   }
   
   function changeShiftTask(taskKey, delta) {
+    if(!tempMyShift.tasks) tempMyShift.tasks = {};
     if(!tempMyShift.tasks[taskKey]) tempMyShift.tasks[taskKey] = 0;
     tempMyShift.tasks[taskKey] += delta;
     if(tempMyShift.tasks[taskKey] < 0) tempMyShift.tasks[taskKey] = 0;
@@ -660,7 +663,7 @@
     const hoursMoney = (d.hours || 0) * rate;
 
     let tasksMoney = 0; let tasksHtml = '';
-    for(const taskKey in d.tasks) {
+    for(const taskKey in (d.tasks || {})) {
        if(d.tasks[taskKey] > 0) {
           const parts = taskKey.split('_'); const rIdx = parseInt(parts[0]); const tIdx = parseInt(parts[1]);
           if (rooms[rIdx] && rooms[rIdx].paidTasks && rooms[rIdx].paidTasks[tIdx]) {
@@ -705,7 +708,7 @@
       const hoursMoney = (d.hours || 0) * rate;
       let tasksMoney = 0; let tasksTxt = [];
       
-      for(const taskKey in d.tasks) {
+      for(const taskKey in (d.tasks || {})) {
          if(d.tasks[taskKey] > 0) {
             const parts = taskKey.split('_'); const rIdx = parseInt(parts[0]); const tIdx = parseInt(parts[1]);
             if (rooms[rIdx] && rooms[rIdx].paidTasks && rooms[rIdx].paidTasks[tIdx]) {
@@ -800,6 +803,7 @@
     }).join('');
   }
 
+  // --- EDITACE POKOJE: PLACENÉ ÚKONY ---
   function renderEditPaidTasks() {
     const list = document.getElementById('editPaidTasksList');
     if (!tempPaidTasks || tempPaidTasks.length === 0) { list.innerHTML = ''; return; }
@@ -816,6 +820,7 @@
   }
   function removePaidTaskFromEdit(idx) { tempPaidTasks.splice(idx, 1); renderEditPaidTasks(); }
 
+  // --- EDITACE POKOJE: ŠTÍTKY A ODKAZY ---
   function renderEditCustomItems() {
     const list = document.getElementById('editCustomItemsList');
     if (!tempCustomItems || tempCustomItems.length === 0) { list.innerHTML = ''; return; }
@@ -833,6 +838,7 @@
   }
   function removeCustomItemFromEdit(idx) { tempCustomItems.splice(idx, 1); renderEditCustomItems(); }
 
+  // --- EDITACE POKOJE: VLASTNÍ STAVOVÁ TLAČÍTKA ---
   function renderEditCustomStatuses() {
     const list = document.getElementById('editCustomStatusesList');
     if (!tempCustomStatuses || tempCustomStatuses.length === 0) { list.innerHTML = ''; return; }
@@ -859,6 +865,11 @@
     document.getElementById('emojiPick').innerHTML = EMOJIS.map(e => `<span class="${(!isCustomEmoji && e===curEmoji)?'sel':''}" onclick="selEmoji(this)">${e}</span>`).join('');
     document.getElementById('customEmojiInput').value = isCustomEmoji ? curEmoji : '';
     
+    // Vyčištění textových polí pro přidávání položek pro jistotu
+    document.getElementById('newPaidTaskName').value = ''; document.getElementById('newPaidTaskPrice').value = '';
+    document.getElementById('newCustomText').value = ''; document.getElementById('newCustomLink').value = '';
+    document.getElementById('newCustomStatusRed').value = ''; document.getElementById('newCustomStatusGreen').value = '';
+
     tempPaidTasks = (isNew || !rooms[i].paidTasks) ? [] : JSON.parse(JSON.stringify(rooms[i].paidTasks)); renderEditPaidTasks();
     tempCustomItems = (isNew || !rooms[i].customItems) ? [] : JSON.parse(JSON.stringify(rooms[i].customItems)); renderEditCustomItems();
     tempCustomStatuses = (isNew || !rooms[i].customStatuses) ? [] : JSON.parse(JSON.stringify(rooms[i].customStatuses)); renderEditCustomStatuses();
@@ -877,14 +888,38 @@
     const name = document.getElementById('editName').value.trim(); 
     let finalEmoji = document.getElementById('customEmojiInput').value.trim();
     if(!finalEmoji) { const sel = document.querySelector('.emoji-pick span.sel'); finalEmoji = sel ? sel.textContent : '🛏️'; }
+
+    // BLBUVZDORNOST: Pokud uživatel vyplnil políčka, ale neklikl na tlačítko +, uložíme to za něj automaticky
+    const pendingPaidName = document.getElementById('newPaidTaskName').value.trim();
+    if (pendingPaidName) {
+      const pendingPaidPrice = parseFloat(document.getElementById('newPaidTaskPrice').value) || 0;
+      tempPaidTasks.push({ name: pendingPaidName, price: pendingPaidPrice });
+    }
+
+    const pendingCustomText = document.getElementById('newCustomText').value.trim();
+    if (pendingCustomText) {
+      const pendingCustomLink = document.getElementById('newCustomLink').value.trim();
+      tempCustomItems.push({ text: pendingCustomText, link: pendingCustomLink });
+    }
+
+    const pendingRed = document.getElementById('newCustomStatusRed').value.trim();
+    if (pendingRed) {
+      const pendingGreen = document.getElementById('newCustomStatusGreen').value.trim();
+      tempCustomStatuses.push({ textRed: pendingRed, textGreen: pendingGreen || (pendingRed + ' (Hotovo)'), isDone: false });
+    }
+
     const hideDefault = document.getElementById('editHideDefaultStatus').checked;
     const linkedRooms = Array.from(document.querySelectorAll('.link-cb:checked')).map(cb => parseInt(cb.value));
     
     if(name && finalEmoji) {
+      const pt = JSON.parse(JSON.stringify(tempPaidTasks));
+      const ci = JSON.parse(JSON.stringify(tempCustomItems));
+      const cs = JSON.parse(JSON.stringify(tempCustomStatuses));
+
       if(editIdx === -1) {
-        rooms.push({name, emoji: finalEmoji, isDirty: false, linkedRooms, paidTasks: tempPaidTasks, customItems: tempCustomItems, customStatuses: tempCustomStatuses, hideDefaultStatus: hideDefault});
+        rooms.push({name, emoji: finalEmoji, isDirty: false, linkedRooms, paidTasks: pt, customItems: ci, customStatuses: cs, hideDefaultStatus: hideDefault});
       } else {
-        rooms[editIdx] = {name, emoji: finalEmoji, isDirty: rooms[editIdx].isDirty, linkedRooms, paidTasks: tempPaidTasks, customItems: tempCustomItems, customStatuses: tempCustomStatuses, hideDefaultStatus: hideDefault};
+        rooms[editIdx] = {name, emoji: finalEmoji, isDirty: rooms[editIdx].isDirty, linkedRooms, paidTasks: pt, customItems: ci, customStatuses: cs, hideDefaultStatus: hideDefault};
       } saveToFirebase();
     } closeEdit();
   }
