@@ -63,12 +63,10 @@
   .room-card:hover{transform:translateY(-4px);box-shadow:0 10px 15px rgba(0,0,0,0.05);border-color:var(--color-border-secondary)}
   body.dark-mode .room-card:hover { box-shadow:0 10px 15px rgba(0,0,0,0.5); }
   
-  /* --- PASTELOVÉ BARVY POKOJŮ (VÝCHOZÍ) --- */
   .bg-state-free { background: var(--color-background-primary); }
   .bg-state-soon { background: #fff7ed; border-color: #fdba74; } body.dark-mode .bg-state-soon { background: #431407; border-color: #c2410c; }
   .bg-state-active { background: #fef2f2; border-color: #fca5a5; } body.dark-mode .bg-state-active { background: #450a0a; border-color: #b91c1c; }
 
-  /* --- SYTÉ BARVY POKOJŮ (VIVID) --- */
   body.vivid-colors .bg-state-soon { background: #fef08a; border-color: #eab308; } 
   body.vivid-colors.dark-mode .bg-state-soon { background: #713f12; border-color: #eab308; }
   body.vivid-colors .bg-state-active { background: #fecaca; border-color: #dc2626; } 
@@ -149,7 +147,6 @@
   .save-note-btn:hover{background:var(--color-background-secondary)}
   .note-saved{font-size:13px;font-weight:700;color:#16A34A;margin-left:12px;opacity:0;transition:opacity 0.3s} body.dark-mode .note-saved {color:#4ade80}
 
-  /* FOTKY ZÁVAD */
   .photo-grid { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
   .photo-wrap { position:relative; width:80px; height:80px; border-radius:var(--border-radius-md); border:1px solid var(--color-border-tertiary); overflow:hidden; }
   .photo-thumb { width:100%; height:100%; object-fit:cover; cursor:pointer; }
@@ -162,8 +159,8 @@
   .edit-modal h3{font-family:'Playfair Display',serif;font-size:20px;margin-bottom:1.5rem;color:var(--color-text-primary)}
   .edit-modal label{font-size:12px;font-weight:700;color:var(--color-text-secondary);display:block;margin-bottom:6px;margin-top:16px}
   
-  .edit-modal input[type="text"], .edit-modal input[type="number"], .admin-form input[type="email"], .admin-form input[type="text"], .admin-form input[type="number"] {width:100%;padding:12px 14px;font-size:16px;border:1px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);font-family:'Lato',sans-serif;outline:none;appearance:none;}
-  .edit-modal input[type="text"]:focus, .edit-modal input[type="number"]:focus, .admin-form input[type="email"]:focus, .admin-form input[type="text"]:focus, .admin-form input[type="number"]:focus {border-color:var(--color-border-primary);}
+  .edit-modal input[type="text"], .edit-modal input[type="number"], .admin-form input[type="email"], .admin-form input[type="text"], .admin-form input[type="number"], .edit-modal input[type="date"] {width:100%;padding:12px 14px;font-size:16px;border:1px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);font-family:'Lato',sans-serif;outline:none;appearance:none;}
+  .edit-modal input[type="text"]:focus, .edit-modal input[type="number"]:focus, .edit-modal input[type="date"]:focus, .admin-form input[type="email"]:focus, .admin-form input[type="text"]:focus, .admin-form input[type="number"]:focus {border-color:var(--color-border-primary);}
   
   input[type="checkbox"] {appearance: auto !important; -webkit-appearance: checkbox !important; width: 18px !important; height: 18px !important; margin: 0; cursor: pointer; accent-color: var(--color-text-primary);}
 
@@ -286,16 +283,19 @@
   <!-- MODAL: Moje směna -->
   <div class="edit-modal-bg" id="shiftBg">
     <div class="edit-modal" style="width: min(450px, 100%)">
-      <h3>💼 Moje dnešní směna</h3>
-      <p style="font-size:12px; color:var(--color-text-secondary); margin-bottom:16px;">Naklikejte placené úkony a zadejte odpracované hodiny. Údaje se odesílají vedení.</p>
+      <h3>💼 Moje směna</h3>
+      <p style="font-size:12px; color:var(--color-text-secondary); margin-bottom:16px;">Vyberte datum, naklikejte placené úkony a zadejte odpracované hodiny.</p>
       
+      <label>Vyberte den:</label>
+      <input type="date" id="shiftDateSelect" onchange="changeShiftDate()" style="margin-bottom:16px;">
+
       <label>Placené úkony (napříč pokoji):</label>
       <div id="myShiftRoomsList" style="margin-bottom:16px; border-top:1px solid var(--color-border-secondary); padding-top:8px;"></div>
 
       <label style="margin-top:20px;">Odpracované hodiny (např. 8.5)</label>
       <input type="number" step="0.5" id="myShiftHours" placeholder="Počet hodin" style="margin-bottom:16px;">
 
-      <label>Poznámka k dnešní směně/hodinám:</label>
+      <label>Poznámka k vybranému dni:</label>
       <textarea id="myShiftNote" placeholder="Dnes jsem pracovala navíc, protože..." style="width:100%; min-height:60px; padding:12px; border-radius:var(--border-radius-md); border:1px solid var(--color-border-secondary); background:var(--color-background-primary); color:var(--color-text-primary); font-family:'Lato',sans-serif; resize:vertical; outline:none; margin-bottom:16px;"></textarea>
 
       <div class="edit-btns">
@@ -477,21 +477,21 @@
 
   const app = initializeApp(firebaseConfig); const db = getDatabase(app); const auth = getAuth(app); const messaging = getMessaging(app); const googleProvider = new GoogleAuthProvider();
 
+  // ZMĚNA PRÁV: Admin vidí jen svůj, Main_staff vidí všechny, Owner nevidí panel vůbec
   const ROLE_PERMISSIONS = {
-    staff: { role:'staff', label:'Zaměstnanec', badge:'badge-staff', canEdit:false, canDelete:false, canToggle:true, canSeeStats:false, canLogShift:true },
-    main_staff: { role:'main_staff', label:'Hlavní Staff', badge:'badge-admin', canEdit:false, canDelete:false, canToggle:true, canSeeStats:true, canLogShift:true },
-    admin: { role:'admin', label:'Admin', badge:'badge-admin', canEdit:true, canDelete:true, canToggle:true, canSeeStats:true, canLogShift:true },
-    owner: { role:'owner', label:'Majitelka', badge:'badge-owner', canEdit:false, canDelete:false, canToggle:false, canSeeStats:false, canLogShift:false }
+    staff: { role:'staff', label:'Zaměstnanec', badge:'badge-staff', canEdit:false, canDelete:false, canToggle:true, canSeeStatsPanel:true, canSeeAllStats:false, canLogShift:true },
+    main_staff: { role:'main_staff', label:'Hlavní Staff', badge:'badge-admin', canEdit:false, canDelete:false, canToggle:true, canSeeStatsPanel:true, canSeeAllStats:true, canLogShift:true },
+    admin: { role:'admin', label:'Admin', badge:'badge-admin', canEdit:true, canDelete:true, canToggle:true, canSeeStatsPanel:true, canSeeAllStats:false, canLogShift:true },
+    owner: { role:'owner', label:'Majitelka', badge:'badge-owner', canEdit:false, canDelete:false, canToggle:false, canSeeStatsPanel:false, canSeeAllStats:false, canLogShift:false }
   };
   const EMOJIS=['🛏️','🏨','🍳','🍽️','☕','🚗','🚲','⛺','🌊','🌿','🔑','🛁','🍾','🌅','🌙','🏔️','🌸','🎋','🦋','🕯️','🍷','🐶','🚿','🔥'];
   
-  // ZCELA NOVÁ KONTRASTNÍ BAREVNÁ PALETA (Modrá, Oranžová, Limetková, Růžová, Žlutá, Fialová, Tyrkysová, Červená)
   const BOOKING_COLORS = ['#60A5FA', '#FB923C', '#84CC16', '#F472B6', '#FBBF24', '#C084FC', '#2DD4BF', '#F87171'];
   
   const defaultRooms=[{name:'Pokoj 101',emoji:'🛏️', isDirty: false}, {name:'Deluxe Suite',emoji:'🏨', isDirty: false}];
 
   let rooms = []; let bookings = {}; let notes = {}; let generalNotes = ''; let staffTasks = []; let authorizedUsers = {}; 
-  let shiftData = {}; let tempMyShift = {tasks:{}, dailyLogs:{}};
+  let shiftData = {}; let tempMyShift = {dailyLogs:{}}; let currentShiftDate = '';
   let tempCustomItems = []; let tempCustomStatuses = []; let tempPaidTasks = [];
   let currentUser=null; let dbListenerObj = null; let editIdx=-1,curRoom=-1; let editingUserKey=null;
   let calYear=new Date().getFullYear(),calMon=new Date().getMonth();
@@ -676,31 +676,68 @@
   }
   function deleteUserRole(key) { if(confirm('Odebrat přístup?')) { delete authorizedUsers[key]; saveToFirebase(); renderUsersAdmin(); } }
 
-  // --- SMĚNY A POČÍTADLA ---
+  // --- SMĚNY A POČÍTADLA VČETNĚ DATUMU ---
   function openMyShift() {
+    currentShiftDate = getLocalIsoDate();
+    document.getElementById('shiftDateSelect').value = currentShiftDate;
+
     const myKey = currentUser.email.replace(/\./g, '_'); const data = shiftData[myKey] || {};
     tempMyShift = JSON.parse(JSON.stringify(data));
-    if (!tempMyShift.tasks) tempMyShift.tasks = {}; if (!tempMyShift.dailyLogs) tempMyShift.dailyLogs = {};
+    if (!tempMyShift.dailyLogs) tempMyShift.dailyLogs = {};
 
-    const todayStr = getLocalIsoDate();
-    if (tempMyShift.hours && Object.keys(tempMyShift.dailyLogs).length === 0) {
-        let legacyNote = ''; if(tempMyShift.notes && tempMyShift.notes.length > 0) { legacyNote = tempMyShift.notes.map(n => n.text).join(' | '); }
-        tempMyShift.dailyLogs[todayStr] = { hours: tempMyShift.hours, note: legacyNote };
+    // MIGRACE ZE STARÉ VERZE:
+    if (tempMyShift.hours !== undefined || tempMyShift.tasks) {
+        let legacyNote = ''; 
+        if(tempMyShift.notes && tempMyShift.notes.length > 0) { legacyNote = tempMyShift.notes.map(n => n.text).join(' | '); }
+        
+        if (!tempMyShift.dailyLogs[currentShiftDate]) tempMyShift.dailyLogs[currentShiftDate] = { hours: 0, note: '', tasks: {} };
+        
+        if (tempMyShift.hours !== undefined) tempMyShift.dailyLogs[currentShiftDate].hours = tempMyShift.hours;
+        if (legacyNote) tempMyShift.dailyLogs[currentShiftDate].note = legacyNote;
+        if (tempMyShift.tasks) tempMyShift.dailyLogs[currentShiftDate].tasks = tempMyShift.tasks;
+        
+        delete tempMyShift.hours; delete tempMyShift.notes; delete tempMyShift.tasks;
     }
-    const todayLog = tempMyShift.dailyLogs[todayStr] || {hours: 0, note: ''};
-    document.getElementById('myShiftHours').value = todayLog.hours || ''; document.getElementById('myShiftNote').value = todayLog.note || ''; 
-    renderMyShiftRooms(); document.getElementById('shiftBg').classList.add('open');
+
+    renderShiftFormForDate();
+    document.getElementById('shiftBg').classList.add('open');
   }
+  
+  function saveShiftFormToTemp() {
+    const h = parseFloat(document.getElementById('myShiftHours').value) || 0;
+    const n = document.getElementById('myShiftNote').value.trim();
+    if (!tempMyShift.dailyLogs[currentShiftDate]) tempMyShift.dailyLogs[currentShiftDate] = { hours: 0, note: '', tasks: {} };
+    tempMyShift.dailyLogs[currentShiftDate].hours = h;
+    tempMyShift.dailyLogs[currentShiftDate].note = n;
+  }
+
+  function changeShiftDate() {
+    saveShiftFormToTemp();
+    currentShiftDate = document.getElementById('shiftDateSelect').value || getLocalIsoDate();
+    renderShiftFormForDate();
+  }
+
+  function renderShiftFormForDate() {
+    const log = tempMyShift.dailyLogs[currentShiftDate] || { hours: 0, note: '', tasks: {} };
+    document.getElementById('myShiftHours').value = log.hours || '';
+    document.getElementById('myShiftNote').value = log.note || ''; 
+    renderMyShiftRooms(); 
+  }
+
   function closeMyShift() { document.getElementById('shiftBg').classList.remove('open'); }
   
   function renderMyShiftRooms() {
     const list = document.getElementById('myShiftRoomsList'); let html = ''; let hasAny = false;
+    const log = tempMyShift.dailyLogs[currentShiftDate] || { tasks: {} };
+    const tasks = log.tasks || {};
+
     rooms.forEach((r, roomIdx) => {
       if(r.paidTasks && r.paidTasks.length > 0) {
         hasAny = true;
         html += `<div style="font-size:14px; font-weight:bold; color:var(--color-text-primary); margin-top:12px; border-bottom:1px solid var(--color-border-secondary); padding-bottom:4px;">${r.name}</div>`;
         r.paidTasks.forEach((pt, taskIdx) => {
-           const taskKey = `${roomIdx}_${taskIdx}`; const count = tempMyShift.tasks[taskKey] || 0;
+           const taskKey = `${roomIdx}_${taskIdx}`; 
+           const count = tasks[taskKey] || 0;
            html += `
              <div class="shift-counter-wrap">
                <div style="font-size:13px; color:var(--color-text-secondary);">${pt.name} (${pt.price} Kč)</div>
@@ -718,17 +755,30 @@
   }
   
   function changeShiftTask(taskKey, delta) {
-    if(!tempMyShift.tasks) tempMyShift.tasks = {}; if(!tempMyShift.tasks[taskKey]) tempMyShift.tasks[taskKey] = 0;
-    tempMyShift.tasks[taskKey] += delta; if(tempMyShift.tasks[taskKey] < 0) tempMyShift.tasks[taskKey] = 0; renderMyShiftRooms();
+    if (!tempMyShift.dailyLogs[currentShiftDate]) tempMyShift.dailyLogs[currentShiftDate] = { hours: 0, note: '', tasks: {} };
+    if (!tempMyShift.dailyLogs[currentShiftDate].tasks) tempMyShift.dailyLogs[currentShiftDate].tasks = {};
+    let t = tempMyShift.dailyLogs[currentShiftDate].tasks;
+    if (!t[taskKey]) t[taskKey] = 0;
+    t[taskKey] += delta; if (t[taskKey] < 0) t[taskKey] = 0; 
+    renderMyShiftRooms();
   }
 
   function saveMyShift() {
-    const myKey = currentUser.email.replace(/\./g, '_'); const todayStr = getLocalIsoDate();
-    const h = parseFloat(document.getElementById('myShiftHours').value) || 0; const n = document.getElementById('myShiftNote').value.trim();
-    if (!tempMyShift.dailyLogs) tempMyShift.dailyLogs = {};
-    if (h === 0 && n === '') { delete tempMyShift.dailyLogs[todayStr]; } else { tempMyShift.dailyLogs[todayStr] = { hours: h, note: n }; }
-    delete tempMyShift.hours; delete tempMyShift.notes;
-    shiftData[myKey] = tempMyShift; saveToFirebase(); closeMyShift();
+    saveShiftFormToTemp();
+    const myKey = currentUser.email.replace(/\./g, '_');
+    
+    // Vyčištění prázdných záznamů ať neplníme databázi
+    for (const d in tempMyShift.dailyLogs) {
+        const log = tempMyShift.dailyLogs[d];
+        const hasTasks = log.tasks && Object.values(log.tasks).some(v => v > 0);
+        if ((!log.hours || log.hours === 0) && !log.note && !hasTasks) {
+            delete tempMyShift.dailyLogs[d];
+        }
+    }
+
+    shiftData[myKey] = tempMyShift; 
+    saveToFirebase(); 
+    closeMyShift();
   }
 
   // --- DETAILNÍ VÝPISY PRO VEDENÍ ---
@@ -736,42 +786,46 @@
     const d = shiftData[key]; const user = authorizedUsers[key];
     const nick = user ? (user.nickname || user.email) : key; const rate = parseFloat(user?.hourlyRate) || 0;
     let totalHours = 0; let logsHtml = '';
+    let overallTasksMoney = 0;
     
     if (d.dailyLogs && Object.keys(d.dailyLogs).length > 0) {
         const dates = Object.keys(d.dailyLogs).sort();
-        logsHtml = '<strong style="margin-top:12px; display:block;">Výkaz hodin podle dní:</strong>';
+        logsHtml = '<strong style="margin-top:12px; display:block;">Výkaz podle dní:</strong>';
+        
         dates.forEach(date => {
-            const log = d.dailyLogs[date]; totalHours += (log.hours || 0);
-            const noteTxt = log.note ? ` <span style="color:var(--color-text-secondary);">- ${log.note}</span>` : '';
-            logsHtml += `<div style="background:var(--color-background-secondary); padding:8px; border-radius:6px; margin-top:4px; font-size:13px;"><strong>${fmt(date)}:</strong> ${log.hours || 0} hod${noteTxt}</div>`;
+            const log = d.dailyLogs[date]; 
+            let dayHours = log.hours || 0;
+            totalHours += dayHours;
+            
+            let dayTasksHtml = '';
+            if (log.tasks) {
+                for(const tk in log.tasks) {
+                    if (log.tasks[tk] > 0) {
+                        const parts = tk.split('_'); const rIdx = parseInt(parts[0]); const tIdx = parseInt(parts[1]);
+                        if (rooms[rIdx] && rooms[rIdx].paidTasks && rooms[rIdx].paidTasks[tIdx]) {
+                            const pt = rooms[rIdx].paidTasks[tIdx]; const cnt = log.tasks[tk];
+                            const price = parseFloat(pt.price) || 0; const sum = cnt * price; 
+                            overallTasksMoney += sum;
+                            dayTasksHtml += `<br>&nbsp;&nbsp;&nbsp;↳ ${rooms[rIdx].name} - ${pt.name}: ${cnt}x (${sum} Kč)`;
+                        }
+                    }
+                }
+            }
+            const noteTxt = log.note ? `<br>&nbsp;&nbsp;&nbsp;<em>Pozn.: ${log.note}</em>` : '';
+            logsHtml += `<div style="background:var(--color-background-secondary); padding:8px; border-radius:6px; margin-top:4px; font-size:13px;"><strong>${fmt(date)}:</strong> ${dayHours} hod${dayTasksHtml}${noteTxt}</div>`;
         });
     } else {
-        totalHours = d.hours || 0;
-        if (d.notes && d.notes.length > 0) {
-            logsHtml = '<strong style="margin-top:12px; display:block;">Poznámky k hodinám:</strong>';
-            d.notes.forEach(n => { logsHtml += `<div style="background:var(--color-background-secondary); padding:8px; border-radius:6px; margin-top:4px; font-size:13px;"><strong>${fmt(n.date)}:</strong> ${n.text}</div>`; });
-        }
+        logsHtml = '<div style="font-size:13px; color:var(--color-text-secondary); margin-top:12px;">Zatím nejsou zadány žádné směny.</div>';
     }
 
-    const hoursMoney = totalHours * rate; let tasksMoney = 0; let tasksHtml = '';
-    for(const taskKey in (d.tasks || {})) {
-       if(d.tasks[taskKey] > 0) {
-          const parts = taskKey.split('_'); const rIdx = parseInt(parts[0]); const tIdx = parseInt(parts[1]);
-          if (rooms[rIdx] && rooms[rIdx].paidTasks && rooms[rIdx].paidTasks[tIdx]) {
-             const pt = rooms[rIdx].paidTasks[tIdx]; const cnt = d.tasks[taskKey];
-             const price = parseFloat(pt.price) || 0; const sum = cnt * price; tasksMoney += sum;
-             tasksHtml += `• ${rooms[rIdx].name} - ${pt.name}: ${cnt}x (${sum} Kč)<br>`;
-          }
-       }
-    }
+    const hoursMoney = totalHours * rate; 
 
     document.getElementById('sdName').textContent = `Výkaz: ${nick}`;
     document.getElementById('sdContent').innerHTML = `
         <strong>Odpracováno:</strong> ${totalHours} hod (Sazba: ${rate} Kč/h = ${hoursMoney} Kč)<br>
-        <strong style="margin-top:12px; display:block;">Placené úkony (Celkem: ${tasksMoney} Kč):</strong>
-        ${tasksHtml || 'Žádné úkony.<br>'}
+        <strong>Úkony (Celkem: ${overallTasksMoney} Kč)</strong>
         ${logsHtml}
-        <strong style="font-size:16px; color:#16A34A; margin-top:16px; display:block; border-top:1px solid var(--color-border-secondary); padding-top:8px;">K výplatě celkem: ${hoursMoney + tasksMoney} Kč</strong>
+        <strong style="font-size:16px; color:#16A34A; margin-top:16px; display:block; border-top:1px solid var(--color-border-secondary); padding-top:8px;">K výplatě celkem: ${hoursMoney + overallTasksMoney} Kč</strong>
     `;
     document.getElementById('shiftDetailsBg').classList.add('open');
   }
@@ -779,26 +833,45 @@
 
   function renderStatsPanel() {
     const panel = document.getElementById('statsPanel');
-    if (!currentUser || !currentUser.canSeeStats) { panel.style.display = 'none'; return; }
+    if (!currentUser || !currentUser.canSeeStatsPanel) { panel.style.display = 'none'; return; }
+    
+    const myKey = currentUser.email.replace(/\./g, '_');
     panel.style.display = 'block';
     
     let html = '<h4>Výkazy úklidů</h4>'; let empty = true;
     for(const key in shiftData) {
+      if (!currentUser.canSeeAllStats && key !== myKey) continue;
+
       const d = shiftData[key]; const user = authorizedUsers[key];
       const nick = user ? (user.nickname || user.email) : key; const rate = parseFloat(user?.hourlyRate) || 0;
 
       let totalHours = 0; let hasLogs = false;
-      if (d.dailyLogs && Object.keys(d.dailyLogs).length > 0) { Object.values(d.dailyLogs).forEach(log => totalHours += (log.hours || 0)); hasLogs = true; } 
-      else { totalHours = d.hours || 0; if (d.notes && d.notes.length > 0) hasLogs = true; }
+      let tasksTxtMap = {};
 
-      const hoursMoney = totalHours * rate; let tasksMoney = 0; let tasksTxt = [];
-      for(const taskKey in (d.tasks || {})) {
-         if(d.tasks[taskKey] > 0) {
-            const parts = taskKey.split('_'); const rIdx = parseInt(parts[0]); const tIdx = parseInt(parts[1]);
-            if (rooms[rIdx] && rooms[rIdx].paidTasks && rooms[rIdx].paidTasks[tIdx]) {
-               const pt = rooms[rIdx].paidTasks[tIdx]; const cnt = d.tasks[taskKey]; const price = parseFloat(pt.price) || 0;
-               tasksMoney += (cnt * price); tasksTxt.push(`• ${rooms[rIdx].name} - ${pt.name}: ${cnt}x`);
-            }
+      if (d.dailyLogs && Object.keys(d.dailyLogs).length > 0) { 
+          hasLogs = true;
+          for(const date in d.dailyLogs) {
+             const log = d.dailyLogs[date];
+             totalHours += (log.hours || 0);
+             if (log.tasks) {
+                 for(const tk in log.tasks) {
+                     if(log.tasks[tk] > 0) {
+                         if (!tasksTxtMap[tk]) tasksTxtMap[tk] = 0;
+                         tasksTxtMap[tk] += log.tasks[tk];
+                     }
+                 }
+             }
+          } 
+      }
+
+      const hoursMoney = totalHours * rate; 
+      let tasksMoney = 0; let tasksTxt = [];
+      
+      for(const tk in tasksTxtMap) {
+         const parts = tk.split('_'); const rIdx = parseInt(parts[0]); const tIdx = parseInt(parts[1]);
+         if (rooms[rIdx] && rooms[rIdx].paidTasks && rooms[rIdx].paidTasks[tIdx]) {
+             const pt = rooms[rIdx].paidTasks[tIdx]; const cnt = tasksTxtMap[tk]; const price = parseFloat(pt.price) || 0;
+             tasksMoney += (cnt * price); tasksTxt.push(`• ${rooms[rIdx].name} - ${pt.name}: ${cnt}x`);
          }
       }
       const totalOverall = hoursMoney + tasksMoney;
@@ -818,7 +891,10 @@
       }
     }
     if(empty) html += '<div style="font-size:13px; color:var(--color-text-secondary); margin-bottom:12px;">Zatím nejsou zadané žádné výkazy.</div>';
-    html += `<button class="btn-delete-room" onclick="resetShiftData()" style="width:100%; padding:12px;">Vynulovat vše (Vyplaceno)</button>`;
+    
+    if (currentUser.canSeeAllStats) {
+        html += `<button class="btn-delete-room" onclick="resetShiftData()" style="width:100%; padding:12px;">Vynulovat vše (Vyplaceno)</button>`;
+    }
     panel.innerHTML = html;
   }
 
@@ -1171,7 +1247,7 @@
   window.addCustomStatusToEdit = addCustomStatusToEdit; window.removeCustomStatusFromEdit = removeCustomStatusFromEdit;
   window.addPaidTaskToEdit = addPaidTaskToEdit; window.removePaidTaskFromEdit = removePaidTaskFromEdit;
   window.clearEmojiSelection = clearEmojiSelection; window.openMyShift = openMyShift; window.closeMyShift = closeMyShift;
-  window.changeShiftTask = changeShiftTask; window.saveMyShift = saveMyShift; window.resetShiftData = resetShiftData;
+  window.changeShiftDate = changeShiftDate; window.changeShiftTask = changeShiftTask; window.saveMyShift = saveMyShift; window.resetShiftData = resetShiftData;
   window.openShiftDetails = openShiftDetails; window.closeShiftDetails = closeShiftDetails;
   window.closeNewBookingsModal = closeNewBookingsModal;
   window.handlePhotoUpload = handlePhotoUpload; window.viewPhoto = viewPhoto; window.deletePhoto = deletePhoto;
