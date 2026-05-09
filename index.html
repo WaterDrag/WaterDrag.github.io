@@ -471,7 +471,8 @@
     owner: { role:'owner', label:'Majitelka', badge:'badge-owner', canEdit:false, canDelete:false, canToggle:false, canSeeStats:false, canLogShift:false }
   };
   const EMOJIS=['🛏️','🏨','🍳','🍽️','☕','🚗','🚲','⛺','🌊','🌿','🔑','🛁','🍾','🌅','🌙','🏔️','🌸','🎋','🦋','🕯️','🍷','🐶','🚿','🔥'];
-  const BOOKING_COLORS = ['#bae6fd', '#bbf7d0', '#fef08a', '#fecaca', '#e9d5ff', '#fed7aa', '#a7f3d0']; // Barevná paleta pobytů
+  // Nová paleta sytějších a kontrastnějších barev (Blue, Green, Yellow, Red, Purple, Orange, Teal, Pink)
+  const BOOKING_COLORS = ['#60A5FA', '#34D399', '#FBBF24', '#F87171', '#C084FC', '#FB923C', '#2DD4BF', '#F472B6'];
   const defaultRooms=[{name:'Pokoj 101',emoji:'🛏️', isDirty: false}, {name:'Deluxe Suite',emoji:'🏨', isDirty: false}];
 
   let rooms = []; let bookings = {}; let notes = {}; let generalNotes = ''; let staffTasks = []; let authorizedUsers = {}; 
@@ -945,7 +946,6 @@
     const hideDefault = document.getElementById('editHideDefaultStatus').checked;
     const linkedRooms = Array.from(document.querySelectorAll('.link-cb:checked')).map(cb => parseInt(cb.value));
     
-    // Fotky se neresetují při editaci
     const existingPhotos = (editIdx !== -1 && rooms[editIdx].photos) ? rooms[editIdx].photos : [];
 
     if(name && finalEmoji) {
@@ -1062,7 +1062,6 @@
     const list = bookings[curRoom] || []; const el = document.getElementById('bookingsList'); const canDel = currentUser && currentUser.canDelete; 
     if(!list.length) { el.innerHTML = ''; return; }
     
-    // Sort logic removed to keep indices consistent with colors!
     el.innerHTML = list.map((b,i) => {
         const color = BOOKING_COLORS[i % BOOKING_COLORS.length];
         return `<div class="booking-item" style="border-left: 4px solid ${color};"><div><div class="booking-dates">${fmt(b.from)} → ${fmt(b.to)}</div>${b.note ? `<div class="booking-note">${b.note}</div>` : ''}</div>${canDel ? `<button class="del-btn" onclick="delBooking(${i})" title="Smazat">✕</button>` : ''}</div>`;
@@ -1091,7 +1090,7 @@
               canvas.width = w; canvas.height = h;
               const ctx = canvas.getContext('2d');
               ctx.drawImage(img, 0, 0, w, h);
-              const dataUrl = canvas.toDataURL('image/jpeg', 0.6); // 60% kvalita = hodně malé rozlišení do databáze
+              const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
               
               if(!rooms[curRoom].photos) rooms[curRoom].photos = [];
               rooms[curRoom].photos.push({ data: dataUrl, addedAt: Date.now() });
@@ -1101,7 +1100,7 @@
           img.src = e.target.result;
       }
       reader.readAsDataURL(file);
-      input.value = ''; // reset
+      input.value = '';
   }
 
   function renderPhotos() {
