@@ -36,9 +36,6 @@
   .google-btn{width:100%;margin-top:1rem;padding:12px;font-size:14px;font-weight:700;font-family:'Lato',sans-serif;border:1px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);cursor:pointer;letter-spacing:0.5px;transition:background 0.2s; display:flex; align-items:center; justify-content:center; gap:8px;}
   .google-btn:hover{background:var(--color-background-secondary)}
   .login-err{font-size:12px;color:var(--color-text-danger);text-align:center;margin-top:12px;min-height:16px}
-  .divider {display:flex; align-items:center; text-align:center; margin:1.5rem 0; color:var(--color-text-secondary); font-size:12px;}
-  .divider::before, .divider::after {content:''; flex:1; border-bottom:1px solid var(--color-border-secondary);}
-  .divider:not(:empty)::before {margin-right:.5em;} .divider:not(:empty)::after {margin-left:.5em;}
 
   .role-badge{display:inline-block;padding:3px 10px;border-radius:var(--border-radius-md);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-left:8px}
   .badge-staff{background:#E1F5EE;color:#085041} .badge-admin{background:#E6F1FB;color:#0C447C} .badge-owner{background:#FAEEDA;color:#633806}
@@ -53,13 +50,10 @@
   .theme-btn:hover {background:var(--color-background-secondary)}
 
   .admin-actions-wrap{max-width:1200px;margin:0 auto 1.5rem;padding:0 24px;text-align:center; display:flex; justify-content:center; gap:12px; flex-wrap:wrap;}
-
-  /* MINI STATISTIKY */
   .mini-stats-wrap { max-width: 1200px; margin: 0 auto 1.5rem; padding: 0 24px; display: flex; justify-content: flex-start; gap: 20px; flex-wrap: wrap; }
   .stat-item { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: var(--color-text-primary); background: var(--color-background-primary); border: 1px solid var(--color-border-secondary); padding: 8px 16px; border-radius: var(--border-radius-md); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
   .stat-val { background: var(--color-background-secondary); padding: 2px 8px; border-radius: 12px; font-size: 14px; color: var(--color-text-primary); border: 1px solid var(--color-border-tertiary); }
-  body.dark-mode .stat-item { border-color: var(--color-border-tertiary); }
-  body.dark-mode .stat-val { background: var(--color-border-tertiary); border-color: var(--color-border-secondary); }
+  body.dark-mode .stat-item { border-color: var(--color-border-tertiary); } body.dark-mode .stat-val { background: var(--color-border-tertiary); border-color: var(--color-border-secondary); }
 
   .rooms-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;padding:0 24px 24px;max-width:1200px;margin:0 auto}
   .room-card{border:1px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;cursor:pointer;position:relative;transition:transform 0.2s,box-shadow 0.2s, background-color 0.3s;}
@@ -78,7 +72,6 @@
 
   .room-badges-wrap {position:absolute; bottom:12px; left:12px; display:flex; flex-direction:column; gap:4px; align-items:flex-start; z-index:2; max-width:85%;}
   .room-status-badge{padding:4px 8px;border-radius:var(--border-radius-md);font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;box-shadow:0 2px 4px rgba(0,0,0,0.1); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;}
-  
   .status-clean{background:#DCFCE7;color:#166534} .status-dirty{background:#FEE2E2;color:#991B1B}
   body.dark-mode .status-clean{background:#064e3b;color:#34d399} body.dark-mode .status-dirty{background:#450a0a;color:#f87171}
 
@@ -152,8 +145,8 @@
   .edit-modal h3{font-family:'Playfair Display',serif;font-size:20px;margin-bottom:1.5rem;color:var(--color-text-primary)}
   .edit-modal label{font-size:12px;font-weight:700;color:var(--color-text-secondary);display:block;margin-bottom:6px;margin-top:16px}
   
-  .edit-modal input[type="text"], .admin-form input[type="email"] {width:100%;padding:12px 14px;font-size:16px;border:1px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);font-family:'Lato',sans-serif;outline:none;appearance:none;}
-  .edit-modal input[type="text"]:focus, .admin-form input[type="email"]:focus {border-color:var(--color-border-primary);}
+  .edit-modal input[type="text"], .edit-modal input[type="number"], .admin-form input[type="email"], .admin-form input[type="text"] {width:100%;padding:12px 14px;font-size:16px;border:1px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);font-family:'Lato',sans-serif;outline:none;appearance:none;}
+  .edit-modal input[type="text"]:focus, .edit-modal input[type="number"]:focus, .admin-form input[type="email"]:focus, .admin-form input[type="text"]:focus {border-color:var(--color-border-primary);}
   
   input[type="checkbox"] {appearance: auto !important; -webkit-appearance: checkbox !important; width: 18px !important; height: 18px !important; margin: 0; cursor: pointer; accent-color: var(--color-text-primary);}
 
@@ -174,6 +167,19 @@
   .linked-rooms-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; background: var(--color-background-secondary); padding: 12px; border-radius: var(--border-radius-md); max-height: 160px; overflow-y: auto; border: 1px solid var(--color-border-secondary); }
   .linked-rooms-list label { font-size: 14px; margin: 0; display: flex; align-items: center; gap: 10px; cursor: pointer; color: var(--color-text-primary); text-transform: none; font-weight: 400; }
 
+  /* Výkazy práce Panel (Admin/MainStaff) */
+  .stats-panel { position:fixed; bottom:20px; right:20px; background:var(--color-background-primary); border:1px solid var(--color-border-tertiary); padding:16px; border-radius:12px; z-index:5000; box-shadow:0 10px 20px rgba(0,0,0,0.15); width:min(320px, calc(100vw - 40px)); max-height:60vh; overflow-y:auto; }
+  body.dark-mode .stats-panel { box-shadow:0 10px 20px rgba(0,0,0,0.6); border-color:var(--color-border-secondary); }
+  .stats-panel h4 { font-family:'Playfair Display',serif; font-size:18px; margin-bottom:12px; color:var(--color-text-primary); }
+  .stats-panel-user { margin-bottom:12px; font-size:13px; color:var(--color-text-secondary); border-bottom:1px solid var(--color-border-secondary); padding-bottom:8px;}
+  .stats-panel-user strong { color:var(--color-text-primary); }
+
+  /* Počítadlo směny */
+  .shift-counter-wrap { display:flex; align-items:center; justify-content:space-between; background:var(--color-background-secondary); padding:8px 12px; border-radius:var(--border-radius-md); margin-bottom:8px;}
+  .shift-counter-btn { width:32px; height:32px; background:var(--color-background-primary); border:1px solid var(--color-border-secondary); border-radius:50%; font-size:16px; font-weight:bold; cursor:pointer; color:var(--color-text-primary); }
+  .shift-counter-btn:hover { background:var(--color-border-tertiary); }
+  .shift-counter-val { font-size:16px; font-weight:bold; color:var(--color-text-primary); width:40px; text-align:center;}
+
   @media (max-width: 640px) {
     .hotel-header { padding-top: 3.5rem; padding-bottom: 1.25rem; }
     .user-info { top: 1.25rem; left: 1rem; transform: none; font-size: 13px; }
@@ -181,8 +187,7 @@
     .theme-btn { top: 1.25rem; right: 5.5rem; transform: none; padding: 5px 10px; font-size:14px; }
     .hotel-title { font-size: 22px; margin-top: 0.5rem; }
     .mini-stats-wrap { margin: 0 16px 1.5rem; padding: 0; gap: 10px; justify-content: flex-start; }
-    .stat-item { padding: 6px 12px; font-size: 12px; }
-    .stat-val { padding: 2px 6px; font-size: 12px; }
+    .stat-item { padding: 6px 12px; font-size: 12px; } .stat-val { padding: 2px 6px; font-size: 12px; }
     .rooms-grid { grid-template-columns: repeat(2, 1fr); padding: 0 16px 24px; gap: 12px; }
     .room-img .emoji { font-size: 40px; } .room-name { font-size: 14px; }
     .edit-btn { opacity: 1; background: rgba(255,255,255,0.9); color:#18181b;} body.dark-mode .edit-btn { background: rgba(0,0,0,0.8); color: #fff; }
@@ -191,6 +196,7 @@
     .edit-modal-bg { padding: 0; align-items: flex-end; } .edit-modal { border-radius: 24px 24px 0 0; padding: 1.5rem 1.5rem 2.5rem; border: none; }
     .cal-day { font-size: 12px; padding: 8px 0; } .booking-form { padding: 1rem 0.75rem; }
     .add-btn, .btn-save, .btn-cancel, .btn-delete-room { padding: 14px 10px; } .general-notes-wrap { padding: 0 16px; margin-bottom: 2.5rem;}
+    .stats-panel { bottom:0; right:0; width:100%; border-radius: 24px 24px 0 0; border:none; border-top:1px solid var(--color-border-secondary); }
   }
   </style>
 </head>
@@ -225,6 +231,10 @@
     <div class="user-info" id="userInfo"></div>
     <div class="hotel-title">Penzion Rezervace</div>
     <div class="hotel-sub">správa pokojů</div>
+    
+    <!-- Nové tlačítko pro personál -->
+    <button id="myShiftBtn" class="add-btn" style="display:none; margin: 12px auto 0;" onclick="openMyShift()">💼 Moje směna</button>
+    
     <button id="themeToggleBtn" class="theme-btn" onclick="toggleTheme()" title="Přepnout vzhled">🌙</button>
     <button class="logout-btn" onclick="doLogout()">Odhlásit</button>
   </div>
@@ -240,7 +250,7 @@
 
   <div class="general-notes-wrap">
     <div class="section-label">Poznámky</div>
-    <textarea class="notes-area" id="generalNotes" oninput="autoResize(this)" placeholder="Co chybí, co se rozbilo na recepci, požadavky na dokoupení..."></textarea>
+    <textarea class="notes-area" id="generalNotes" oninput="autoResize(this)" placeholder="Co chybí, co se rozbilo na recepci..."></textarea>
     <div style="display:flex;align-items:center">
       <button class="save-note-btn" onclick="saveGeneralNote()">Uložit vzkaz</button>
       <span class="note-saved" id="genNoteSaved">✓ Uloženo</span>
@@ -256,6 +266,28 @@
     </div>
   </div>
 
+  <!-- Plovoucí panel Výkazy práce (Main Staff / Admin) -->
+  <div id="statsPanel" class="stats-panel" style="display:none;"></div>
+
+  <!-- MODAL: Moje směna -->
+  <div class="edit-modal-bg" id="shiftBg">
+    <div class="edit-modal" style="width: min(450px, 100%)">
+      <h3>💼 Moje dnešní směna</h3>
+      <p style="font-size:12px; color:var(--color-text-secondary); margin-bottom:16px;">Zadejte odpracované hodiny a naklikejte pokoje, které jste dnes uklidili. Údaje se odesílají vedení.</p>
+      
+      <label>Odpracované hodiny (např. 8.5)</label>
+      <input type="number" step="0.5" id="myShiftHours" placeholder="Počet hodin" style="margin-bottom:20px;">
+      
+      <label>Pokoje s placeným úklidem:</label>
+      <div id="myShiftRoomsList" style="margin-bottom:16px; border-top:1px solid var(--color-border-secondary); padding-top:8px;"></div>
+
+      <div class="edit-btns">
+        <button class="btn-save" onclick="saveMyShift()">Uložit a odeslat</button>
+        <button class="btn-cancel" onclick="closeMyShift()">Zavřít</button>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL PRO POKOJ -->
   <div class="modal-bg" id="modalBg">
     <div class="modal">
@@ -263,12 +295,10 @@
         <div class="modal-room-title" id="modalTitle"></div>
         <div class="modal-room-sub" id="modalSub"></div>
         <div id="roomCustomItemsWrap" class="custom-items-wrap"></div>
-        
         <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;">
           <button id="toggleStatusBtn" class="toggle-status-btn" style="margin-top:0;" onclick="toggleDirty()"></button>
           <span id="customStatusesWrap" style="display:flex; gap:8px; flex-wrap:wrap;"></span>
         </div>
-        
         <button class="close-btn" onclick="closeModal()">✕</button>
       </div>
       <div class="modal-body">
@@ -279,7 +309,6 @@
           <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
         </div>
         <div class="calendar-grid" id="calGrid"></div>
-        
         <div id="bookingFormWrap">
           <div class="section-label">Přidat rezervaci</div>
           <div class="booking-form">
@@ -288,7 +317,6 @@
             <button class="add-btn" onclick="addBooking()">+ Přidat rezervaci</button>
           </div>
         </div>
-        
         <div id="bookingsList" class="bookings-list" style="margin-top:1.25rem"></div>
         <div class="section-label">Poznámky k pokoji</div>
         <textarea class="notes-area" id="roomNotes" oninput="autoResize(this)" placeholder="Stav pokoje, vybavení, opravy..."></textarea>
@@ -313,6 +341,13 @@
         <input type="text" id="customEmojiInput" placeholder="Jiná?" maxlength="5" title="Vložte z klávesnice libovolné emoji" oninput="clearEmojiSelection()" style="width: 70px !important; flex:none; height:46px; font-size:24px; text-align:center; padding:0; border:2px solid var(--color-border-secondary); border-radius:var(--border-radius-md); background:var(--color-background-primary);">
       </div>
       
+      <div style="background:var(--color-background-secondary); padding:12px; border-radius:var(--border-radius-md); border:1px solid var(--color-border-secondary); margin-top:16px;">
+        <label style="margin:0; display:flex; align-items:center; gap:8px; cursor:pointer; color:var(--color-text-primary); text-transform:none;">
+          <input type="checkbox" id="editHasCounter"> Placený úklid (zobrazí počítadlo personálu)
+        </label>
+        <input type="number" id="editRoomPrice" placeholder="Odměna za úklid (Kč)" style="margin-top:8px;">
+      </div>
+
       <label style="margin-top:20px; display:flex; align-items:center; gap:8px; cursor:pointer; color:var(--color-text-primary); text-transform:none;">
         <input type="checkbox" id="editHideDefaultStatus"> Skrýt výchozí tlačítko (Uklizeno/Špinavé)
       </label>
@@ -345,16 +380,22 @@
 
   <!-- MODAL SPRÁVY UŽIVATELŮ -->
   <div class="edit-modal-bg" id="usersAdminBg">
-    <div class="edit-modal" style="width: min(500px, 100%)">
+    <div class="edit-modal" style="width: min(600px, 100%)">
       <h3>Správa přístupů</h3>
-      <p style="font-size:12px; color:var(--color-text-secondary); margin-bottom:1rem;">Přidejte e-mail zaměstnance a zvolte mu oprávnění. Bez e-mailu na tomto seznamu se do systému nikdo nepřihlásí.</p>
-      <div class="admin-form" style="display:flex; gap:8px; margin-bottom:1rem;">
-        <input type="email" id="newUserEmail" placeholder="E-mail uživatele" style="flex:2">
-        <select id="newUserRole" style="flex:1"><option value="staff">Staff</option><option value="admin">Admin</option><option value="owner">Owner</option></select>
+      <p style="font-size:12px; color:var(--color-text-secondary); margin-bottom:1rem;">Přidejte e-mail zaměstnance a zvolte mu oprávnění. Bez e-mailu na tomto seznamu se nikdo nepřihlásí.</p>
+      <div class="admin-form" style="display:flex; gap:8px; margin-bottom:1rem; flex-wrap:wrap;">
+        <input type="email" id="newUserEmail" placeholder="E-mail" style="flex:2; min-width:150px;">
+        <input type="text" id="newUserNick" placeholder="Přezdívka (volitelné)" style="flex:1; min-width:100px;">
+        <select id="newUserRole" style="flex:1; min-width:100px;">
+          <option value="staff">Staff</option>
+          <option value="main_staff">Main Staff</option>
+          <option value="admin">Admin</option>
+          <option value="owner">Owner</option>
+        </select>
         <button class="add-btn" onclick="addUserRole()" style="padding:12px">Přidat</button>
       </div>
       <table class="users-table">
-        <thead><tr><th>E-mail</th><th>Role</th><th></th></tr></thead><tbody id="usersTableBody"></tbody>
+        <thead><tr><th>E-mail</th><th>Přezdívka</th><th>Role</th><th></th></tr></thead><tbody id="usersTableBody"></tbody>
       </table>
       <div class="edit-btns" style="margin-top:1.5rem"><button class="btn-cancel" onclick="closeUsersAdmin()">Zavřít</button></div>
     </div>
@@ -378,48 +419,40 @@
     measurementId: "G-Y2R5S6WJEP"
   };
 
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-  const auth = getAuth(app);
-  const messaging = getMessaging(app);
-  const googleProvider = new GoogleAuthProvider();
+  const app = initializeApp(firebaseConfig); const db = getDatabase(app); const auth = getAuth(app); const messaging = getMessaging(app); const googleProvider = new GoogleAuthProvider();
 
   const ROLE_PERMISSIONS = {
-    staff: { role:'staff', label:'Zaměstnanec', badge:'badge-staff', canEdit:false, canDelete:false, canToggle:true },
-    admin: { role:'admin', label:'Admin', badge:'badge-admin', canEdit:true, canDelete:true, canToggle:true },
-    owner: { role:'owner', label:'Majitelka', badge:'badge-owner', canEdit:false, canDelete:false, canToggle:false }
+    staff: { role:'staff', label:'Zaměstnanec', badge:'badge-staff', canEdit:false, canDelete:false, canToggle:true, canSeeStats:false, canLogShift:true },
+    main_staff: { role:'main_staff', label:'Hlavní Staff', badge:'badge-admin', canEdit:false, canDelete:false, canToggle:true, canSeeStats:true, canLogShift:true },
+    admin: { role:'admin', label:'Admin', badge:'badge-admin', canEdit:true, canDelete:true, canToggle:true, canSeeStats:true, canLogShift:true },
+    owner: { role:'owner', label:'Majitelka', badge:'badge-owner', canEdit:false, canDelete:false, canToggle:false, canSeeStats:false, canLogShift:false }
   };
   const EMOJIS=['🛏️','🏨','🍳','🍽️','☕','🚗','🚲','⛺','🌊','🌿','🔑','🛁','🍾','🌅','🌙','🏔️','🌸','🎋','🦋','🕯️','🍷','🐶','🚿','🔥'];
   const defaultRooms=[{name:'Pokoj 101',emoji:'🛏️', isDirty: false}, {name:'Deluxe Suite',emoji:'🏨', isDirty: false}];
 
   let rooms = []; let bookings = {}; let notes = {}; let generalNotes = ''; let staffTasks = []; let authorizedUsers = {}; 
+  let shiftData = {}; let tempMyShift = {hours:0, rooms:{}};
   let tempCustomItems = []; let tempCustomStatuses = []; 
   let currentUser=null; let dbListenerObj = null; let editIdx=-1,curRoom=-1;
   let calYear=new Date().getFullYear(),calMon=new Date().getMonth();
   const MONTHS=['Leden','Únor','Březen','Duben','Květen','Červen','Červenec','Srpen','Září','Říjen','Listopad','Prosinec'];
   const DAYS=['Po','Út','St','Čt','Pá','So','Ne'];
 
-  const savedTheme = localStorage.getItem('hr_theme');
-  document.getElementById('themeToggleBtn').textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+  const savedTheme = localStorage.getItem('hr_theme'); document.getElementById('themeToggleBtn').textContent = savedTheme === 'dark' ? '☀️' : '🌙';
 
   onAuthStateChanged(auth, async (user) => {
     const errEl = document.getElementById('loginErr');
     if (user) {
-      const email = user.email.toLowerCase();
-      const key = email.replace(/\./g, '_');
+      const email = user.email.toLowerCase(); const key = email.replace(/\./g, '_');
       try {
         errEl.textContent = 'Ověřuji oprávnění v databázi...';
-        const snapshot = await get(child(ref(db), 'authorizedUsers/' + key));
-        let userRecord = snapshot.val();
-        if (!userRecord) {
-           const allUsersSnap = await get(child(ref(db), 'authorizedUsers'));
-           if (!allUsersSnap.exists()) { userRecord = { email: email, role: 'admin' }; await set(ref(db, 'authorizedUsers/' + key), userRecord); }
-        }
+        const snapshot = await get(child(ref(db), 'authorizedUsers/' + key)); let userRecord = snapshot.val();
+        if (!userRecord) { const allUsersSnap = await get(child(ref(db), 'authorizedUsers')); if (!allUsersSnap.exists()) { userRecord = { email: email, role: 'admin' }; await set(ref(db, 'authorizedUsers/' + key), userRecord); } }
         if (userRecord && ROLE_PERMISSIONS[userRecord.role]) {
-          currentUser = { email: email, ...ROLE_PERMISSIONS[userRecord.role] };
-          errEl.textContent = '';
+          currentUser = { email: email, ...ROLE_PERMISSIONS[userRecord.role] }; errEl.textContent = '';
           document.getElementById('screenLogin').classList.remove('active'); document.getElementById('screenApp').classList.add('active');
           document.getElementById('userInfo').innerHTML = `${currentUser.label} <span class="role-badge ${currentUser.badge}">${currentUser.role}</span>`;
+          document.getElementById('myShiftBtn').style.display = currentUser.canLogShift ? 'inline-block' : 'none';
           requestNotificationPermission(key); startDatabaseListener();
         } else { errEl.textContent = 'Váš e-mail nemá oprávnění k přístupu.'; signOut(auth); }
       } catch(e) { errEl.textContent = 'Chyba při čtení oprávnění ze serveru.'; signOut(auth); }
@@ -437,13 +470,13 @@
       if (data) {
         rooms = (data.rooms && data.rooms.length > 0) ? data.rooms : [...defaultRooms];
         bookings = data.bookings || {}; notes = data.notes || {}; generalNotes = data.generalNotes || '';
-        staffTasks = data.staffTasks || []; authorizedUsers = data.authorizedUsers || {};
+        staffTasks = data.staffTasks || []; authorizedUsers = data.authorizedUsers || {}; shiftData = data.shiftData || {};
       } else {
-        rooms = [...defaultRooms]; bookings = {}; notes = {}; generalNotes = ''; staffTasks = [];
+        rooms = [...defaultRooms]; bookings = {}; notes = {}; generalNotes = ''; staffTasks = []; shiftData = {};
       }
       if(currentUser && document.getElementById('screenApp').classList.contains('active')) {
         document.getElementById('generalNotes').value = generalNotes; autoResize(document.getElementById('generalNotes'));
-        renderRooms(); renderMiniStats(); renderStaffTasks();
+        renderRooms(); renderMiniStats(); renderStaffTasks(); renderStatsPanel();
         if(document.getElementById('usersAdminBg').classList.contains('open')) { renderUsersAdmin(); }
         if(document.getElementById('modalBg').classList.contains('open') && curRoom !== -1) {
           document.getElementById('roomNotes').value = notes[curRoom] || '';
@@ -454,30 +487,14 @@
   }
 
   function renderMiniStats() {
-    const today = getLocalIsoDate(0);
-    let arrivals = 0; let departures = 0; let cleanings = 0;
-    
-    rooms.forEach((r, i) => {
-      if (r.isDirty && !r.hideDefaultStatus) cleanings++;
-    });
-
-    for (const roomIdx in bookings) {
-      (bookings[roomIdx] || []).forEach(b => {
-        if (b.from === today) arrivals++;
-        if (b.to === today) departures++;
-      });
-    }
-
-    const el = document.getElementById('miniStats');
-    if (!el) return;
-    el.innerHTML = `
-      <div class="stat-item">Příjezdy: <span class="stat-val">${arrivals}</span></div>
-      <div class="stat-item">Odjezdy: <span class="stat-val">${departures}</span></div>
-      <div class="stat-item">Úklidy: <span class="stat-val">${cleanings}</span></div>
-    `;
+    const today = getLocalIsoDate(0); let arrivals = 0; let departures = 0; let cleanings = 0;
+    rooms.forEach((r, i) => { if (r.isDirty && !r.hideDefaultStatus) cleanings++; });
+    for (const roomIdx in bookings) { (bookings[roomIdx] || []).forEach(b => { if (b.from === today) arrivals++; if (b.to === today) departures++; }); }
+    const el = document.getElementById('miniStats'); if (!el) return;
+    el.innerHTML = `<div class="stat-item">Příjezdy: <span class="stat-val">${arrivals}</span></div><div class="stat-item">Odjezdy: <span class="stat-val">${departures}</span></div><div class="stat-item">Úklidy: <span class="stat-val">${cleanings}</span></div>`;
   }
 
-  function saveToFirebase() { set(ref(db, '/'), { rooms, bookings, notes, generalNotes, staffTasks, authorizedUsers }); }
+  function saveToFirebase() { set(ref(db, '/'), { rooms, bookings, notes, generalNotes, staffTasks, authorizedUsers, shiftData }); }
   function getLocalIsoDate(daysOffset = 0) {
     const d = new Date(); d.setDate(d.getDate() + daysOffset);
     return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
@@ -508,21 +525,11 @@
   function getRoomStateClass(roomIdx) {
     const todayStr = getLocalIsoDate(0); const plus3Str = getLocalIsoDate(3); let state = 'bg-state-free';
     const bks = bookings[roomIdx] || [];
-    for (const b of bks) {
-      if (b.from <= todayStr && b.to >= todayStr) return 'bg-state-active';
-      else if (b.from > todayStr && b.from <= plus3Str) state = 'bg-state-soon';
-    } return state;
+    for (const b of bks) { if (b.from <= todayStr && b.to >= todayStr) return 'bg-state-active'; else if (b.from > todayStr && b.from <= plus3Str) state = 'bg-state-soon'; } return state;
   }
 
-  function loginWithEmail() {
-    const e = document.getElementById('loginEmail').value.trim(); const p = document.getElementById('loginPass').value;
-    const err = document.getElementById('loginErr'); err.textContent = 'Přihlašování...';
-    signInWithEmailAndPassword(auth, e, p).catch(() => { err.textContent = 'Špatný e-mail nebo heslo.'; });
-  }
-  function loginWithGoogle() {
-    const err = document.getElementById('loginErr'); err.textContent = 'Otevírám Google...';
-    signInWithPopup(auth, googleProvider).catch(() => { err.textContent = 'Přihlášení zrušeno nebo selhalo.'; });
-  }
+  function loginWithEmail() { const e = document.getElementById('loginEmail').value.trim(); const p = document.getElementById('loginPass').value; const err = document.getElementById('loginErr'); err.textContent = 'Přihlašování...'; signInWithEmailAndPassword(auth, e, p).catch(() => { err.textContent = 'Špatný e-mail nebo heslo.'; }); }
+  function loginWithGoogle() { const err = document.getElementById('loginErr'); err.textContent = 'Otevírám Google...'; signInWithPopup(auth, googleProvider).catch(() => { err.textContent = 'Přihlášení zrušeno nebo selhalo.'; }); }
   function doLogout() { signOut(auth); }
   function autoResize(el) { if(!el) return; el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; } window.autoResize = autoResize;
 
@@ -532,15 +539,105 @@
     const tbody = document.getElementById('usersTableBody'); let html = '';
     for (const key in authorizedUsers) {
       const u = authorizedUsers[key]; const badge = ROLE_PERMISSIONS[u.role].badge;
-      html += `<tr><td>${u.email}</td><td><span class="role-badge ${badge}">${u.role}</span></td><td style="text-align:right">${u.email !== currentUser.email ? `<button class="del-btn" onclick="deleteUserRole('${key}')">✕</button>` : ''}</td></tr>`;
+      html += `<tr><td>${u.email}</td><td>${u.nickname||'-'}</td><td><span class="role-badge ${badge}">${u.role}</span></td><td style="text-align:right">${u.email !== currentUser.email ? `<button class="del-btn" onclick="deleteUserRole('${key}')">✕</button>` : ''}</td></tr>`;
     } tbody.innerHTML = html;
   }
   function addUserRole() {
-    const email = document.getElementById('newUserEmail').value.trim().toLowerCase(); const role = document.getElementById('newUserRole').value;
-    if(!email) return; const key = email.replace(/\./g, '_'); authorizedUsers[key] = { email: email, role: role }; saveToFirebase();
-    document.getElementById('newUserEmail').value = ''; renderUsersAdmin();
+    const email = document.getElementById('newUserEmail').value.trim().toLowerCase(); const role = document.getElementById('newUserRole').value; const nick = document.getElementById('newUserNick').value.trim();
+    if(!email) return; const key = email.replace(/\./g, '_'); authorizedUsers[key] = { email: email, role: role, nickname: nick }; saveToFirebase();
+    document.getElementById('newUserEmail').value = ''; document.getElementById('newUserNick').value = ''; renderUsersAdmin();
   }
   function deleteUserRole(key) { if(confirm('Odebrat přístup?')) { delete authorizedUsers[key]; saveToFirebase(); renderUsersAdmin(); } }
+
+  // --- SMĚNY A POČÍTADLA ---
+  function openMyShift() {
+    const myKey = currentUser.email.replace(/\./g, '_');
+    const data = shiftData[myKey] || { hours: 0, rooms: {} };
+    tempMyShift = JSON.parse(JSON.stringify(data));
+    document.getElementById('myShiftHours').value = tempMyShift.hours || '';
+    renderMyShiftRooms();
+    document.getElementById('shiftBg').classList.add('open');
+  }
+  function closeMyShift() { document.getElementById('shiftBg').classList.remove('open'); }
+  
+  function renderMyShiftRooms() {
+    const list = document.getElementById('myShiftRoomsList'); let html = ''; let hasAny = false;
+    rooms.forEach((r, idx) => {
+      if(r.hasCounter) {
+        hasAny = true;
+        const count = tempMyShift.rooms[idx] || 0;
+        html += `
+          <div class="shift-counter-wrap">
+            <div style="font-size:14px; font-weight:bold; color:var(--color-text-primary);">${r.name}</div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <button class="shift-counter-btn" onclick="changeShiftRoom(${idx}, -1)">-</button>
+              <div class="shift-counter-val">${count}</div>
+              <button class="shift-counter-btn" onclick="changeShiftRoom(${idx}, 1)">+</button>
+            </div>
+          </div>
+        `;
+      }
+    });
+    if(!hasAny) html = '<div style="font-size:13px; color:var(--color-text-secondary);">Žádný pokoj nemá zapnuté počítadlo.</div>';
+    list.innerHTML = html;
+  }
+  
+  function changeShiftRoom(idx, delta) {
+    if(!tempMyShift.rooms[idx]) tempMyShift.rooms[idx] = 0;
+    tempMyShift.rooms[idx] += delta;
+    if(tempMyShift.rooms[idx] < 0) tempMyShift.rooms[idx] = 0;
+    renderMyShiftRooms();
+  }
+
+  function saveMyShift() {
+    const myKey = currentUser.email.replace(/\./g, '_');
+    tempMyShift.hours = parseFloat(document.getElementById('myShiftHours').value) || 0;
+    shiftData[myKey] = tempMyShift;
+    saveToFirebase();
+    closeMyShift();
+  }
+
+  function renderStatsPanel() {
+    const panel = document.getElementById('statsPanel');
+    if (!currentUser || !currentUser.canSeeStats) { panel.style.display = 'none'; return; }
+    panel.style.display = 'block';
+    
+    let html = '<h4>Výkazy úklidů</h4>';
+    let empty = true;
+    for(const key in shiftData) {
+      const d = shiftData[key]; const user = authorizedUsers[key];
+      const nick = user ? (user.nickname || user.email) : key;
+      let totalCzk = 0; let roomsTxt = [];
+      for(const rIdx in d.rooms) {
+         if(d.rooms[rIdx] > 0 && rooms[rIdx]) {
+            const cnt = d.rooms[rIdx]; const price = parseFloat(rooms[rIdx].price) || 0;
+            totalCzk += (cnt * price); roomsTxt.push(`• ${rooms[rIdx].name}: ${cnt}x`);
+         }
+      }
+      if(d.hours > 0 || roomsTxt.length > 0) {
+        empty = false;
+        html += `
+          <div class="stats-panel-user">
+            <strong>${nick}</strong> (Hodiny: ${d.hours||0})<br>
+            ${roomsTxt.join('<br>')}<br>
+            <strong style="color:#16A34A; margin-top:4px; display:block;">Odměna: ${totalCzk} Kč</strong>
+          </div>`;
+      }
+    }
+    if(empty) html += '<div style="font-size:13px; color:var(--color-text-secondary); margin-bottom:12px;">Zatím nejsou zadané žádné výkazy.</div>';
+    html += `<button class="btn-delete-room" onclick="resetShiftData()" style="width:100%; padding:12px;">Vynulovat vše (Vyplaceno)</button>`;
+    panel.innerHTML = html;
+  }
+
+  function resetShiftData() {
+    if(confirm('Chcete VYNULOVAT všechny statistiky a počítadla úklidů? (1/3)')) {
+      if(confirm('OPRAVDU to chcete udělat? Údaje nepůjdou vrátit! (2/3)')) {
+        if(confirm('POSLEDNÍ VAROVÁNÍ: Smazat natrvalo všechny odpracované hodiny a úklidy? (3/3)')) {
+          shiftData = {}; saveToFirebase();
+        }
+      }
+    }
+  }
 
   function renderStaffTasks() {
     const wrap = document.getElementById('staffTasksWrap');
@@ -574,21 +671,15 @@
     
     g.innerHTML = rooms.map((r, i) => {
       const stateClass = getRoomStateClass(i);
-      
       let badgesHtml = '';
-      if (!r.hideDefaultStatus) {
-         badgesHtml += `<div class="room-status-badge ${r.isDirty ? 'status-dirty' : 'status-clean'}">${r.isDirty ? '🔴 Špinavý' : '🟢 Uklizený'}</div>`;
-      }
+      if (!r.hideDefaultStatus) { badgesHtml += `<div class="room-status-badge ${r.isDirty ? 'status-dirty' : 'status-clean'}">${r.isDirty ? '🔴 Špinavý' : '🟢 Uklizený'}</div>`; }
       if (r.customStatuses) {
          r.customStatuses.forEach(cs => {
-           const rTxt = cs.textRed || cs.label;
-           const gTxt = cs.textGreen || (cs.label + ' (Hotovo)');
-           const txt = cs.isDone ? `🟢 ${gTxt}` : `🔴 ${rTxt}`;
-           const cls = cs.isDone ? 'status-clean' : 'status-dirty';
+           const rTxt = cs.textRed || cs.label; const gTxt = cs.textGreen || (cs.label + ' (Hotovo)');
+           const txt = cs.isDone ? `🟢 ${gTxt}` : `🔴 ${rTxt}`; const cls = cs.isDone ? 'status-clean' : 'status-dirty';
            badgesHtml += `<div class="room-status-badge ${cls}">${txt}</div>`;
          });
       }
-
       return `<div class="room-card ${stateClass}" onclick="openRoom(${i})">
         <div class="room-img"><span class="emoji">${r.emoji}</span>
           ${canEditRoom ? `<button class="edit-btn" onclick="event.stopPropagation();openEdit(${i})" title="Upravit/Smazat">✎</button>` : ''}
@@ -622,23 +713,16 @@
   function renderEditCustomStatuses() {
     const list = document.getElementById('editCustomStatusesList');
     if (!tempCustomStatuses || tempCustomStatuses.length === 0) { list.innerHTML = ''; return; }
-    list.innerHTML = tempCustomStatuses.map((cs, idx) => {
-      const rTxt = cs.textRed || cs.label;
-      const gTxt = cs.textGreen || (cs.label + ' (Hotovo)');
-      return `
+    list.innerHTML = tempCustomStatuses.map((cs, idx) => `
       <div class="edit-custom-item">
-        <div style="flex:1; font-size:13px; color:var(--color-text-primary);">🔴 ${rTxt} <br> 🟢 ${gTxt}</div>
+        <div style="flex:1; font-size:13px; color:var(--color-text-primary);">🔴 ${cs.textRed || cs.label} <br> 🟢 ${cs.textGreen || (cs.label + ' (Hotovo)')}</div>
         <button type="button" class="del-btn" onclick="removeCustomStatusFromEdit(${idx})">✕</button>
-      </div>`;
-    }).join('');
+      </div>`).join('');
   }
   function addCustomStatusToEdit() {
-    const red = document.getElementById('newCustomStatusRed').value.trim();
-    const green = document.getElementById('newCustomStatusGreen').value.trim();
-    if (!red) return; 
-    tempCustomStatuses.push({ textRed: red, textGreen: green || (red + ' (Hotovo)'), isDone: false });
-    document.getElementById('newCustomStatusRed').value = ''; document.getElementById('newCustomStatusGreen').value = '';
-    renderEditCustomStatuses();
+    const red = document.getElementById('newCustomStatusRed').value.trim(); const green = document.getElementById('newCustomStatusGreen').value.trim();
+    if (!red) return; tempCustomStatuses.push({ textRed: red, textGreen: green || (red + ' (Hotovo)'), isDone: false });
+    document.getElementById('newCustomStatusRed').value = ''; document.getElementById('newCustomStatusGreen').value = ''; renderEditCustomStatuses();
   }
   function removeCustomStatusFromEdit(idx) { tempCustomStatuses.splice(idx, 1); renderEditCustomStatuses(); }
 
@@ -648,9 +732,10 @@
     document.getElementById('editName').value = isNew ? '' : rooms[i].name;
     document.getElementById('editHideDefaultStatus').checked = !isNew && rooms[i].hideDefaultStatus;
     
-    const curEmoji = isNew ? EMOJIS[0] : rooms[i].emoji;
-    const isCustomEmoji = !EMOJIS.includes(curEmoji);
-    
+    document.getElementById('editHasCounter').checked = !isNew && rooms[i].hasCounter;
+    document.getElementById('editRoomPrice').value = (!isNew && rooms[i].price) ? rooms[i].price : '';
+
+    const curEmoji = isNew ? EMOJIS[0] : rooms[i].emoji; const isCustomEmoji = !EMOJIS.includes(curEmoji);
     document.getElementById('emojiPick').innerHTML = EMOJIS.map(e => `<span class="${(!isCustomEmoji && e===curEmoji)?'sel':''}" onclick="selEmoji(this)">${e}</span>`).join('');
     document.getElementById('customEmojiInput').value = isCustomEmoji ? curEmoji : '';
     
@@ -658,14 +743,8 @@
     tempCustomStatuses = (isNew || !rooms[i].customStatuses) ? [] : JSON.parse(JSON.stringify(rooms[i].customStatuses)); renderEditCustomStatuses();
 
     let lrHtml = '<label style="margin-top:20px;">Propojit s pokoji (zašpiní se, když z nich někdo odjede):</label><div class="linked-rooms-list">';
-    const curLinked = (!isNew && rooms[i].linkedRooms) ? rooms[i].linkedRooms : [];
-    let hasOthers = false;
-    rooms.forEach((r, idx) => {
-      if (idx !== i) {
-        hasOthers = true; const isChecked = curLinked.includes(idx);
-        lrHtml += `<label><input type="checkbox" value="${idx}" class="link-cb" ${isChecked ? 'checked' : ''}> ${r.name}</label>`;
-      }
-    });
+    const curLinked = (!isNew && rooms[i].linkedRooms) ? rooms[i].linkedRooms : []; let hasOthers = false;
+    rooms.forEach((r, idx) => { if (idx !== i) { hasOthers = true; const isChecked = curLinked.includes(idx); lrHtml += `<label><input type="checkbox" value="${idx}" class="link-cb" ${isChecked ? 'checked' : ''}> ${r.name}</label>`; } });
     lrHtml += '</div>'; document.getElementById('linkedRoomsWrap').innerHTML = hasOthers ? lrHtml : '';
     document.getElementById('delRoomBtn').style.display = isNew ? 'none' : 'block'; document.getElementById('editBg').classList.add('open');
   }
@@ -676,18 +755,17 @@
   function saveEdit() {
     const name = document.getElementById('editName').value.trim(); 
     let finalEmoji = document.getElementById('customEmojiInput').value.trim();
-    if(!finalEmoji) {
-      const sel = document.querySelector('.emoji-pick span.sel');
-      finalEmoji = sel ? sel.textContent : '🛏️';
-    }
-    
+    if(!finalEmoji) { const sel = document.querySelector('.emoji-pick span.sel'); finalEmoji = sel ? sel.textContent : '🛏️'; }
     const hideDefault = document.getElementById('editHideDefaultStatus').checked;
+    const hasCounter = document.getElementById('editHasCounter').checked;
+    const price = parseFloat(document.getElementById('editRoomPrice').value) || 0;
     const linkedRooms = Array.from(document.querySelectorAll('.link-cb:checked')).map(cb => parseInt(cb.value));
+    
     if(name && finalEmoji) {
       if(editIdx === -1) {
-        rooms.push({name, emoji: finalEmoji, isDirty: false, linkedRooms, customItems: tempCustomItems, customStatuses: tempCustomStatuses, hideDefaultStatus: hideDefault});
+        rooms.push({name, emoji: finalEmoji, isDirty: false, linkedRooms, customItems: tempCustomItems, customStatuses: tempCustomStatuses, hideDefaultStatus: hideDefault, hasCounter, price});
       } else {
-        rooms[editIdx] = {name, emoji: finalEmoji, isDirty: rooms[editIdx].isDirty, linkedRooms, customItems: tempCustomItems, customStatuses: tempCustomStatuses, hideDefaultStatus: hideDefault};
+        rooms[editIdx] = {name, emoji: finalEmoji, isDirty: rooms[editIdx].isDirty, linkedRooms, customItems: tempCustomItems, customStatuses: tempCustomStatuses, hideDefaultStatus: hideDefault, hasCounter, price};
       } saveToFirebase();
     } closeEdit();
   }
@@ -702,14 +780,12 @@
       else if (j > editIdx) { if (bookings[j]) newBookings[j-1] = bookings[j]; if (notes[j]) newNotes[j-1] = notes[j]; }
     } bookings = newBookings; notes = newNotes; saveToFirebase(); closeEdit();
   }
-
   function closeEdit() { document.getElementById('editBg').classList.remove('open'); }
 
   function toggleDirty() {
     if(!currentUser || !currentUser.canToggle) return; 
     rooms[curRoom].isDirty = !rooms[curRoom].isDirty; 
-    if (rooms[curRoom].isDirty && rooms[curRoom].customStatuses) { rooms[curRoom].customStatuses.forEach(cs => cs.isDone = false); }
-    saveToFirebase();
+    if (rooms[curRoom].isDirty && rooms[curRoom].customStatuses) { rooms[curRoom].customStatuses.forEach(cs => cs.isDone = false); } saveToFirebase();
   }
   function toggleCustomStatus(idx) {
     if(!currentUser || !currentUser.canToggle) return;
@@ -718,9 +794,7 @@
 
   function updateStatusBtn() {
     const btn = document.getElementById('toggleStatusBtn'); const canToggle = currentUser && currentUser.canToggle;
-    if (rooms[curRoom].hideDefaultStatus) {
-      btn.style.display = 'none';
-    } else {
+    if (rooms[curRoom].hideDefaultStatus) { btn.style.display = 'none'; } else {
       btn.style.display = 'inline-block';
       if (rooms[curRoom].isDirty) { btn.textContent = canToggle ? '🧹 Označit jako Uklizený' : '🔴 Pokoj: Špinavý'; btn.className = 'toggle-status-btn btn-dirty'; } 
       else { btn.textContent = canToggle ? '🔴 Označit jako Špinavý' : '🟢 Pokoj: Uklizený'; btn.className = 'toggle-status-btn btn-clean'; }
@@ -731,11 +805,8 @@
   function renderRoomCustomStatuses() {
     const wrap = document.getElementById('customStatusesWrap'); const statuses = rooms[curRoom].customStatuses || []; const canToggle = currentUser && currentUser.canToggle;
     wrap.innerHTML = statuses.map((cs, idx) => {
-      const btnClass = cs.isDone ? 'btn-clean' : 'btn-dirty';
-      const rTxt = cs.textRed || cs.label;
-      const gTxt = cs.textGreen || (cs.label + ' (Hotovo)');
-      const icon = cs.isDone ? '🟢' : '🔴';
-      const text = cs.isDone ? gTxt : rTxt;
+      const btnClass = cs.isDone ? 'btn-clean' : 'btn-dirty'; const rTxt = cs.textRed || cs.label; const gTxt = cs.textGreen || (cs.label + ' (Hotovo)');
+      const icon = cs.isDone ? '🟢' : '🔴'; const text = cs.isDone ? gTxt : rTxt;
       return `<button class="toggle-status-btn ${btnClass}" style="margin-top:0;" ${!canToggle ? 'disabled' : ''} onclick="toggleCustomStatus(${idx})">${icon} ${text}</button>`;
     }).join('');
   }
@@ -743,12 +814,9 @@
   function openRoom(i) {
     curRoom = i; document.getElementById('modalTitle').textContent = rooms[i].name; document.getElementById('modalSub').textContent = 'Pokoj '+(i+1)+' · sdílený kalendář';
     document.getElementById('roomNotes').value = notes[i]||'';
-    
     const customItemsWrap = document.getElementById('roomCustomItemsWrap'); const cItems = rooms[i].customItems || [];
     customItemsWrap.innerHTML = cItems.map(item => { if(item.link) { return `<a href="${item.link}" target="_blank" class="custom-btn">${item.text}</a>`; } else { return `<span class="custom-badge">${item.text}</span>`; } }).join('');
-
     updateStatusBtn(); renderRoomCustomStatuses();
-    
     const canBook = currentUser && currentUser.role !== 'staff'; const formWrap = document.getElementById('bookingFormWrap'); formWrap.style.display = canBook ? '' : 'none';
     document.getElementById('roomNotes').disabled = false; document.getElementById('saveNoteBtn').style.display = '';
     renderCalendar(); renderBookings(); document.getElementById('modalBg').classList.add('open');
@@ -764,21 +832,18 @@
     for(let i=0; i<startDay; i++) { html += `<div class="cal-day empty"></div>`; }
     const days = new Date(calYear, calMon+1, 0).getDate();
     for(let d=1; d<=days; d++) {
-      const ds = `${calYear}-${String(calMon+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-      const isB = bookedDays.has(ds); const isT = today.getFullYear()===calYear && today.getMonth()===calMon && today.getDate()===d;
+      const ds = `${calYear}-${String(calMon+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; const isB = bookedDays.has(ds); const isT = today.getFullYear()===calYear && today.getMonth()===calMon && today.getDate()===d;
       html += `<div class="cal-day${isB?' booked':''}${isT?' today':''}">${d}</div>`;
     } g.innerHTML = html;
   }
 
   function getBookedDays() {
-    const s = new Set();
-    (bookings[curRoom]||[]).forEach(b => { let d = new Date(b.from); const end = new Date(b.to); while(d <= end) { s.add(d.toISOString().slice(0,10)); d.setDate(d.getDate() + 1); } }); return s;
+    const s = new Set(); (bookings[curRoom]||[]).forEach(b => { let d = new Date(b.from); const end = new Date(b.to); while(d <= end) { s.add(d.toISOString().slice(0,10)); d.setDate(d.getDate() + 1); } }); return s;
   }
 
   function addBooking() {
     const from = document.getElementById('dateFrom').value; const to = document.getElementById('dateTo').value; if(!from || !to) return; 
-    if(!bookings[curRoom]) bookings[curRoom] = [];
-    bookings[curRoom].push({ from, to, note: document.getElementById('bookingNote').value.trim(), dirtyTriggered: false }); saveToFirebase();
+    if(!bookings[curRoom]) bookings[curRoom] = []; bookings[curRoom].push({ from, to, note: document.getElementById('bookingNote').value.trim(), dirtyTriggered: false }); saveToFirebase();
     document.getElementById('dateFrom').value = ''; document.getElementById('dateTo').value = ''; document.getElementById('bookingNote').value = ''; autoResize(document.getElementById('bookingNote'));
   }
 
@@ -802,7 +867,8 @@
   window.addStaffTask = addStaffTask; window.toggleStaffTask = toggleStaffTask; window.deleteStaffTask = deleteStaffTask;
   window.addCustomItemToEdit = addCustomItemToEdit; window.removeCustomItemFromEdit = removeCustomItemFromEdit;
   window.addCustomStatusToEdit = addCustomStatusToEdit; window.removeCustomStatusFromEdit = removeCustomStatusFromEdit;
-  window.clearEmojiSelection = clearEmojiSelection;
+  window.clearEmojiSelection = clearEmojiSelection; window.openMyShift = openMyShift; window.closeMyShift = closeMyShift;
+  window.changeShiftRoom = changeShiftRoom; window.saveMyShift = saveMyShift; window.resetShiftData = resetShiftData;
 
   document.getElementById('loginPass').addEventListener('keydown', function(e) { if(e.key === 'Enter') loginWithEmail(); });
   document.getElementById('loginEmail').addEventListener('keydown', function(e) { if(e.key === 'Enter') document.getElementById('loginPass').focus(); });
