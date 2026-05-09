@@ -534,12 +534,12 @@
     </div>
   </div>
 </div>
-
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
   import { getDatabase, ref, onValue, set, get, child } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
   import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
   import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-messaging.js";
+
   const firebaseConfig = {
     apiKey: "AIzaSyADuzLjk-9pp56rDCphkG20GGghNI2ZOCY",
     authDomain: "penzionmanagement.firebaseapp.com",
@@ -830,7 +830,7 @@
                         const parts = tk.split('_'); const rIdx = parseInt(parts[0]); const tIdx = parseInt(parts[1]);
                         if (rooms[rIdx] && rooms[rIdx].paidTasks && rooms[rIdx].paidTasks[tIdx]) {
                             const pt = rooms[rIdx].paidTasks[tIdx]; const cnt = log.tasks[tk]; const price = parseFloat(pt.price) || 0; const sum = cnt * price; overallTasksMoney += sum;
-                            dayTasksHtml += `<br>&nbsp;&nbsp;&nbsp;↳ ${rooms[rIdx].name} - ${pt.name}: ${cnt}x (${sum} Kč)`;
+                            dayTasksHtml += `<br>&nbsp;&nbsp;&nbsp;↳ ${pt.name}: ${cnt}x (${sum} Kč)`; // OPRAVENO: Už ukazuje jen název úkolu
                         }
                     }
                 }
@@ -922,7 +922,8 @@
       for(const tk in tasksTxtMap) {
          const parts = tk.split('_'); const rIdx = parseInt(parts[0]); const tIdx = parseInt(parts[1]);
          if (rooms[rIdx] && rooms[rIdx].paidTasks && rooms[rIdx].paidTasks[tIdx]) {
-             const pt = rooms[rIdx].paidTasks[tIdx]; const cnt = tasksTxtMap[tk]; const price = parseFloat(pt.price) || 0; tasksMoney += (cnt * price); tasksTxt.push(`• ${rooms[rIdx].name} - ${pt.name}: ${cnt}x`);
+             const pt = rooms[rIdx].paidTasks[tIdx]; const cnt = tasksTxtMap[tk]; const price = parseFloat(pt.price) || 0; tasksMoney += (cnt * price); 
+             tasksTxt.push(`• ${pt.name}: ${cnt}x`); // OPRAVENO: Už ukazuje jen název úkolu
          }
       }
       const totalOverall = hoursMoney + tasksMoney;
