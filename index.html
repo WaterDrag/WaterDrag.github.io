@@ -382,7 +382,7 @@
       <img id="photoViewerImg" style="max-width: 100%; max-height: 100%; border-radius: 8px; object-fit: contain; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
   </div>
 
-  <!-- MODAL PRO POKOJ -->
+  <!-- MODAL PRO POKOJ (Jen prohlížení kalendáře a poznámky) -->
   <div class="modal-bg" id="modalBg">
     <div class="modal">
       <div class="modal-top">
@@ -553,7 +553,7 @@
 
   const app = initializeApp(firebaseConfig); const db = getDatabase(app); const auth = getAuth(app); const messaging = getMessaging(app); const googleProvider = new GoogleAuthProvider();
 
-/* =========================================================================
+  /* =========================================================================
    * VYSVĚTLIVKY K JEDNOTLIVÝM OPRÁVNĚNÍM (PERMISSIONS):
    * =========================================================================
    * canEdit: true/false
@@ -580,10 +580,7 @@
    *   - Zobrazí tlačítko "💼 Moje směna" v horní liště.
    *   - Dovoluje uživateli zadávat si odpracované hodiny a odškrtávat placené úkoly.
    * ========================================================================= */
-
-
   
-  // Oprávnění
   const ROLE_PERMISSIONS = {
     staff: { role:'staff', label:'Zaměstnanec', badge:'badge-staff', canEdit:false, canDelete:false, canToggle:true, canSeeStatsPanel:true, canSeeAllStats:false, canLogShift:true },
     main_staff: { role:'main_staff', label:'Hlavní Staff', badge:'badge-admin', canEdit:false, canDelete:false, canToggle:true, canSeeStatsPanel:true, canSeeAllStats:true, canLogShift:true },
@@ -597,7 +594,7 @@
   let rooms = []; let bookings = {}; let notes = {}; let generalNotes = ''; let staffTasks = []; let authorizedUsers = {}; 
   let shiftData = {}; let shiftDataBackups = []; let tempMyShift = {dailyLogs:{}}; let currentShiftDate = '';
   let tempCustomItems = []; let tempCustomStatuses = []; let tempPaidTasks = [];
-  let currentUser=null; let dbListenerObj = null; let editIdx=-1,curRoom=-1; let editingUserKey=null;
+  let currentUser=null; let dbListenerObj = null; let editIdx=-1,curRoom=-1; let editingUserKey=null; let autoRefreshInterval=null;
   let calYear=new Date().getFullYear(),calMon=new Date().getMonth();
   let hasShownNewBookingsModal = false;
   let selStart = null, selEnd = null, editBookingIdx = -1;
@@ -623,25 +620,38 @@
           currentUser = { email: email, ...ROLE_PERMISSIONS[userRecord.role], lastViewedBookings: userRecord.lastViewedBookings || 0 }; errEl.textContent = '';
           document.getElementById('screenLogin').classList.remove('active'); document.getElementById('screenApp').classList.add('active');
           
-          // Nastavení zobrazení jména, role a menu
           const displayName = userRecord.nickname || ROLE_PERMISSIONS[userRecord.role].label;
           const badgeClass = ROLE_PERMISSIONS[userRecord.role].badge;
           const roleName = ROLE_PERMISSIONS[userRecord.role].role;
           
           document.getElementById('userInfo').innerHTML = `<span style="font-weight:700; color:var(--color-text-primary); font-size:14px;">${displayName}</span> <span class="role-badge ${badgeClass}">${roleName}</span>`;
-          
           document.getElementById('myShiftBtn').style.display = currentUser.canLogShift ? 'inline-block' : 'none';
           document.getElementById('menuActionsWrap').style.display = 'flex';
           
           const statsBtn = document.getElementById('topStatsBtn');
           statsBtn.style.display = currentUser.canSeeStatsPanel ? 'flex' : 'none';
 
-          requestNotificationPermission(key); startDatabaseListener();
+          requestNotificationPermission(key); 
+          startDatabaseListener();
+
+          // Časovač, který každou minutu zkontroluje časy 10:00 a 15:00 a případně překreslí barvy
+          if(autoRefreshInterval) clearInterval(autoRefreshInterval);
+          autoRefreshInterval = setInterval(() => {
+              autoDirtyCheck();
+              if (document.getElementById('screenApp').classList.contains('active')) {
+                  renderRooms();
+                  if(document.getElementById('modalBg').classList.contains('open') && curRoom !== -1) {
+                      updateStatusBtn();
+                  }
+              }
+          }, 60000);
+
         } else { errEl.textContent = 'Váš e-mail nemá oprávnění k přístupu.'; signOut(auth); }
       } catch(e) { errEl.textContent = 'Chyba při čtení oprávnění ze serveru.'; signOut(auth); }
     } else {
       currentUser = null; hasShownNewBookingsModal = false; initialRoomsRender = true;
       if(dbListenerObj) { dbListenerObj(); dbListenerObj = null; }
+      if(autoRefreshInterval) { clearInterval(autoRefreshInterval); autoRefreshInterval = null; }
       document.getElementById('screenApp').classList.remove('active'); document.getElementById('screenLogin').classList.add('active');
       document.getElementById('loginEmail').value = ''; document.getElementById('loginPass').value = ''; closeModal();
     }
@@ -662,9 +672,6 @@
       if(currentUser && document.getElementById('screenApp').classList.contains('active')) {
         document.getElementById('generalNotes').value = generalNotes; autoResize(document.getElementById('generalNotes'));
         renderRooms(); renderMiniStats(); renderStaffTasks();
-        if (document.getElementById('statsModalBg').classList.contains('open')) { 
-            // Pokud jsme v archivu záloh, nepřekreslujeme aktivně
-        }
         checkAndShowNewBookings();
         if(document.getElementById('usersAdminBg').classList.contains('open')) { renderUsersAdmin(); }
         if(document.getElementById('modalBg').classList.contains('open') && curRoom !== -1) {
@@ -676,7 +683,6 @@
     });
   }
 
-  // --- NOVÉ FUNKCE PRO MENU ---
   function toggleSettingsMenu(event) {
     event.stopPropagation();
     document.getElementById('settingsDropdown').classList.toggle('show');
@@ -715,15 +721,18 @@
     hasShownNewBookingsModal = true;
   }
 
-  function closeNewBookingsModal() {
-    document.getElementById('newBookingsModalBg').classList.remove('open'); const myKey = currentUser.email.replace(/\./g, '_');
-    if (authorizedUsers[myKey]) { authorizedUsers[myKey].lastViewedBookings = Date.now(); currentUser.lastViewedBookings = authorizedUsers[myKey].lastViewedBookings; saveToFirebase(); }
-  }
-
   function renderMiniStats() {
-    const today = getLocalIsoDate(0); let arrivals = 0; let departures = 0; let cleanings = 0;
+    let arrivals = 0; let departures = 0; let cleanings = 0;
+    const todayStr = getLocalIsoDate(0);
+    const currentHour = new Date().getHours();
+    
     rooms.forEach((r, i) => { if (r.isDirty && !r.hideDefaultStatus) cleanings++; });
-    for (const roomIdx in bookings) { (bookings[roomIdx] || []).forEach(b => { if (b.from === today) arrivals++; if (b.to === today) departures++; }); }
+    for (const roomIdx in bookings) { 
+        (bookings[roomIdx] || []).forEach(b => { 
+            if (b.from === todayStr) arrivals++; 
+            if (b.to === todayStr) departures++; 
+        }); 
+    }
     const el = document.getElementById('miniStats'); if (!el) return;
     el.innerHTML = `<div class="stat-item">Příjezdy: <span class="stat-val">${arrivals}</span></div><div class="stat-item">Odjezdy: <span class="stat-val">${departures}</span></div><div class="stat-item">Úklidy: <span class="stat-val">${cleanings}</span></div>`;
   }
@@ -734,7 +743,9 @@
   }
 
   function autoDirtyCheck() {
-    const todayStr = getLocalIsoDate(); let changed = false;
+    const todayStr = getLocalIsoDate(); 
+    const currentHour = new Date().getHours();
+    let changed = false;
     const cutoffDate = new Date(); cutoffDate.setDate(cutoffDate.getDate() - 90);
     const cutoffStr = cutoffDate.getFullYear() + '-' + String(cutoffDate.getMonth()+1).padStart(2,'0') + '-' + String(cutoffDate.getDate()).padStart(2,'0');
 
@@ -747,7 +758,8 @@
     rooms.forEach((r, i) => {
       if(r.isDirty === undefined) { r.isDirty = false; changed = true; }
       (bookings[i]||[]).forEach(b => {
-        if (b.to <= todayStr && !b.dirtyTriggered) {
+        // NOVINKA: Pokoj se automaticky označí jako špinavý až když je den odjezdu a zároveň 10:00 nebo později.
+        if ((b.to < todayStr || (b.to === todayStr && currentHour >= 10)) && !b.dirtyTriggered) {
           r.isDirty = true; b.dirtyTriggered = true; changed = true;
           if (r.customStatuses) { r.customStatuses.forEach(cs => cs.isDone = false); }
           rooms.forEach((linkedRoom) => {
@@ -761,10 +773,33 @@
     if(changed) saveToFirebase();
   }
 
-  function getRoomStateClass(roomIdx) {
-    const todayStr = getLocalIsoDate(0); const plus3Str = getLocalIsoDate(3); let state = 'bg-state-free';
+  // Funkce, která hlídá reálnou aktuální obsazenost pokoje od 15:00 do 10:00
+  function isRoomOccupied(roomIdx) {
+    const todayStr = getLocalIsoDate();
+    const currentHour = new Date().getHours();
     const bks = bookings[roomIdx] || [];
-    for (const b of bks) { if (b.from <= todayStr && b.to >= todayStr) return 'bg-state-active'; else if (b.from > todayStr && b.from <= plus3Str) state = 'bg-state-soon'; } return state;
+    for (const b of bks) {
+      if (b.from <= todayStr && b.to >= todayStr) {
+        if (b.from === todayStr && b.to === todayStr) {
+            if (currentHour >= 15 && currentHour < 10) return true; // Edgecase na 1-denní přesahy
+        }
+        if (b.from === todayStr && currentHour < 15) continue; // Před 15:00 v den check-inu je pokoj ještě prázdný
+        if (b.to === todayStr && currentHour >= 10) continue; // Po 10:00 v den check-outu je už prázdný
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function getRoomStateClass(roomIdx) {
+    if (isRoomOccupied(roomIdx)) return 'bg-state-active';
+    
+    const todayStr = getLocalIsoDate(0); const plus3Str = getLocalIsoDate(3);
+    const bks = bookings[roomIdx] || [];
+    for (const b of bks) { 
+        if (b.from > todayStr && b.from <= plus3Str) return 'bg-state-soon'; 
+    } 
+    return 'bg-state-free';
   }
 
   function loginWithEmail() { const e = document.getElementById('loginEmail').value.trim(); const p = document.getElementById('loginPass').value; const err = document.getElementById('loginErr'); err.textContent = 'Přihlašování...'; signInWithEmailAndPassword(auth, e, p).catch(() => { err.textContent = 'Špatný e-mail nebo heslo.'; }); }
@@ -860,7 +895,7 @@
                         const parts = tk.split('_'); const rIdx = parseInt(parts[0]); const tIdx = parseInt(parts[1]);
                         if (rooms[rIdx] && rooms[rIdx].paidTasks && rooms[rIdx].paidTasks[tIdx]) {
                             const pt = rooms[rIdx].paidTasks[tIdx]; const cnt = log.tasks[tk]; const price = parseFloat(pt.price) || 0; const sum = cnt * price; overallTasksMoney += sum;
-                            dayTasksHtml += `<br>&nbsp;&nbsp;&nbsp;↳ ${pt.name}: ${cnt}x (${sum} Kč)`; // OPRAVENO: Už ukazuje jen název úkolu
+                            dayTasksHtml += `<br>&nbsp;&nbsp;&nbsp;↳ ${pt.name}: ${cnt}x (${sum} Kč)`;
                         }
                     }
                 }
@@ -953,7 +988,7 @@
          const parts = tk.split('_'); const rIdx = parseInt(parts[0]); const tIdx = parseInt(parts[1]);
          if (rooms[rIdx] && rooms[rIdx].paidTasks && rooms[rIdx].paidTasks[tIdx]) {
              const pt = rooms[rIdx].paidTasks[tIdx]; const cnt = tasksTxtMap[tk]; const price = parseFloat(pt.price) || 0; tasksMoney += (cnt * price); 
-             tasksTxt.push(`• ${pt.name}: ${cnt}x`); // OPRAVENO: Už ukazuje jen název úkolu
+             tasksTxt.push(`• ${pt.name}: ${cnt}x`);
          }
       }
       const totalOverall = hoursMoney + tasksMoney;
@@ -1011,8 +1046,14 @@
     const g = document.getElementById('roomsGrid'); const canEditRoom = currentUser && currentUser.canEdit;
     
     g.innerHTML = rooms.map((r, i) => {
+      const occupied = isRoomOccupied(i);
       const stateClass = getRoomStateClass(i); let badgesHtml = '';
-      if (!r.hideDefaultStatus) { badgesHtml += `<div class="room-status-badge ${r.isDirty ? 'status-dirty' : 'status-clean'}">${r.isDirty ? '🔴 Špinavý' : '🟢 Uklizený'}</div>`; }
+      
+      // Skrytí štítku Uklizeno/Špinavé, pokud je pokoj obsazený a je po 15:00
+      if (!r.hideDefaultStatus && !occupied) { 
+          badgesHtml += `<div class="room-status-badge ${r.isDirty ? 'status-dirty' : 'status-clean'}">${r.isDirty ? '🔴 Špinavý' : '🟢 Uklizený'}</div>`; 
+      }
+      
       if (r.customStatuses) {
          r.customStatuses.forEach(cs => {
            const rTxt = cs.textRed || cs.label; const gTxt = cs.textGreen || (cs.label + ' (Hotovo)');
@@ -1107,7 +1148,12 @@
 
   function updateStatusBtn() {
     const btn = document.getElementById('toggleStatusBtn'); const canToggle = currentUser && currentUser.canToggle;
-    if (rooms[curRoom].hideDefaultStatus) { btn.style.display = 'none'; } else {
+    const occupied = isRoomOccupied(curRoom);
+    
+    // Tlačítko se schová pokud je u pokoje nastaveno skrývání NEBO pokud je zrovna obsazený hostem
+    if (rooms[curRoom].hideDefaultStatus || occupied) { 
+        btn.style.display = 'none'; 
+    } else {
       btn.style.display = 'inline-block';
       if (rooms[curRoom].isDirty) { btn.textContent = canToggle ? '🧹 Označit jako Uklizený' : '🔴 Pokoj: Špinavý'; btn.className = 'toggle-status-btn btn-dirty'; } 
       else { btn.textContent = canToggle ? '🔴 Označit jako Špinavý' : '🟢 Pokoj: Uklizený'; btn.className = 'toggle-status-btn btn-clean'; } btn.disabled = !canToggle;
