@@ -524,7 +524,7 @@
 
   const app = initializeApp(firebaseConfig); const db = getDatabase(app); const auth = getAuth(app); const messaging = getMessaging(app); const googleProvider = new GoogleAuthProvider();
 
-  // OPRAVA PRÁV: Owner má nyní plná práva (canEdit, canDelete, canToggle) ale nevidí stats
+  // ROLE_PERMISSIONS - Owner může editovat, mazat atd., ale nevidí statistiky
   const ROLE_PERMISSIONS = {
     staff: { role:'staff', label:'Zaměstnanec', badge:'badge-staff', canEdit:false, canDelete:false, canToggle:true, canSeeStatsPanel:true, canSeeAllStats:false, canLogShift:true },
     main_staff: { role:'main_staff', label:'Hlavní Staff', badge:'badge-admin', canEdit:false, canDelete:false, canToggle:true, canSeeStatsPanel:true, canSeeAllStats:true, canLogShift:true },
@@ -588,7 +588,7 @@
         if(document.getElementById('usersAdminBg').classList.contains('open')) { renderUsersAdmin(); }
         if(document.getElementById('modalBg').classList.contains('open') && curRoom !== -1) {
           document.getElementById('roomNotes').value = notes[curRoom] || '';
-          renderCalendar(); renderBookings(); renderPhotos(); updateStatusBtn(); renderRoomCustomStatuses();
+          renderRoomCalendar(); renderBookings(); renderPhotos(); updateStatusBtn(); renderRoomCustomStatuses();
         }
       }
     });
@@ -683,15 +683,13 @@
   function loginWithEmail() { const e = document.getElementById('loginEmail').value.trim(); const p = document.getElementById('loginPass').value; const err = document.getElementById('loginErr'); err.textContent = 'Přihlašování...'; signInWithEmailAndPassword(auth, e, p).catch(() => { err.textContent = 'Špatný e-mail nebo heslo.'; }); }
   function loginWithGoogle() { const err = document.getElementById('loginErr'); err.textContent = 'Otevírám Google...'; signInWithPopup(auth, googleProvider).catch(() => { err.textContent = 'Přihlášení zrušeno nebo selhalo.'; }); }
   function doLogout() { signOut(auth); }
-  function autoResize(el) { if(!el) return; el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; } window.autoResize = autoResize;
+  function autoResize(el) { if(!el) return; el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; }
 
   function openUsersAdmin() { editingUserKey = null; document.getElementById('addBtnAdmin').textContent = 'Přidat'; renderUsersAdmin(); document.getElementById('usersAdminBg').classList.add('open'); }
   function closeUsersAdmin() { document.getElementById('usersAdminBg').classList.remove('open'); }
-  
   function editUserRole(key) {
     const u = authorizedUsers[key]; document.getElementById('newUserEmail').value = u.email; document.getElementById('newUserNick').value = u.nickname || ''; document.getElementById('newUserRole').value = u.role; document.getElementById('newUserHourlyRate').value = u.hourlyRate || ''; editingUserKey = key; document.getElementById('addBtnAdmin').textContent = 'Uložit úpravy';
   }
-
   function renderUsersAdmin() {
     const tbody = document.getElementById('usersTableBody'); let html = '';
     for (const key in authorizedUsers) {
@@ -703,7 +701,6 @@
         </td></tr>`;
     } tbody.innerHTML = html;
   }
-  
   function addUserRole() {
     const email = document.getElementById('newUserEmail').value.trim().toLowerCase(); const role = document.getElementById('newUserRole').value; const nick = document.getElementById('newUserNick').value.trim(); const hr = parseFloat(document.getElementById('newUserHourlyRate').value) || 0;
     if(!email) return; const key = email.replace(/\./g, '_'); if(editingUserKey && editingUserKey !== key) { delete authorizedUsers[editingUserKey]; }
@@ -729,22 +726,17 @@
     }
     renderShiftFormForDate(); document.getElementById('shiftBg').classList.add('open');
   }
-  
   function saveShiftFormToTemp() {
     const h = parseFloat(document.getElementById('myShiftHours').value) || 0; const n = document.getElementById('myShiftNote').value.trim();
     if (!tempMyShift.dailyLogs[currentShiftDate]) tempMyShift.dailyLogs[currentShiftDate] = { hours: 0, note: '', tasks: {} };
     tempMyShift.dailyLogs[currentShiftDate].hours = h; tempMyShift.dailyLogs[currentShiftDate].note = n;
   }
-
   function changeShiftDate() { saveShiftFormToTemp(); currentShiftDate = document.getElementById('shiftDateSelect').value || getLocalIsoDate(); renderShiftFormForDate(); }
-
   function renderShiftFormForDate() {
     const log = tempMyShift.dailyLogs[currentShiftDate] || { hours: 0, note: '', tasks: {} };
     document.getElementById('myShiftHours').value = log.hours || ''; document.getElementById('myShiftNote').value = log.note || ''; renderMyShiftRooms(); 
   }
-
   function closeMyShift() { document.getElementById('shiftBg').classList.remove('open'); }
-  
   function renderMyShiftRooms() {
     const list = document.getElementById('myShiftRoomsList'); let html = ''; let hasAny = false;
     const log = tempMyShift.dailyLogs[currentShiftDate] || { tasks: {} }; const tasks = log.tasks || {};
@@ -761,13 +753,11 @@
     if(!hasAny) html = '<div style="font-size:13px; color:var(--color-text-secondary);">Nejsou nastaveny žádné placené úkony.</div>';
     list.innerHTML = html;
   }
-  
   function changeShiftTask(taskKey, delta) {
     if (!tempMyShift.dailyLogs[currentShiftDate]) tempMyShift.dailyLogs[currentShiftDate] = { hours: 0, note: '', tasks: {} };
     if (!tempMyShift.dailyLogs[currentShiftDate].tasks) tempMyShift.dailyLogs[currentShiftDate].tasks = {};
     let t = tempMyShift.dailyLogs[currentShiftDate].tasks; if (!t[taskKey]) t[taskKey] = 0; t[taskKey] += delta; if (t[taskKey] < 0) t[taskKey] = 0; renderMyShiftRooms();
   }
-
   function saveMyShift() {
     saveShiftFormToTemp(); const myKey = currentUser.email.replace(/\./g, '_');
     for (const d in tempMyShift.dailyLogs) {
@@ -975,41 +965,32 @@
   }
 
   function openRoom(i) {
-    curRoom = i; 
+    curRoom = i; resetBookingSelection();
     document.getElementById('modalTitle').textContent = rooms[i].name; document.getElementById('modalSub').textContent = 'Pokoj '+(i+1)+' · sdílený kalendář';
     document.getElementById('roomNotes').value = notes[i]||'';
     const customItemsWrap = document.getElementById('roomCustomItemsWrap'); const cItems = rooms[i].customItems || [];
     customItemsWrap.innerHTML = cItems.map(item => { if(item.link) { return `<a href="${item.link}" target="_blank" class="custom-btn">${item.text}</a>`; } else { return `<span class="custom-badge">${item.text}</span>`; } }).join('');
     updateStatusBtn(); renderRoomCustomStatuses(); renderPhotos();
     
-    // Ukaž/Skryj tlačítko Nová rezervace
     const canBook = currentUser && currentUser.role !== 'staff'; 
     document.getElementById('openBookingBtn').style.display = canBook ? 'block' : 'none';
     
     document.getElementById('roomNotes').disabled = false; document.getElementById('saveNoteBtn').style.display = '';
-    
-    // Obnovíme kalendář v Room modal
-    renderRoomCalendar(); renderBookings(); 
-    document.getElementById('modalBg').classList.add('open');
+    renderRoomCalendar(); renderBookings(); document.getElementById('modalBg').classList.add('open');
     setTimeout(() => { autoResize(document.getElementById('roomNotes')); }, 10);
   }
 
   function closeModal() { document.getElementById('modalBg').classList.remove('open'); }
-  
   function changeMonth(d) { 
       calMon += d; if(calMon > 11) { calMon = 0; calYear++; } if(calMon < 0) { calMon = 11; calYear--; } 
       renderRoomCalendar(); 
-      if(document.getElementById('bookingModalBg').classList.contains('open')) {
-          renderBookingCalendar();
-      }
+      if(document.getElementById('bookingModalBg').classList.contains('open')) { renderBookingCalendar(); }
   }
 
-  // Získá mapu dnů POUZE pro render kalendáře (s možností ignorovat editovanou rezervaci)
   function getBookedDaysMap(ignoreIdx = -1) {
     const map = {};
     (bookings[curRoom]||[]).forEach((b, i) => {
-      if (i === ignoreIdx) return; // ignorujeme tu, kterou právě editujeme, ať neplete
-      
+      if (i === ignoreIdx) return; 
       const color = BOOKING_COLORS[i % BOOKING_COLORS.length];
       let d = new Date(b.from + 'T00:00:00'); const end = new Date(b.to + 'T00:00:00');
       while(d <= end) {
@@ -1022,10 +1003,8 @@
     return map;
   }
 
-  // RENDER KALENDÁŘE V DETAILU POKOJE (Pouze ke čtení)
   function renderRoomCalendar() {
-    document.getElementById('calMonth').textContent = MONTHS[calMon] + ' ' + calYear; 
-    const g = document.getElementById('calGrid'); 
+    document.getElementById('calMonth').textContent = MONTHS[calMon] + ' ' + calYear; const g = document.getElementById('calGrid'); 
     const dayMap = getBookedDaysMap(-1); const today = new Date();
     let html = DAYS.map(d => `<div class="cal-header">${d}</div>`).join(''); 
     const first = new Date(calYear, calMon, 1); let startDay = (first.getDay() + 6) % 7;
@@ -1044,63 +1023,38 @@
     } g.innerHTML = html;
   }
 
-  // --- NOVÝ MODAL PRO PŘIDÁNÍ/ÚPRAVU REZERVACE ---
   function openBookingModal(idx = -1) {
       editBookingIdx = idx;
       if (idx > -1) {
-          const b = bookings[curRoom][idx];
-          selStart = b.from; selEnd = b.to;
-          document.getElementById('bBookingNote').value = b.note || '';
-          document.getElementById('bookingModalTitle').textContent = 'Upravit rezervaci';
-          document.getElementById('saveBookingBtn').textContent = '💾 Uložit úpravy';
-          document.getElementById('saveBookingBtn').style.background = '#16A34A';
+          const b = bookings[curRoom][idx]; selStart = b.from; selEnd = b.to;
+          document.getElementById('bBookingNote').value = b.note || ''; document.getElementById('bookingModalTitle').textContent = 'Upravit rezervaci';
+          document.getElementById('saveBookingBtn').textContent = '💾 Uložit úpravy'; document.getElementById('saveBookingBtn').style.background = '#16A34A';
           const sd = new Date(selStart + 'T00:00:00'); calYear = sd.getFullYear(); calMon = sd.getMonth();
       } else {
-          selStart = null; selEnd = null;
-          document.getElementById('bBookingNote').value = '';
+          selStart = null; selEnd = null; document.getElementById('bBookingNote').value = '';
           document.getElementById('bookingModalTitle').textContent = 'Nová rezervace';
-          document.getElementById('saveBookingBtn').textContent = '+ Přidat rezervaci';
-          document.getElementById('saveBookingBtn').style.background = '';
+          document.getElementById('saveBookingBtn').textContent = '+ Přidat rezervaci'; document.getElementById('saveBookingBtn').style.background = '';
       }
-      
-      document.getElementById('bDateFrom').value = selStart ? fmt(selStart) : '';
-      document.getElementById('bDateTo').value = selEnd ? fmt(selEnd) : (selStart ? fmt(selStart) : '');
-      
-      renderBookingCalendar();
-      document.getElementById('bookingModalBg').classList.add('open');
+      document.getElementById('bDateFrom').value = selStart ? fmt(selStart) : ''; document.getElementById('bDateTo').value = selEnd ? fmt(selEnd) : (selStart ? fmt(selStart) : '');
+      renderBookingCalendar(); document.getElementById('bookingModalBg').classList.add('open');
       setTimeout(() => { autoResize(document.getElementById('bBookingNote')); }, 10);
   }
 
-  function closeBookingModal() {
-      document.getElementById('bookingModalBg').classList.remove('open');
-      // Znovu nastavíme kalendář v okně pokoje na aktuální měsíc nebo ten co byl
-      renderRoomCalendar();
-  }
+  function closeBookingModal() { document.getElementById('bookingModalBg').classList.remove('open'); renderRoomCalendar(); }
 
   function bookingCalDayClick(ds) {
     if (!currentUser || currentUser.role === 'staff') return; 
     if (!selStart || (selStart && selEnd)) { selStart = ds; selEnd = null; } 
     else { if (ds < selStart) { selEnd = selStart; selStart = ds; } else { selEnd = ds; } }
-    
-    document.getElementById('bDateFrom').value = selStart ? fmt(selStart) : ''; 
-    document.getElementById('bDateTo').value = selEnd ? fmt(selEnd) : (selStart ? fmt(selStart) : '');
-    
+    document.getElementById('bDateFrom').value = selStart ? fmt(selStart) : ''; document.getElementById('bDateTo').value = selEnd ? fmt(selEnd) : (selStart ? fmt(selStart) : '');
     renderBookingCalendar();
   }
 
-  function resetBookingSelection() {
-    selStart = null; selEnd = null; 
-    document.getElementById('bDateFrom').value = ''; document.getElementById('bDateTo').value = ''; 
-    renderBookingCalendar();
-  }
+  function resetBookingSelection() { selStart = null; selEnd = null; document.getElementById('bDateFrom').value = ''; document.getElementById('bDateTo').value = ''; renderBookingCalendar(); }
 
-  // RENDER KALENDÁŘE V MODALU PRO PŘIDÁNÍ/ÚPRAVU REZERVACE
   function renderBookingCalendar() {
-    document.getElementById('bookingCalMonth').textContent = MONTHS[calMon] + ' ' + calYear; 
-    const g = document.getElementById('bookingCalGrid'); 
-    const dayMap = getBookedDaysMap(editBookingIdx); // Vyloučí právě editovanou, aby nerušila
-    const today = new Date();
-    
+    document.getElementById('bookingCalMonth').textContent = MONTHS[calMon] + ' ' + calYear; const g = document.getElementById('bookingCalGrid'); 
+    const dayMap = getBookedDaysMap(editBookingIdx); const today = new Date();
     let html = DAYS.map(d => `<div class="cal-header">${d}</div>`).join(''); 
     const first = new Date(calYear, calMon, 1); let startDay = (first.getDay() + 6) % 7;
     for(let i=0; i<startDay; i++) { html += `<div class="cal-day empty"></div>`; }
@@ -1108,46 +1062,29 @@
     for(let d=1; d<=days; d++) {
       const ds = `${calYear}-${String(calMon+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; 
       const isT = today.getFullYear()===calYear && today.getMonth()===calMon && today.getDate()===d;
-      
       let cls = 'cal-day' + (isT ? ' today' : ''); let style = '';
-      
       if(dayMap[ds]) {
           cls += ' booked';
           if(dayMap[ds].length === 1) style = `background: ${dayMap[ds][0]}; border-color: rgba(0,0,0,0.1);`;
           else style = `background: linear-gradient(135deg, ${dayMap[ds][0]} 50%, ${dayMap[ds][1]} 50%); border-color: rgba(0,0,0,0.1);`;
       }
-      
-      if (selStart === ds || selEnd === ds) { cls += ' sel-node'; style = ''; }
-      else if (selStart && selEnd && ds > selStart && ds < selEnd) { cls += ' sel-mid'; style = ''; }
-      
+      if (selStart === ds || selEnd === ds) { cls += ' sel-node'; style = ''; } else if (selStart && selEnd && ds > selStart && ds < selEnd) { cls += ' sel-mid'; style = ''; }
       html += `<div class="${cls}" style="${style}" onclick="bookingCalDayClick('${ds}')">${d}</div>`;
     } g.innerHTML = html;
   }
 
   function saveBooking() {
     if (!selStart || !selEnd) { alert('Prosím, vyberte termín kliknutím do kalendáře (Příjezd a Odjezd).'); return; }
-    if(!bookings[curRoom]) bookings[curRoom] = []; 
-    const note = document.getElementById('bBookingNote').value.trim();
-    
-    if (editBookingIdx > -1) { 
-        bookings[curRoom][editBookingIdx].from = selStart; 
-        bookings[curRoom][editBookingIdx].to = selEnd; 
-        bookings[curRoom][editBookingIdx].note = note;
-    } else { 
-        bookings[curRoom].push({ from: selStart, to: selEnd, note: note, dirtyTriggered: false, addedAt: Date.now() }); 
-    }
-    
-    saveToFirebase(); 
-    closeBookingModal();
-    renderRoomCalendar();
-    renderBookings();
+    if(!bookings[curRoom]) bookings[curRoom] = []; const note = document.getElementById('bBookingNote').value.trim();
+    if (editBookingIdx > -1) { bookings[curRoom][editBookingIdx].from = selStart; bookings[curRoom][editBookingIdx].to = selEnd; bookings[curRoom][editBookingIdx].note = note;
+    } else { bookings[curRoom].push({ from: selStart, to: selEnd, note: note, dirtyTriggered: false, addedAt: Date.now() }); }
+    saveToFirebase(); closeBookingModal(); renderRoomCalendar(); renderBookings();
   }
 
   function renderBookings() {
     const list = bookings[curRoom] || []; const el = document.getElementById('bookingsList'); const canDel = currentUser && currentUser.canDelete; 
     const canBook = currentUser && currentUser.role !== 'staff';
     if(!list.length) { el.innerHTML = ''; return; }
-    
     el.innerHTML = list.map((b,i) => {
         const color = BOOKING_COLORS[i % BOOKING_COLORS.length];
         return `<div class="booking-item" style="border-left: 4px solid ${color};"><div><div class="booking-dates">${fmt(b.from)} → ${fmt(b.to)}</div>${b.note ? `<div class="booking-note">${b.note}</div>` : ''}</div><div style="display:flex; gap:4px;">${canBook ? `<button class="del-btn" style="color:var(--color-text-primary); font-size:14px;" onclick="openBookingModal(${i})" title="Upravit">✎</button>` : ''} ${canDel ? `<button class="del-btn" style="font-size:14px;" onclick="delBooking(${i})" title="Smazat">✕</button>` : ''}</div></div>`;
@@ -1158,10 +1095,7 @@
   
   function delBooking(i) { 
       if(!confirm('Opravdu smazat tuto rezervaci?')) return;
-      bookings[curRoom].splice(i, 1); 
-      saveToFirebase(); 
-      renderRoomCalendar();
-      renderBookings();
+      bookings[curRoom].splice(i, 1); saveToFirebase(); renderRoomCalendar(); renderBookings();
   }
   
   function saveNote() { 
@@ -1175,7 +1109,6 @@
   
   function toggleTheme() { const isDark = document.body.classList.toggle('dark-mode'); localStorage.setItem('hr_theme', isDark ? 'dark' : 'light'); document.getElementById('themeToggleBtn').textContent = isDark ? '☀️' : '🌙'; }
 
-  // --- FOTKY ZÁVAD ---
   function handlePhotoUpload(input) {
       const file = input.files[0]; if(!file) return; const reader = new FileReader();
       reader.onload = function(e) {
@@ -1202,8 +1135,7 @@
   function viewPhoto(dataUrl) { document.getElementById('photoViewerImg').src = dataUrl; document.getElementById('photoViewerBg').classList.add('open'); }
   function deletePhoto(idx) { if(confirm("Opravdu smazat tuto fotku?")) { rooms[curRoom].photos.splice(idx, 1); saveToFirebase(); renderPhotos(); } }
 
-  window.loginWithEmail = loginWithEmail; window.loginWithGoogle = loginWithGoogle; window.doLogout = doLogout; window.openRoom = openRoom; window.closeModal = closeModal; window.changeMonth = changeMonth; window.addBooking = addBooking; window.delBooking = delBooking; window.saveNote = saveNote; window.saveGeneralNote = saveGeneralNote; window.openEdit = openEdit; window.closeEdit = closeEdit; window.saveEdit = saveEdit; window.deleteRoom = deleteRoom; window.selEmoji = selEmoji; window.toggleDirty = toggleDirty; window.toggleCustomStatus = toggleCustomStatus; window.toggleTheme = toggleTheme; window.toggleColorMode = toggleColorMode; window.openUsersAdmin = openUsersAdmin; window.closeUsersAdmin = closeUsersAdmin; window.addUserRole = addUserRole; window.deleteUserRole = deleteUserRole; window.editUserRole = editUserRole; window.addStaffTask = addStaffTask; window.toggleStaffTask = toggleStaffTask; window.deleteStaffTask = deleteStaffTask; window.addCustomItemToEdit = addCustomItemToEdit; window.removeCustomItemFromEdit = removeCustomItemFromEdit; window.addCustomStatusToEdit = addCustomStatusToEdit; window.removeCustomStatusFromEdit = removeCustomStatusFromEdit; window.addPaidTaskToEdit = addPaidTaskToEdit; window.removePaidTaskFromEdit = removePaidTaskFromEdit; window.clearEmojiSelection = clearEmojiSelection; window.openMyShift = openMyShift; window.closeMyShift = closeMyShift; window.changeShiftDate = changeShiftDate; window.changeShiftTask = changeShiftTask; window.saveMyShift = saveMyShift; window.resetShiftData = resetShiftData; window.openShiftDetails = openShiftDetails; window.closeShiftDetails = closeShiftDetails; window.closeNewBookingsModal = closeNewBookingsModal; window.handlePhotoUpload = handlePhotoUpload; window.viewPhoto = viewPhoto; window.deletePhoto = deletePhoto; 
-  window.openBookingModal = openBookingModal; window.closeBookingModal = closeBookingModal; window.bookingCalDayClick = bookingCalDayClick; window.resetBookingSelection = resetBookingSelection; window.saveBooking = saveBooking;
+  window.loginWithEmail = loginWithEmail; window.loginWithGoogle = loginWithGoogle; window.doLogout = doLogout; window.openRoom = openRoom; window.closeModal = closeModal; window.changeMonth = changeMonth; window.delBooking = delBooking; window.saveNote = saveNote; window.saveGeneralNote = saveGeneralNote; window.openEdit = openEdit; window.closeEdit = closeEdit; window.saveEdit = saveEdit; window.deleteRoom = deleteRoom; window.selEmoji = selEmoji; window.clearEmojiSelection = clearEmojiSelection; window.toggleDirty = toggleDirty; window.toggleCustomStatus = toggleCustomStatus; window.toggleTheme = toggleTheme; window.toggleColorMode = toggleColorMode; window.openUsersAdmin = openUsersAdmin; window.closeUsersAdmin = closeUsersAdmin; window.addUserRole = addUserRole; window.deleteUserRole = deleteUserRole; window.editUserRole = editUserRole; window.addStaffTask = addStaffTask; window.toggleStaffTask = toggleStaffTask; window.deleteStaffTask = deleteStaffTask; window.addCustomItemToEdit = addCustomItemToEdit; window.removeCustomItemFromEdit = removeCustomItemFromEdit; window.addCustomStatusToEdit = addCustomStatusToEdit; window.removeCustomStatusFromEdit = removeCustomStatusFromEdit; window.addPaidTaskToEdit = addPaidTaskToEdit; window.removePaidTaskFromEdit = removePaidTaskFromEdit; window.openMyShift = openMyShift; window.closeMyShift = closeMyShift; window.changeShiftDate = changeShiftDate; window.changeShiftTask = changeShiftTask; window.saveMyShift = saveMyShift; window.resetShiftData = resetShiftData; window.openShiftDetails = openShiftDetails; window.closeShiftDetails = closeShiftDetails; window.closeNewBookingsModal = closeNewBookingsModal; window.handlePhotoUpload = handlePhotoUpload; window.viewPhoto = viewPhoto; window.deletePhoto = deletePhoto; window.openBookingModal = openBookingModal; window.closeBookingModal = closeBookingModal; window.bookingCalDayClick = bookingCalDayClick; window.resetBookingSelection = resetBookingSelection; window.saveBooking = saveBooking;
   
   document.getElementById('loginPass').addEventListener('keydown', function(e) { if(e.key === 'Enter') loginWithEmail(); });
   document.getElementById('loginEmail').addEventListener('keydown', function(e) { if(e.key === 'Enter') document.getElementById('loginPass').focus(); });
