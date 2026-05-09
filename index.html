@@ -54,6 +54,13 @@
 
   .admin-actions-wrap{max-width:1200px;margin:0 auto 1.5rem;padding:0 24px;text-align:center; display:flex; justify-content:center; gap:12px; flex-wrap:wrap;}
 
+  /* MINI STATISTIKY */
+  .mini-stats-wrap { max-width: 1200px; margin: 0 auto 1.5rem; padding: 0 24px; display: flex; justify-content: flex-start; gap: 20px; flex-wrap: wrap; }
+  .stat-item { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: var(--color-text-primary); background: var(--color-background-primary); border: 1px solid var(--color-border-secondary); padding: 8px 16px; border-radius: var(--border-radius-md); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+  .stat-val { background: var(--color-background-secondary); padding: 2px 8px; border-radius: 12px; font-size: 14px; color: var(--color-text-primary); border: 1px solid var(--color-border-tertiary); }
+  body.dark-mode .stat-item { border-color: var(--color-border-tertiary); }
+  body.dark-mode .stat-val { background: var(--color-border-tertiary); border-color: var(--color-border-secondary); }
+
   .rooms-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;padding:0 24px 24px;max-width:1200px;margin:0 auto}
   .room-card{border:1px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;cursor:pointer;position:relative;transition:transform 0.2s,box-shadow 0.2s, background-color 0.3s;}
   .room-card:hover{transform:translateY(-4px);box-shadow:0 10px 15px rgba(0,0,0,0.05);border-color:var(--color-border-secondary)}
@@ -173,6 +180,9 @@
     .logout-btn { top: 1.25rem; right: 1rem; transform: none; padding: 6px 12px; font-size: 12px; }
     .theme-btn { top: 1.25rem; right: 5.5rem; transform: none; padding: 5px 10px; font-size:14px; }
     .hotel-title { font-size: 22px; margin-top: 0.5rem; }
+    .mini-stats-wrap { margin: 0 16px 1.5rem; padding: 0; gap: 10px; justify-content: flex-start; }
+    .stat-item { padding: 6px 12px; font-size: 12px; }
+    .stat-val { padding: 2px 6px; font-size: 12px; }
     .rooms-grid { grid-template-columns: repeat(2, 1fr); padding: 0 16px 24px; gap: 12px; }
     .room-img .emoji { font-size: 40px; } .room-name { font-size: 14px; }
     .edit-btn { opacity: 1; background: rgba(255,255,255,0.9); color:#18181b;} body.dark-mode .edit-btn { background: rgba(0,0,0,0.8); color: #fff; }
@@ -223,6 +233,8 @@
     <button class="add-btn" onclick="openEdit(-1)">+ Přidat nový pokoj</button>
     <button class="save-note-btn" onclick="openUsersAdmin()">👥 Správa přístupů</button>
   </div>
+
+  <div id="miniStats" class="mini-stats-wrap"></div>
 
   <div class="rooms-grid" id="roomsGrid"></div>
 
@@ -431,7 +443,7 @@
       }
       if(currentUser && document.getElementById('screenApp').classList.contains('active')) {
         document.getElementById('generalNotes').value = generalNotes; autoResize(document.getElementById('generalNotes'));
-        renderRooms(); renderStaffTasks();
+        renderRooms(); renderMiniStats(); renderStaffTasks();
         if(document.getElementById('usersAdminBg').classList.contains('open')) { renderUsersAdmin(); }
         if(document.getElementById('modalBg').classList.contains('open') && curRoom !== -1) {
           document.getElementById('roomNotes').value = notes[curRoom] || '';
@@ -439,6 +451,30 @@
         }
       }
     });
+  }
+
+  function renderMiniStats() {
+    const today = getLocalIsoDate(0);
+    let arrivals = 0; let departures = 0; let cleanings = 0;
+    
+    rooms.forEach((r, i) => {
+      if (r.isDirty && !r.hideDefaultStatus) cleanings++;
+    });
+
+    for (const roomIdx in bookings) {
+      (bookings[roomIdx] || []).forEach(b => {
+        if (b.from === today) arrivals++;
+        if (b.to === today) departures++;
+      });
+    }
+
+    const el = document.getElementById('miniStats');
+    if (!el) return;
+    el.innerHTML = `
+      <div class="stat-item">Příjezdy: <span class="stat-val">${arrivals}</span></div>
+      <div class="stat-item">Odjezdy: <span class="stat-val">${departures}</span></div>
+      <div class="stat-item">Úklidy: <span class="stat-val">${cleanings}</span></div>
+    `;
   }
 
   function saveToFirebase() { set(ref(db, '/'), { rooms, bookings, notes, generalNotes, staffTasks, authorizedUsers }); }
