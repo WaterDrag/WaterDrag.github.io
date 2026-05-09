@@ -208,9 +208,6 @@
   .shift-counter-btn:hover { background:var(--color-border-tertiary); }
   .shift-counter-val { font-size:16px; font-weight:bold; color:var(--color-text-primary); width:40px; text-align:center;}
 
-  /* Záložky pro zálohy */
-  .backup-tab-btn { padding:6px 12px; font-size:12px; border-radius:4px; border:1px solid var(--color-border-primary); cursor:pointer; font-family:'Lato',sans-serif; transition:all 0.2s; white-space:nowrap; }
-
   @media (max-width: 640px) {
     .hotel-header { padding-top: 3.5rem; padding-bottom: 1.25rem; }
     .user-info { top: 1.25rem; left: 1rem; transform: none; font-size: 13px; }
@@ -535,6 +532,7 @@
 
   const app = initializeApp(firebaseConfig); const db = getDatabase(app); const auth = getAuth(app); const messaging = getMessaging(app); const googleProvider = new GoogleAuthProvider();
 
+  // Oprávnění
   const ROLE_PERMISSIONS = {
     staff: { role:'staff', label:'Zaměstnanec', badge:'badge-staff', canEdit:false, canDelete:false, canToggle:true, canSeeStatsPanel:true, canSeeAllStats:false, canLogShift:true },
     main_staff: { role:'main_staff', label:'Hlavní Staff', badge:'badge-admin', canEdit:false, canDelete:false, canToggle:true, canSeeStatsPanel:true, canSeeAllStats:true, canLogShift:true },
@@ -602,11 +600,16 @@
       if(currentUser && document.getElementById('screenApp').classList.contains('active')) {
         document.getElementById('generalNotes').value = generalNotes; autoResize(document.getElementById('generalNotes'));
         renderRooms(); renderMiniStats(); renderStaffTasks();
-        if (document.getElementById('statsModalBg').classList.contains('open')) { renderStatsPanel(); }
+        if (document.getElementById('statsModalBg').classList.contains('open')) { 
+            // Pokud jsme v archivu záloh, nepřekreslujeme zpět na aktuální zobrazení
+            // Pouze updatujeme data na pozadí, pokud nejsou aktivně prohlížena historická
+        }
         checkAndShowNewBookings();
         if(document.getElementById('usersAdminBg').classList.contains('open')) { renderUsersAdmin(); }
         if(document.getElementById('modalBg').classList.contains('open') && curRoom !== -1) {
-          document.getElementById('roomNotes').value = notes[curRoom] || '';
+          // Udržení focusu v textarea při update
+          const isFocused = document.activeElement === document.getElementById('roomNotes');
+          if (!isFocused) document.getElementById('roomNotes').value = notes[curRoom] || '';
           renderRoomCalendar(); renderBookings(); renderPhotos(); updateStatusBtn(); renderRoomCustomStatuses();
         }
       }
@@ -794,31 +797,68 @@
   }
   function closeShiftDetails() { document.getElementById('shiftDetailsBg').classList.remove('open'); }
 
+  // --- SPRÁVA ZOBRAZENÍ VÝKAZŮ (MODAL A ARCHIV) ---
   function openStatsModal() {
-    renderStatsPanel(-1); // -1 znamená aktuální
+    renderStatsPanel('current');
     document.getElementById('statsModalBg').classList.add('open');
   }
   function closeStatsModal() {
     document.getElementById('statsModalBg').classList.remove('open');
   }
 
-  function renderStatsPanel(backupIdx = -1) {
+  function renderStatsPanel(mode = 'current', backupIdx = -1) {
     if (!currentUser || !currentUser.canSeeStatsPanel) return;
     
     const myKey = currentUser.email.replace(/\./g, '_'); 
     const panelContent = document.getElementById('statsPanelContent'); 
+    let html = '';
     
-    let html = '<div style="display:flex; gap:8px; margin-bottom:16px; overflow-x:auto; padding-bottom:4px;">';
-    html += `<button class="backup-tab-btn" onclick="renderStatsPanel(-1)" style="background:${backupIdx === -1 ? 'var(--color-text-primary)' : 'transparent'}; color:${backupIdx === -1 ? 'var(--color-background-primary)' : 'var(--color-text-primary)'};">Aktuální výkazy</button>`;
-    shiftDataBackups.forEach((b, i) => {
-        const d = new Date(b.date); const dateStr = d.getDate() + '.' + (d.getMonth()+1) + '. ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
-        html += `<button class="backup-tab-btn" onclick="renderStatsPanel(${i})" style="background:${backupIdx === i ? 'var(--color-text-primary)' : 'transparent'}; color:${backupIdx === i ? 'var(--color-background-primary)' : 'var(--color-text-primary)'};">Záloha ${dateStr}</button>`;
-    });
-    html += '</div>';
+    // ZOBRAZENÍ SEZNAMU HISTORIE ZÁLOH
+    if (mode === 'history') {
+         html += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                    <h4 style="margin:0; font-family:'Playfair Display',serif; color:var(--color-text-primary);">🗄️ Archiv výkazů</h4>
+                    <button class="cal-nav-btn" onclick="renderStatsPanel('current')" style="padding:6px 12px; font-size:12px;">🔙 Zpět na aktuální</button>
+                  </div>`;
+                  
+         if (!shiftDataBackups || shiftDataBackups.length === 0) {
+            html += `<div style="font-size:13px; color:var(--color-text-secondary); text-align:center; padding: 20px;">Zatím nejsou k dispozici žádné uzavřené měsíce.</div>`;
+         } else {
+            html += `<div style="display:flex; flex-direction:column; gap:8px;">`;
+            // Od nejnovější po nejstarší
+            for (let i = shiftDataBackups.length - 1; i >= 0; i--) {
+                const b = shiftDataBackups[i];
+                const d = new Date(b.date);
+                const dateStr = d.getDate() + '.' + (d.getMonth()+1) + '. ' + d.getFullYear() + ' v ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+                html += `<div class="task-item" style="cursor:pointer; transition:transform 0.1s; background:var(--color-background-primary);" onclick="renderStatsPanel('backup', ${i})" onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'">
+                           <div style="font-size:14px; font-weight:bold; color:var(--color-text-primary);">Záloha z: ${dateStr}</div>
+                           <div style="font-size:12px; font-weight:bold; color:var(--color-text-primary);">Otevřít ➔</div>
+                         </div>`;
+            }
+            html += `</div>`;
+         }
+         panelContent.innerHTML = html;
+         return;
+    }
 
-    const sourceData = backupIdx === -1 ? shiftData : shiftDataBackups[backupIdx].data;
+    // ZOBRAZENÍ KONKRÉTNÍHO VÝKAZU (Aktuální nebo Historický)
+    const isBackup = (mode === 'backup');
+    const sourceData = isBackup ? shiftDataBackups[backupIdx].data : shiftData;
+
+    if (isBackup) {
+        const d = new Date(shiftDataBackups[backupIdx].date);
+        const dateStr = d.getDate() + '.' + (d.getMonth()+1) + '. v ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+        html += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; background:var(--color-background-secondary); padding:8px 12px; border-radius:var(--border-radius-md); border:1px solid var(--color-border-secondary);">
+                   <div style="font-size:13px; font-weight:bold; color:var(--color-text-primary);">Prohlížíte zálohu:<br><span style="font-size:12px; font-weight:normal; color:var(--color-text-secondary);">${dateStr}</span></div>
+                   <button class="cal-nav-btn" onclick="renderStatsPanel('history')" style="padding:6px 12px; font-size:12px; font-weight:bold;">🔙 Zpět na archiv</button>
+                 </div>`;
+    } else {
+        html += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                   <div style="font-size:14px; font-weight:bold; color:var(--color-text-primary);">Aktuální neuzavřené období</div>
+                   <button class="cal-nav-btn" onclick="renderStatsPanel('history')" style="padding:6px 12px; font-size:12px; font-weight:bold;">🗄️ Historie záloh</button>
+                 </div>`;
+    }
+
     let empty = true;
-    
     for(const key in sourceData) {
       if (!currentUser.canSeeAllStats && key !== myKey) continue;
       const d = sourceData[key]; const user = authorizedUsers[key]; const nick = user ? (user.nickname || user.email) : key; const rate = parseFloat(user?.hourlyRate) || 0;
@@ -840,14 +880,14 @@
       const totalOverall = hoursMoney + tasksMoney;
       if(totalHours > 0 || tasksTxt.length > 0 || hasLogs) {
         empty = false;
-        html += `<div class="stats-panel-user"><div style="display:flex; justify-content:space-between; align-items:center;"><strong>${nick}</strong><button onclick="openShiftDetails('${key}', ${backupIdx})" style="background:var(--color-background-primary);border:1px solid var(--color-border-tertiary);border-radius:4px;padding:4px 8px;cursor:pointer;font-size:11px;color:var(--color-text-primary);">Podrobnosti</button></div>(Hodiny: ${totalHours})<br>${tasksTxt.join('<br>')}<br><strong style="color:#16A34A; margin-top:4px; display:block;">Celkem odměna: ${totalOverall} Kč</strong></div>`;
+        html += `<div class="stats-panel-user"><div style="display:flex; justify-content:space-between; align-items:center;"><strong>${nick}</strong><button onclick="openShiftDetails('${key}', ${isBackup ? backupIdx : -1})" style="background:var(--color-background-primary);border:1px solid var(--color-border-tertiary);border-radius:4px;padding:4px 8px;cursor:pointer;font-size:11px;font-weight:bold; color:var(--color-text-primary);">Podrobnosti</button></div>(Hodiny: ${totalHours})<br>${tasksTxt.join('<br>')}<br><strong style="color:#16A34A; margin-top:4px; display:block;">Celkem odměna: ${totalOverall} Kč</strong></div>`;
       }
     }
     
-    if(empty) html += '<div style="font-size:13px; color:var(--color-text-secondary); margin-bottom:12px;">Zatím nejsou k dispozici žádné výkazy.</div>';
+    if(empty) html += '<div style="font-size:13px; color:var(--color-text-secondary); text-align:center; padding: 20px;">Zatím nejsou k dispozici žádné výkazy.</div>';
     
-    if (currentUser.canSeeAllStats && backupIdx === -1) { 
-        html += `<button class="btn-delete-room" onclick="resetShiftData()" style="width:100%; padding:12px; margin-top: 12px;">Vynulovat vše (Vyplaceno)</button><div style="font-size:11px; color:var(--color-text-secondary); text-align:center; margin-top:6px;">Automaticky vytvoří zálohu (max 20)</div>`; 
+    if (currentUser.canSeeAllStats && !isBackup) { 
+        html += `<button class="btn-delete-room" onclick="resetShiftData()" style="width:100%; padding:12px; margin-top: 12px;">Vynulovat vše (Uzavřít měsíc)</button><div style="font-size:11px; color:var(--color-text-secondary); text-align:center; margin-top:6px;">Automaticky vytvoří zálohu do archivu (max 20)</div>`; 
     }
     
     panelContent.innerHTML = html;
@@ -856,12 +896,10 @@
   function resetShiftData() {
     if(confirm('Chcete UZAVŘÍT a VYNULOVAT aktuální statistiky?\nAplikace vytvoří automatickou zálohu. (1/2)')) { 
       if(confirm('OPRAVDU to chcete udělat? Údaje budou vynulovány! (2/2)')) { 
-        
         if (Object.keys(shiftData).length > 0) {
             shiftDataBackups.push({ date: Date.now(), data: JSON.parse(JSON.stringify(shiftData)) });
             if (shiftDataBackups.length > 20) { shiftDataBackups.shift(); }
         }
-        
         shiftData = {}; 
         saveToFirebase(); 
         closeStatsModal(); 
