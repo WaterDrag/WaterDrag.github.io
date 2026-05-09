@@ -9,61 +9,39 @@
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Lato:wght@300;400;700&display=swap');
 
   :root {
-    --color-background-primary: #ffffff;
-    --color-background-secondary: #f4f4f5;
-    --color-border-primary: #18181b;
-    --color-border-secondary: #e4e4e7;
-    --color-border-tertiary: #d1d5db;
-    --color-text-primary: #18181b;
-    --color-text-secondary: #71717a;
-    --color-text-danger: #ef4444;
-    --border-radius-md: 6px;
-    --border-radius-lg: 10px;
-    --border-radius-xl: 16px;
+    --color-background-primary: #ffffff; --color-background-secondary: #f4f4f5;
+    --color-border-primary: #18181b; --color-border-secondary: #e4e4e7; --color-border-tertiary: #d1d5db;
+    --color-text-primary: #18181b; --color-text-secondary: #71717a; --color-text-danger: #ef4444;
+    --border-radius-md: 6px; --border-radius-lg: 10px; --border-radius-xl: 16px;
   }
-
   body.dark-mode {
-    --color-background-primary: #18181b;
-    --color-background-secondary: #09090b;
-    --color-border-primary: #ffffff;
-    --color-border-secondary: #3f3f46;
-    --color-border-tertiary: #27272a;
-    --color-text-primary: #f4f4f5;
-    --color-text-secondary: #a1a1aa;
+    --color-background-primary: #18181b; --color-background-secondary: #09090b;
+    --color-border-primary: #ffffff; --color-border-secondary: #3f3f46; --color-border-tertiary: #27272a;
+    --color-text-primary: #f4f4f5; --color-text-secondary: #a1a1aa;
   }
-
   *{box-sizing:border-box;margin:0;padding:0; -webkit-tap-highlight-color: transparent;}
   body{font-family:'Lato',sans-serif;background:var(--color-background-secondary); transition: background-color 0.3s;}
-  .screen{display:none}
-  .screen.active{display:block}
+  .screen{display:none} .screen.active{display:block}
 
   .login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:2rem 1rem}
   .login-card{background:var(--color-background-primary);border:1px solid var(--color-border-tertiary);border-radius:var(--border-radius-xl);padding:2.5rem;width:min(380px,100%);box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: background-color 0.3s, border-color 0.3s;}
   body.dark-mode .login-card { box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
   .login-title{font-family:'Playfair Display',serif;font-size:24px;font-weight:600;color:var(--color-text-primary);text-align:center;margin-bottom:4px}
   .login-sub{font-size:12px;color:var(--color-text-secondary);text-align:center;letter-spacing:2px;text-transform:uppercase;margin-bottom:2rem}
-  
   .login-label{font-size:12px;color:var(--color-text-secondary);font-weight:700;letter-spacing:0.5px;display:block;margin-bottom:6px;margin-top:16px}
   .login-card input{width:100%;padding:12px 14px;font-size:16px;border:1px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);font-family:'Lato',sans-serif;outline:none;transition:border-color 0.2s}
   .login-card input:focus{border-color:var(--color-border-primary)}
-  
   .login-btn{width:100%;margin-top:1.5rem;padding:14px;font-size:14px;font-weight:700;font-family:'Lato',sans-serif;border:none;border-radius:var(--border-radius-md);background:var(--color-text-primary);color:var(--color-background-primary);cursor:pointer;letter-spacing:0.5px;transition:opacity 0.2s}
   .login-btn:hover{opacity:0.9}
-  
   .google-btn{width:100%;margin-top:1rem;padding:12px;font-size:14px;font-weight:700;font-family:'Lato',sans-serif;border:1px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);cursor:pointer;letter-spacing:0.5px;transition:background 0.2s; display:flex; align-items:center; justify-content:center; gap:8px;}
   .google-btn:hover{background:var(--color-background-secondary)}
-  
   .login-err{font-size:12px;color:var(--color-text-danger);text-align:center;margin-top:12px;min-height:16px}
-  
   .divider {display:flex; align-items:center; text-align:center; margin:1.5rem 0; color:var(--color-text-secondary); font-size:12px;}
   .divider::before, .divider::after {content:''; flex:1; border-bottom:1px solid var(--color-border-secondary);}
-  .divider:not(:empty)::before {margin-right:.5em;}
-  .divider:not(:empty)::after {margin-left:.5em;}
+  .divider:not(:empty)::before {margin-right:.5em;} .divider:not(:empty)::after {margin-left:.5em;}
 
   .role-badge{display:inline-block;padding:3px 10px;border-radius:var(--border-radius-md);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-left:8px}
-  .badge-staff{background:#E1F5EE;color:#085041}
-  .badge-admin{background:#E6F1FB;color:#0C447C}
-  .badge-owner{background:#FAEEDA;color:#633806}
+  .badge-staff{background:#E1F5EE;color:#085041} .badge-admin{background:#E6F1FB;color:#0C447C} .badge-owner{background:#FAEEDA;color:#633806}
 
   .hotel-header{text-align:center;padding:1.5rem 1rem;border-bottom:1px solid var(--color-border-tertiary);margin-bottom:1.5rem;position:relative;background:var(--color-background-primary); transition: background-color 0.3s;}
   .hotel-title{font-family:'Playfair Display',serif;font-size:24px;font-weight:600;color:var(--color-text-primary);letter-spacing:1px}
@@ -71,7 +49,6 @@
   .logout-btn{position:absolute;right:16px;top:50%;transform:translateY(-50%);background:none;border:1px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:6px 14px;font-size:12px;cursor:pointer;color:var(--color-text-secondary);font-family:'Lato',sans-serif;letter-spacing:0.5px;transition:background 0.2s}
   .logout-btn:hover{background:var(--color-background-secondary)}
   .user-info{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--color-text-secondary);display:flex;align-items:center}
-  
   .theme-btn {position:absolute; right:100px; top:50%; transform:translateY(-50%); background:none; border:1px solid var(--color-border-tertiary); border-radius:var(--border-radius-md); padding:5px 10px; font-size:15px; cursor:pointer; color:var(--color-text-secondary); transition:background 0.2s;}
   .theme-btn:hover {background:var(--color-background-secondary)}
 
@@ -83,10 +60,8 @@
   body.dark-mode .room-card:hover { box-shadow:0 10px 15px rgba(0,0,0,0.5); }
   
   .bg-state-free { background: var(--color-background-primary); }
-  .bg-state-soon { background: #fff7ed; border-color: #fdba74; }
-  body.dark-mode .bg-state-soon { background: #431407; border-color: #c2410c; }
-  .bg-state-active { background: #fef2f2; border-color: #fca5a5; }
-  body.dark-mode .bg-state-active { background: #450a0a; border-color: #b91c1c; }
+  .bg-state-soon { background: #fff7ed; border-color: #fdba74; } body.dark-mode .bg-state-soon { background: #431407; border-color: #c2410c; }
+  .bg-state-active { background: #fef2f2; border-color: #fca5a5; } body.dark-mode .bg-state-active { background: #450a0a; border-color: #b91c1c; }
 
   .room-img{width:100%;aspect-ratio:4/3;background:transparent;display:flex;align-items:center;justify-content:center;position:relative}
   .room-img .emoji{font-size:48px}
@@ -94,30 +69,28 @@
   .room-name{font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--color-text-primary);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .room-num{font-size:12px;color:var(--color-text-secondary);letter-spacing:1px}
 
-  .room-status-badge{position:absolute;bottom:12px;left:12px;padding:4px 8px;border-radius:var(--border-radius-md);font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;z-index:2;box-shadow:0 2px 4px rgba(0,0,0,0.1)}
-  .status-clean{background:#DCFCE7;color:#166534}
-  .status-dirty{background:#FEE2E2;color:#991B1B}
-  body.dark-mode .status-clean{background:#064e3b;color:#34d399}
-  body.dark-mode .status-dirty{background:#450a0a;color:#f87171}
+  /* Obal pro štítky na kartě (aby se daly vrstvit pod sebou) */
+  .room-badges-wrap {position:absolute; bottom:12px; left:12px; display:flex; flex-direction:column; gap:4px; align-items:flex-start; z-index:2; max-width:85%;}
+  .room-status-badge{padding:4px 8px;border-radius:var(--border-radius-md);font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;box-shadow:0 2px 4px rgba(0,0,0,0.1); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;}
+  
+  .status-clean{background:#DCFCE7;color:#166534} .status-dirty{background:#FEE2E2;color:#991B1B}
+  body.dark-mode .status-clean{background:#064e3b;color:#34d399} body.dark-mode .status-dirty{background:#450a0a;color:#f87171}
 
   .edit-btn{position:absolute;top:8px;right:8px;background:rgba(255,255,255,0.9);color:#18181b;border:1px solid var(--color-border-secondary);border-radius:50%;width:32px;height:32px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s,transform 0.2s;z-index:3}
   body.dark-mode .edit-btn { background: rgba(0,0,0,0.8); color: #fff; }
-  .room-card:hover .edit-btn{opacity:1}
-  .edit-btn:hover{transform:scale(1.1)}
+  .room-card:hover .edit-btn{opacity:1} .edit-btn:hover{transform:scale(1.1)}
 
   .general-notes-wrap{max-width:1200px;margin:0 auto 1.5rem;padding:0 24px}
 
   .modal-bg{display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;padding:1rem;z-index:9999}
   .modal-bg.open{display:flex}
   .modal{background:var(--color-background-primary);border-radius:var(--border-radius-xl);width:min(600px,100%);max-height:90vh;overflow-y:auto;position:relative;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25)}
-
   .modal-top{padding:1.5rem 1.5rem 1rem;border-bottom:1px solid var(--color-border-tertiary);position:sticky;top:0;background:var(--color-background-primary);z-index:10;border-radius:var(--border-radius-xl) var(--border-radius-xl) 0 0}
   .modal-room-title{font-family:'Playfair Display',serif;font-size:24px;font-weight:600;color:var(--color-text-primary)}
   .modal-room-sub{font-size:12px;color:var(--color-text-secondary);letter-spacing:2px;text-transform:uppercase;margin-top:4px}
   .close-btn{position:absolute;top:1.5rem;right:1.5rem;background:var(--color-background-secondary);border:none;border-radius:50%;width:32px;height:32px;font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--color-text-primary);transition:background 0.2s}
   .close-btn:hover{background:var(--color-border-secondary)}
 
-  /* Vlastní štítky a tlačítka v detailu pokoje */
   .custom-items-wrap { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; margin-bottom: 4px; }
   .custom-badge { background: var(--color-background-secondary); border: 1px solid var(--color-border-tertiary); padding: 6px 12px; border-radius: var(--border-radius-md); font-size: 13px; font-weight: 700; color: var(--color-text-primary); }
   .custom-btn { background: var(--color-text-primary); color: var(--color-background-primary); border: 1px solid var(--color-border-primary); padding: 6px 12px; border-radius: var(--border-radius-md); font-size: 13px; font-weight: 700; text-decoration: none; display: inline-block; transition: opacity 0.2s; }
@@ -125,14 +98,10 @@
   .edit-custom-item { display:flex; gap:8px; align-items:center; background: var(--color-background-secondary); padding: 8px 12px; border-radius: var(--border-radius-md); margin-bottom: 6px; border: 1px solid var(--color-border-secondary);}
 
   .toggle-status-btn{margin-top:12px;padding:8px 12px;border:none;border-radius:var(--border-radius-md);font-size:12px;font-weight:700;cursor:pointer;font-family:'Lato',sans-serif;transition:background 0.2s}
-  .toggle-status-btn.btn-clean{background:#DCFCE7;color:#166534}
-  .toggle-status-btn.btn-clean:hover{background:#BBF7D0}
-  .toggle-status-btn.btn-dirty{background:#FEE2E2;color:#991B1B}
-  .toggle-status-btn.btn-dirty:hover{background:#FECACA}
-  body.dark-mode .toggle-status-btn.btn-clean{background:#064e3b;color:#34d399}
-  body.dark-mode .toggle-status-btn.btn-clean:hover{background:#065f46}
-  body.dark-mode .toggle-status-btn.btn-dirty{background:#450a0a;color:#f87171}
-  body.dark-mode .toggle-status-btn.btn-dirty:hover{background:#7f1d1d}
+  .toggle-status-btn.btn-clean{background:#DCFCE7;color:#166534} .toggle-status-btn.btn-clean:hover{background:#BBF7D0}
+  .toggle-status-btn.btn-dirty{background:#FEE2E2;color:#991B1B} .toggle-status-btn.btn-dirty:hover{background:#FECACA}
+  body.dark-mode .toggle-status-btn.btn-clean{background:#064e3b;color:#34d399} body.dark-mode .toggle-status-btn.btn-clean:hover{background:#065f46}
+  body.dark-mode .toggle-status-btn.btn-dirty{background:#450a0a;color:#f87171} body.dark-mode .toggle-status-btn.btn-dirty:hover{background:#7f1d1d}
   .toggle-status-btn:disabled{cursor:default;pointer-events:none;opacity:0.8}
 
   .modal-body{padding:1.5rem}
@@ -146,8 +115,7 @@
   .cal-day{text-align:center;padding:10px 4px;font-size:13px;border-radius:var(--border-radius-md);cursor:pointer;transition:background 0.2s;color:var(--color-text-primary);border:1px solid transparent}
   .cal-day:hover:not(.empty){background:var(--color-background-secondary);border-color:var(--color-border-tertiary)}
   .cal-day.empty{cursor:default}
-  .cal-day.booked{background:#E0F2FE;color:#0369A1;font-weight:700;border-color:#BAE6FD}
-  body.dark-mode .cal-day.booked{background:#082f49;color:#38bdf8;border-color:#0369a1}
+  .cal-day.booked{background:#E0F2FE;color:#0369A1;font-weight:700;border-color:#BAE6FD} body.dark-mode .cal-day.booked{background:#082f49;color:#38bdf8;border-color:#0369a1}
   .cal-day.today{border:2px solid var(--color-text-primary);font-weight:700}
 
   .booking-form{background:var(--color-background-secondary);padding:1rem;border-radius:var(--border-radius-lg);display:grid;gap:12px}
@@ -170,8 +138,7 @@
   .notes-area:disabled {background: var(--color-background-secondary); opacity: 0.8; cursor: not-allowed}
   .save-note-btn{margin-top:12px;background:var(--color-background-primary);border:1px solid var(--color-border-primary);border-radius:var(--border-radius-md);padding:10px 16px;font-size:13px;font-weight:700;cursor:pointer;color:var(--color-text-primary);font-family:'Lato',sans-serif;transition:background 0.2s}
   .save-note-btn:hover{background:var(--color-background-secondary)}
-  .note-saved{font-size:13px;font-weight:700;color:#16A34A;margin-left:12px;opacity:0;transition:opacity 0.3s}
-  body.dark-mode .note-saved {color:#4ade80}
+  .note-saved{font-size:13px;font-weight:700;color:#16A34A;margin-left:12px;opacity:0;transition:opacity 0.3s} body.dark-mode .note-saved {color:#4ade80}
 
   .edit-modal-bg{display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;padding:1rem;z-index:9999}
   .edit-modal-bg.open{display:flex}
@@ -182,38 +149,22 @@
   .edit-modal input[type="text"], .admin-form input[type="email"] {width:100%;padding:12px 14px;font-size:16px;border:1px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);font-family:'Lato',sans-serif;outline:none;appearance:none;}
   .edit-modal input[type="text"]:focus, .admin-form input[type="email"]:focus {border-color:var(--color-border-primary);}
   
-  input[type="checkbox"] {
-    appearance: auto !important;
-    -webkit-appearance: checkbox !important;
-    width: 18px !important;
-    height: 18px !important;
-    margin: 0;
-    cursor: pointer;
-    accent-color: var(--color-text-primary);
-  }
+  input[type="checkbox"] {appearance: auto !important; -webkit-appearance: checkbox !important; width: 18px !important; height: 18px !important; margin: 0; cursor: pointer; accent-color: var(--color-text-primary);}
 
   .emoji-pick{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
   .emoji-pick span{font-size:32px;cursor:pointer;padding:6px;border-radius:var(--border-radius-md);border:2px solid transparent;transition:all 0.2s;background:var(--color-background-secondary)}
-  .emoji-pick span:hover{transform:scale(1.1)}
-  .emoji-pick span.sel{border-color:var(--color-border-primary);background:var(--color-background-primary)}
+  .emoji-pick span:hover{transform:scale(1.1)} .emoji-pick span.sel{border-color:var(--color-border-primary);background:var(--color-background-primary)}
   .edit-btns{display:flex;gap:8px;margin-top:24px}
   .edit-btns button{flex:1;padding:12px 10px;font-size:14px;font-weight:700;border-radius:var(--border-radius-md);cursor:pointer;font-family:'Lato',sans-serif;transition:opacity 0.2s}
-  .btn-save{background:var(--color-text-primary);border:none;color:var(--color-background-primary)}
-  .btn-save:hover{opacity:0.9}
-  .btn-delete-room{background:var(--color-background-secondary);border:1px solid var(--color-text-danger);color:var(--color-text-danger)}
-  .btn-delete-room:hover{background:#FEE2E2}
-  body.dark-mode .btn-delete-room:hover{background:#450a0a}
-  .btn-cancel{background:var(--color-background-secondary);border:1px solid var(--color-border-tertiary);color:var(--color-text-primary)}
-  .btn-cancel:hover{background:#e4e4e7}
-  body.dark-mode .btn-cancel:hover{background:#27272a}
+  .btn-save{background:var(--color-text-primary);border:none;color:var(--color-background-primary)} .btn-save:hover{opacity:0.9}
+  .btn-delete-room{background:var(--color-background-secondary);border:1px solid var(--color-text-danger);color:var(--color-text-danger)} .btn-delete-room:hover{background:#FEE2E2} body.dark-mode .btn-delete-room:hover{background:#450a0a}
+  .btn-cancel{background:var(--color-background-secondary);border:1px solid var(--color-border-tertiary);color:var(--color-text-primary)} .btn-cancel:hover{background:#e4e4e7} body.dark-mode .btn-cancel:hover{background:#27272a}
 
   .users-table {width:100%; border-collapse:collapse; margin-top:12px; font-size:14px;}
   .users-table th, .users-table td {padding:10px; text-align:left; border-bottom:1px solid var(--color-border-secondary); color:var(--color-text-primary);}
   .users-table th {font-weight:700; color:var(--color-text-secondary); font-size:12px; text-transform:uppercase;}
-
   .task-item {display:flex; align-items:center; justify-content:space-between; background:var(--color-background-primary); padding:10px 14px; border:1px solid var(--color-border-tertiary); border-radius:var(--border-radius-md); margin-bottom:8px;}
   .task-label {display:flex; align-items:center; gap:12px; cursor:pointer; flex:1;}
-
   .linked-rooms-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; background: var(--color-background-secondary); padding: 12px; border-radius: var(--border-radius-md); max-height: 160px; overflow-y: auto; border: 1px solid var(--color-border-secondary); }
   .linked-rooms-list label { font-size: 14px; margin: 0; display: flex; align-items: center; gap: 10px; cursor: pointer; color: var(--color-text-primary); text-transform: none; font-weight: 400; }
 
@@ -224,20 +175,13 @@
     .theme-btn { top: 1.25rem; right: 5.5rem; transform: none; padding: 5px 10px; font-size:14px; }
     .hotel-title { font-size: 22px; margin-top: 0.5rem; }
     .rooms-grid { grid-template-columns: repeat(2, 1fr); padding: 0 16px 24px; gap: 12px; }
-    .room-img .emoji { font-size: 40px; }
-    .room-name { font-size: 14px; }
-    .edit-btn { opacity: 1; background: rgba(255,255,255,0.9); color:#18181b;} 
-    body.dark-mode .edit-btn { background: rgba(0,0,0,0.8); color: #fff; }
-    .modal-bg { padding: 0; align-items: flex-end; }
-    .modal { border-radius: 24px 24px 0 0; max-height: 85vh; border: none; }
-    .modal-top { border-radius: 24px 24px 0 0; padding: 1.5rem 1.5rem 1rem; }
-    .modal-body { padding: 1.25rem 1.25rem 2.5rem; }
-    .edit-modal-bg { padding: 0; align-items: flex-end; }
-    .edit-modal { border-radius: 24px 24px 0 0; padding: 1.5rem 1.5rem 2.5rem; border: none; }
-    .cal-day { font-size: 12px; padding: 8px 0; }
-    .booking-form { padding: 1rem 0.75rem; }
-    .add-btn, .btn-save, .btn-cancel, .btn-delete-room { padding: 14px 10px; }
-    .general-notes-wrap { padding: 0 16px; margin-bottom: 2.5rem;}
+    .room-img .emoji { font-size: 40px; } .room-name { font-size: 14px; }
+    .edit-btn { opacity: 1; background: rgba(255,255,255,0.9); color:#18181b;} body.dark-mode .edit-btn { background: rgba(0,0,0,0.8); color: #fff; }
+    .modal-bg { padding: 0; align-items: flex-end; } .modal { border-radius: 24px 24px 0 0; max-height: 85vh; border: none; }
+    .modal-top { border-radius: 24px 24px 0 0; padding: 1.5rem 1.5rem 1rem; } .modal-body { padding: 1.25rem 1.25rem 2.5rem; }
+    .edit-modal-bg { padding: 0; align-items: flex-end; } .edit-modal { border-radius: 24px 24px 0 0; padding: 1.5rem 1.5rem 2.5rem; border: none; }
+    .cal-day { font-size: 12px; padding: 8px 0; } .booking-form { padding: 1rem 0.75rem; }
+    .add-btn, .btn-save, .btn-cancel, .btn-delete-room { padding: 14px 10px; } .general-notes-wrap { padding: 0 16px; margin-bottom: 2.5rem;}
   }
   </style>
 </head>
@@ -252,14 +196,11 @@
     <div class="login-card">
       <div class="login-title">Penzion Rezervace</div>
       <div class="login-sub">Ověření přístupu</div>
-      
       <button class="google-btn" onclick="loginWithGoogle()">
         <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
         Přihlásit přes Google
       </button>
-
       <div class="divider">Nebo e-mailem</div>
-
       <label class="login-label">E-mail</label>
       <input type="email" id="loginEmail" placeholder="vas@email.cz" autocomplete="email">
       <label class="login-label">Heslo</label>
@@ -295,7 +236,6 @@
     </div>
   </div>
 
-  <!-- Tajné úkoly pro personál -->
   <div class="general-notes-wrap" id="staffTasksWrap" style="display:none;">
     <div class="section-label">Úkoly pro personál (Skryté pro majitelku)</div>
     <div id="staffTasksList"></div>
@@ -311,13 +251,11 @@
       <div class="modal-top">
         <div class="modal-room-title" id="modalTitle"></div>
         <div class="modal-room-sub" id="modalSub"></div>
-        
         <div id="roomCustomItemsWrap" class="custom-items-wrap"></div>
         
         <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;">
+          <!-- Výchozí Uklizeno tlačítko (může být skryto) -->
           <button id="toggleStatusBtn" class="toggle-status-btn" style="margin-top:0;" onclick="toggleDirty()"></button>
-          
-          <!-- Kontejner pro další stavová tlačítka (Minibar atd.) -->
           <span id="customStatusesWrap" style="display:flex; gap:8px; flex-wrap:wrap;"></span>
         </div>
         
@@ -335,10 +273,7 @@
         <div id="bookingFormWrap">
           <div class="section-label">Přidat rezervaci</div>
           <div class="booking-form">
-            <div class="form-row">
-              <input type="date" id="dateFrom">
-              <input type="date" id="dateTo">
-            </div>
+            <div class="form-row"><input type="date" id="dateFrom"><input type="date" id="dateTo"></div>
             <textarea id="bookingNote" oninput="autoResize(this)" placeholder="Speciální poznámky (VIP, atd.)"></textarea>
             <button class="add-btn" onclick="addBooking()">+ Přidat rezervaci</button>
           </div>
@@ -364,6 +299,10 @@
       <label>Ikona</label>
       <div class="emoji-pick" id="emojiPick"></div>
       
+      <label style="margin-top:20px; display:flex; align-items:center; gap:8px; cursor:pointer; color:var(--color-text-primary); text-transform:none;">
+        <input type="checkbox" id="editHideDefaultStatus"> Skrýt výchozí tlačítko (Uklizeno/Špinavé)
+      </label>
+
       <label style="margin-top:20px;">Vlastní štítky a odkazy (PINy, návody...)</label>
       <div id="editCustomItemsList" style="margin-bottom:8px;"></div>
       <div style="display:flex; gap:8px;">
@@ -372,11 +311,11 @@
         <button type="button" class="add-btn" onclick="addCustomItemToEdit()" style="padding:12px 16px;">+</button>
       </div>
 
-      <!-- Nová sekce: Vlastní stavová tlačítka (Úkoly pro daný pokoj) -->
-      <label style="margin-top:20px;">Vlastní stavová tlačítka (např. Minibar, Ručníky)</label>
+      <label style="margin-top:20px;">Vlastní stavová tlačítka (zobrazí se na hlavní ploše)</label>
       <div id="editCustomStatusesList" style="margin-bottom:8px;"></div>
       <div style="display:flex; gap:8px;">
-        <input type="text" id="newCustomStatus" placeholder="Název tlačítka (např. Doplnit minibar)" style="flex:1">
+        <input type="text" id="newCustomStatusRed" placeholder="Červený stav (např. Posekat)" style="flex:1">
+        <input type="text" id="newCustomStatusGreen" placeholder="Zelený stav (např. Posekáno)" style="flex:1">
         <button type="button" class="add-btn" onclick="addCustomStatusToEdit()" style="padding:12px 16px;">+</button>
       </div>
 
@@ -390,30 +329,20 @@
     </div>
   </div>
 
-  <!-- MODAL SPRÁVY UŽIVATELŮ (ADMIN) -->
+  <!-- MODAL SPRÁVY UŽIVATELŮ -->
   <div class="edit-modal-bg" id="usersAdminBg">
     <div class="edit-modal" style="width: min(500px, 100%)">
       <h3>Správa přístupů</h3>
       <p style="font-size:12px; color:var(--color-text-secondary); margin-bottom:1rem;">Přidejte e-mail zaměstnance a zvolte mu oprávnění. Bez e-mailu na tomto seznamu se do systému nikdo nepřihlásí.</p>
-      
       <div class="admin-form" style="display:flex; gap:8px; margin-bottom:1rem;">
         <input type="email" id="newUserEmail" placeholder="E-mail uživatele" style="flex:2">
-        <select id="newUserRole" style="flex:1">
-          <option value="staff">Staff</option>
-          <option value="admin">Admin</option>
-          <option value="owner">Owner</option>
-        </select>
+        <select id="newUserRole" style="flex:1"><option value="staff">Staff</option><option value="admin">Admin</option><option value="owner">Owner</option></select>
         <button class="add-btn" onclick="addUserRole()" style="padding:12px">Přidat</button>
       </div>
-
       <table class="users-table">
-        <thead><tr><th>E-mail</th><th>Role</th><th></th></tr></thead>
-        <tbody id="usersTableBody"></tbody>
+        <thead><tr><th>E-mail</th><th>Role</th><th></th></tr></thead><tbody id="usersTableBody"></tbody>
       </table>
-
-      <div class="edit-btns" style="margin-top:1.5rem">
-        <button class="btn-cancel" onclick="closeUsersAdmin()">Zavřít</button>
-      </div>
+      <div class="edit-btns" style="margin-top:1.5rem"><button class="btn-cancel" onclick="closeUsersAdmin()">Zavřít</button></div>
     </div>
   </div>
 </div>
@@ -446,26 +375,12 @@
     admin: { role:'admin', label:'Admin', badge:'badge-admin', canEdit:true, canDelete:true, canToggle:true },
     owner: { role:'owner', label:'Majitelka', badge:'badge-owner', canEdit:false, canDelete:false, canToggle:false }
   };
-
   const EMOJIS=['🛏️','🏨','🌊','🌿','🔑','🛁','🍾','🌅','🌙','🏔️','🌸','🎋','🦋','🕯️','🍷','🐶','🚿','🔥'];
-  const defaultRooms=[
-    {name:'Pokoj 101',emoji:'🛏️', isDirty: false},
-    {name:'Deluxe Suite',emoji:'🏨', isDirty: false}
-  ];
+  const defaultRooms=[{name:'Pokoj 101',emoji:'🛏️', isDirty: false}, {name:'Deluxe Suite',emoji:'🏨', isDirty: false}];
 
-  let rooms = [];
-  let bookings = {};
-  let notes = {};
-  let generalNotes = '';
-  let staffTasks = [];
-  let authorizedUsers = {}; 
-  
-  let tempCustomItems = []; 
-  let tempCustomStatuses = []; 
-  
-  let currentUser=null;
-  let dbListenerObj = null; 
-  let editIdx=-1,curRoom=-1;
+  let rooms = []; let bookings = {}; let notes = {}; let generalNotes = ''; let staffTasks = []; let authorizedUsers = {}; 
+  let tempCustomItems = []; let tempCustomStatuses = []; 
+  let currentUser=null; let dbListenerObj = null; let editIdx=-1,curRoom=-1;
   let calYear=new Date().getFullYear(),calMon=new Date().getMonth();
   const MONTHS=['Leden','Únor','Březen','Duben','Květen','Červen','Červenec','Srpen','Září','Říjen','Listopad','Prosinec'];
   const DAYS=['Po','Út','St','Čt','Pá','So','Ne'];
@@ -475,142 +390,74 @@
 
   onAuthStateChanged(auth, async (user) => {
     const errEl = document.getElementById('loginErr');
-    
     if (user) {
       const email = user.email.toLowerCase();
       const key = email.replace(/\./g, '_');
-      
       try {
         errEl.textContent = 'Ověřuji oprávnění v databázi...';
         const snapshot = await get(child(ref(db), 'authorizedUsers/' + key));
         let userRecord = snapshot.val();
-        
         if (!userRecord) {
            const allUsersSnap = await get(child(ref(db), 'authorizedUsers'));
-           if (!allUsersSnap.exists()) {
-              userRecord = { email: email, role: 'admin' };
-              await set(ref(db, 'authorizedUsers/' + key), userRecord);
-           }
+           if (!allUsersSnap.exists()) { userRecord = { email: email, role: 'admin' }; await set(ref(db, 'authorizedUsers/' + key), userRecord); }
         }
-        
         if (userRecord && ROLE_PERMISSIONS[userRecord.role]) {
-          const roleData = ROLE_PERMISSIONS[userRecord.role];
-          currentUser = { email: email, ...roleData };
+          currentUser = { email: email, ...ROLE_PERMISSIONS[userRecord.role] };
           errEl.textContent = '';
-          
-          document.getElementById('screenLogin').classList.remove('active');
-          document.getElementById('screenApp').classList.add('active');
+          document.getElementById('screenLogin').classList.remove('active'); document.getElementById('screenApp').classList.add('active');
           document.getElementById('userInfo').innerHTML = `${currentUser.label} <span class="role-badge ${currentUser.badge}">${currentUser.role}</span>`;
-          
-          requestNotificationPermission(key);
-          startDatabaseListener();
-        } else {
-          errEl.textContent = 'Váš e-mail nemá oprávnění k přístupu. Kontaktujte administrátora.';
-          signOut(auth);
-        }
-      } catch(e) {
-        console.error(e);
-        errEl.textContent = 'Chyba při čtení oprávnění ze serveru.';
-        signOut(auth);
-      }
+          requestNotificationPermission(key); startDatabaseListener();
+        } else { errEl.textContent = 'Váš e-mail nemá oprávnění k přístupu.'; signOut(auth); }
+      } catch(e) { errEl.textContent = 'Chyba při čtení oprávnění ze serveru.'; signOut(auth); }
     } else {
-      currentUser = null;
-      if(dbListenerObj) { 
-        dbListenerObj(); 
-        dbListenerObj = null; 
-      }
-      document.getElementById('screenApp').classList.remove('active');
-      document.getElementById('screenLogin').classList.add('active');
-      document.getElementById('loginEmail').value = '';
-      document.getElementById('loginPass').value = '';
-      closeModal();
+      currentUser = null; if(dbListenerObj) { dbListenerObj(); dbListenerObj = null; }
+      document.getElementById('screenApp').classList.remove('active'); document.getElementById('screenLogin').classList.add('active');
+      document.getElementById('loginEmail').value = ''; document.getElementById('loginPass').value = ''; closeModal();
     }
   });
 
   function startDatabaseListener() {
     if (dbListenerObj) return; 
-    
     dbListenerObj = onValue(ref(db, '/'), (snapshot) => {
       const data = snapshot.val();
       if (data) {
         rooms = (data.rooms && data.rooms.length > 0) ? data.rooms : [...defaultRooms];
-        bookings = data.bookings || {};
-        notes = data.notes || {};
-        generalNotes = data.generalNotes || '';
-        staffTasks = data.staffTasks || [];
-        authorizedUsers = data.authorizedUsers || {};
+        bookings = data.bookings || {}; notes = data.notes || {}; generalNotes = data.generalNotes || '';
+        staffTasks = data.staffTasks || []; authorizedUsers = data.authorizedUsers || {};
       } else {
-        rooms = [...defaultRooms];
-        bookings = {};
-        notes = {};
-        generalNotes = '';
-        staffTasks = [];
+        rooms = [...defaultRooms]; bookings = {}; notes = {}; generalNotes = ''; staffTasks = [];
       }
-      
       if(currentUser && document.getElementById('screenApp').classList.contains('active')) {
-        document.getElementById('generalNotes').value = generalNotes;
-        autoResize(document.getElementById('generalNotes'));
-        renderRooms();
-        renderStaffTasks();
-        
-        if(document.getElementById('usersAdminBg').classList.contains('open')) {
-          renderUsersAdmin();
-        }
+        document.getElementById('generalNotes').value = generalNotes; autoResize(document.getElementById('generalNotes'));
+        renderRooms(); renderStaffTasks();
+        if(document.getElementById('usersAdminBg').classList.contains('open')) { renderUsersAdmin(); }
         if(document.getElementById('modalBg').classList.contains('open') && curRoom !== -1) {
           document.getElementById('roomNotes').value = notes[curRoom] || '';
-          renderCalendar();
-          renderBookings();
-          updateStatusBtn();
-          renderRoomCustomStatuses();
+          renderCalendar(); renderBookings(); updateStatusBtn(); renderRoomCustomStatuses();
         }
       }
     });
   }
 
-  function saveToFirebase() {
-    try {
-      set(ref(db, '/'), { rooms, bookings, notes, generalNotes, staffTasks, authorizedUsers });
-    } catch(e) { 
-      console.error("Chyba uložení:", e); 
-    }
-  }
-
+  function saveToFirebase() { set(ref(db, '/'), { rooms, bookings, notes, generalNotes, staffTasks, authorizedUsers }); }
   function getLocalIsoDate(daysOffset = 0) {
-    const d = new Date();
-    d.setDate(d.getDate() + daysOffset);
+    const d = new Date(); d.setDate(d.getDate() + daysOffset);
     return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
   }
 
   function autoDirtyCheck() {
-    const todayStr = getLocalIsoDate();
-    let changed = false;
-    
+    const todayStr = getLocalIsoDate(); let changed = false;
     rooms.forEach((r, i) => {
-      if(r.isDirty === undefined) { 
-        r.isDirty = false; 
-        changed = true; 
-      }
-      
+      if(r.isDirty === undefined) { r.isDirty = false; changed = true; }
       (bookings[i]||[]).forEach(b => {
         if (b.to <= todayStr && !b.dirtyTriggered) {
-          r.isDirty = true;
-          b.dirtyTriggered = true;
-          changed = true;
-          
-          // Pokud pokoj automaticky zčervená, vyresetují se mu i všechny custom úkoly
-          if (r.customStatuses) {
-             r.customStatuses.forEach(cs => cs.isDone = false);
-          }
-
+          r.isDirty = true; b.dirtyTriggered = true; changed = true;
+          if (r.customStatuses) { r.customStatuses.forEach(cs => cs.isDone = false); }
           rooms.forEach((linkedRoom) => {
             if (linkedRoom.linkedRooms && linkedRoom.linkedRooms.includes(i)) {
               if(!linkedRoom.isDirty) {
-                 linkedRoom.isDirty = true;
-                 changed = true;
-                 // Vyresetování custom úkolů i u navázaného pokoje
-                 if (linkedRoom.customStatuses) {
-                    linkedRoom.customStatuses.forEach(cs => cs.isDone = false);
-                 }
+                 linkedRoom.isDirty = true; changed = true;
+                 if (linkedRoom.customStatuses) { linkedRoom.customStatuses.forEach(cs => cs.isDone = false); }
               }
             }
           });
@@ -621,172 +468,93 @@
   }
 
   function getRoomStateClass(roomIdx) {
-    const todayStr = getLocalIsoDate(0);
-    const plus3Str = getLocalIsoDate(3);
-    let state = 'bg-state-free';
+    const todayStr = getLocalIsoDate(0); const plus3Str = getLocalIsoDate(3); let state = 'bg-state-free';
     const bks = bookings[roomIdx] || [];
     for (const b of bks) {
       if (b.from <= todayStr && b.to >= todayStr) return 'bg-state-active';
       else if (b.from > todayStr && b.from <= plus3Str) state = 'bg-state-soon';
-    }
-    return state;
+    } return state;
   }
 
   function loginWithEmail() {
-    const e = document.getElementById('loginEmail').value.trim();
-    const p = document.getElementById('loginPass').value;
-    const err = document.getElementById('loginErr');
-    
-    err.textContent = 'Přihlašování...';
-    signInWithEmailAndPassword(auth, e, p).catch(() => { 
-      err.textContent = 'Špatný e-mail nebo heslo.'; 
-    });
+    const e = document.getElementById('loginEmail').value.trim(); const p = document.getElementById('loginPass').value;
+    const err = document.getElementById('loginErr'); err.textContent = 'Přihlašování...';
+    signInWithEmailAndPassword(auth, e, p).catch(() => { err.textContent = 'Špatný e-mail nebo heslo.'; });
   }
-
   function loginWithGoogle() {
-    const err = document.getElementById('loginErr');
-    err.textContent = 'Otevírám Google...';
-    
-    signInWithPopup(auth, googleProvider).catch(() => { 
-      err.textContent = 'Přihlášení zrušeno nebo selhalo.'; 
-    });
+    const err = document.getElementById('loginErr'); err.textContent = 'Otevírám Google...';
+    signInWithPopup(auth, googleProvider).catch(() => { err.textContent = 'Přihlášení zrušeno nebo selhalo.'; });
   }
+  function doLogout() { signOut(auth); }
+  function autoResize(el) { if(!el) return; el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; } window.autoResize = autoResize;
 
-  function doLogout() { 
-    signOut(auth); 
-  }
-
-  function autoResize(el) {
-    if(!el) return;
-    el.style.height = 'auto';
-    el.style.height = el.scrollHeight + 'px';
-  }
-  window.autoResize = autoResize;
-
-  function openUsersAdmin() { 
-    renderUsersAdmin(); 
-    document.getElementById('usersAdminBg').classList.add('open'); 
-  }
-  
-  function closeUsersAdmin() { 
-    document.getElementById('usersAdminBg').classList.remove('open'); 
-  }
-  
+  function openUsersAdmin() { renderUsersAdmin(); document.getElementById('usersAdminBg').classList.add('open'); }
+  function closeUsersAdmin() { document.getElementById('usersAdminBg').classList.remove('open'); }
   function renderUsersAdmin() {
-    const tbody = document.getElementById('usersTableBody');
-    let html = '';
-    
+    const tbody = document.getElementById('usersTableBody'); let html = '';
     for (const key in authorizedUsers) {
-      const u = authorizedUsers[key];
-      const badge = ROLE_PERMISSIONS[u.role].badge;
-      html += `<tr>
-        <td>${u.email}</td>
-        <td><span class="role-badge ${badge}">${u.role}</span></td>
-        <td style="text-align:right">
-          ${u.email !== currentUser.email ? `<button class="del-btn" onclick="deleteUserRole('${key}')">✕</button>` : ''}
-        </td>
-      </tr>`;
-    }
-    tbody.innerHTML = html;
+      const u = authorizedUsers[key]; const badge = ROLE_PERMISSIONS[u.role].badge;
+      html += `<tr><td>${u.email}</td><td><span class="role-badge ${badge}">${u.role}</span></td><td style="text-align:right">${u.email !== currentUser.email ? `<button class="del-btn" onclick="deleteUserRole('${key}')">✕</button>` : ''}</td></tr>`;
+    } tbody.innerHTML = html;
   }
-  
   function addUserRole() {
-    const email = document.getElementById('newUserEmail').value.trim().toLowerCase();
-    const role = document.getElementById('newUserRole').value;
-    if(!email) return;
-    
-    const key = email.replace(/\./g, '_');
-    authorizedUsers[key] = { email: email, role: role };
-    saveToFirebase();
-    
-    document.getElementById('newUserEmail').value = '';
-    renderUsersAdmin();
+    const email = document.getElementById('newUserEmail').value.trim().toLowerCase(); const role = document.getElementById('newUserRole').value;
+    if(!email) return; const key = email.replace(/\./g, '_'); authorizedUsers[key] = { email: email, role: role }; saveToFirebase();
+    document.getElementById('newUserEmail').value = ''; renderUsersAdmin();
   }
-  
-  function deleteUserRole(key) {
-    if(confirm('Opravdu chcete tomuto e-mailu odebrat přístup?')) {
-      delete authorizedUsers[key]; 
-      saveToFirebase(); 
-      renderUsersAdmin();
-    }
-  }
+  function deleteUserRole(key) { if(confirm('Odebrat přístup?')) { delete authorizedUsers[key]; saveToFirebase(); renderUsersAdmin(); } }
 
   function renderStaffTasks() {
     const wrap = document.getElementById('staffTasksWrap');
-    
-    if (!currentUser || currentUser.role === 'owner') { 
-      wrap.style.display = 'none'; 
-      return; 
-    }
-    
-    wrap.style.display = 'block';
-    const list = document.getElementById('staffTasksList');
-    
-    if (!staffTasks.length) { 
-      list.innerHTML = '<div style="font-size:13px; color:var(--color-text-secondary); margin-bottom:12px;">Aktuálně nejsou žádné úkoly.</div>'; 
-      return; 
-    }
-    
+    if (!currentUser || currentUser.role === 'owner') { wrap.style.display = 'none'; return; }
+    wrap.style.display = 'block'; const list = document.getElementById('staffTasksList');
+    if (!staffTasks.length) { list.innerHTML = '<div style="font-size:13px; color:var(--color-text-secondary); margin-bottom:12px;">Aktuálně nejsou žádné úkoly.</div>'; return; }
     list.innerHTML = staffTasks.map((t, i) => `
-      <div class="task-item">
-        <label class="task-label">
-          <input type="checkbox" class="task-checkbox" ${t.done ? 'checked' : ''} onchange="toggleStaffTask(${i})">
-          <span style="${t.done ? 'text-decoration:line-through; color:var(--color-text-secondary);' : 'color:var(--color-text-primary);'} font-size:14px; word-break:break-word;">
-            ${t.text}
-          </span>
-        </label>
-        <button class="del-btn" onclick="deleteStaffTask(${i})">✕</button>
-      </div>
+      <div class="task-item"><label class="task-label"><input type="checkbox" class="task-checkbox" ${t.done ? 'checked' : ''} onchange="toggleStaffTask(${i})">
+      <span style="${t.done ? 'text-decoration:line-through; color:var(--color-text-secondary);' : 'color:var(--color-text-primary);'} font-size:14px; word-break:break-word;">${t.text}</span>
+      </label><button class="del-btn" onclick="deleteStaffTask(${i})">✕</button></div>
     `).join('');
   }
-  
-  function addStaffTask() {
-    const input = document.getElementById('newStaffTask'); 
-    const text = input.value.trim();
-    if (!text) return; 
-    
-    staffTasks.push({ text: text, done: false }); 
-    saveToFirebase(); 
-    input.value = '';
-  }
-  
-  function toggleStaffTask(i) { 
-    staffTasks[i].done = !staffTasks[i].done; 
-    saveToFirebase(); 
-  }
-  
-  function deleteStaffTask(i) { 
-    staffTasks.splice(i, 1); 
-    saveToFirebase(); 
-  }
+  function addStaffTask() { const input = document.getElementById('newStaffTask'); const text = input.value.trim(); if (!text) return; staffTasks.push({ text: text, done: false }); saveToFirebase(); input.value = ''; }
+  function toggleStaffTask(i) { staffTasks[i].done = !staffTasks[i].done; saveToFirebase(); }
+  function deleteStaffTask(i) { staffTasks.splice(i, 1); saveToFirebase(); }
 
   async function requestNotificationPermission(userEmailKey) {
     try {
       const permission = await Notification.requestPermission();
       if (permission === 'granted') {
         const currentToken = await getToken(messaging, { vapidKey: 'BIoCmJ-hEN_QLVC2sVdcBtHc-n92Ojf7No6T2GYPX90oydHJQLkGFvnBR7N2JLVzPgisDn_ZzFXvmCmVIVHW7BU' });
-        if (currentToken) {
-          await set(ref(db, `authorizedUsers/${userEmailKey}/notificationToken`), currentToken);
-        }
+        if (currentToken) { await set(ref(db, `authorizedUsers/${userEmailKey}/notificationToken`), currentToken); }
       }
-    } catch (error) { 
-      console.error('Chyba notifikací:', error); 
-    }
+    } catch (error) { console.error('Chyba notifikací:', error); }
   }
 
   function renderRooms() {
     autoDirtyCheck();
-    
     document.getElementById('adminActionsWrap').style.display = (currentUser && currentUser.role === 'admin') ? 'flex' : 'none';
-    const g = document.getElementById('roomsGrid');
-    const canEditRoom = currentUser && currentUser.canEdit;
+    const g = document.getElementById('roomsGrid'); const canEditRoom = currentUser && currentUser.canEdit;
     
     g.innerHTML = rooms.map((r, i) => {
       const stateClass = getRoomStateClass(i);
+      
+      let badgesHtml = '';
+      if (!r.hideDefaultStatus) {
+         badgesHtml += `<div class="room-status-badge ${r.isDirty ? 'status-dirty' : 'status-clean'}">${r.isDirty ? '🔴 Špinavý' : '🟢 Uklizený'}</div>`;
+      }
+      if (r.customStatuses) {
+         r.customStatuses.forEach(cs => {
+           const rTxt = cs.textRed || cs.label;
+           const gTxt = cs.textGreen || (cs.label + ' (Hotovo)');
+           const txt = cs.isDone ? `🟢 ${gTxt}` : `🔴 ${rTxt}`;
+           const cls = cs.isDone ? 'status-clean' : 'status-dirty';
+           badgesHtml += `<div class="room-status-badge ${cls}">${txt}</div>`;
+         });
+      }
+
       return `<div class="room-card ${stateClass}" onclick="openRoom(${i})">
         <div class="room-img"><span class="emoji">${r.emoji}</span>
           ${canEditRoom ? `<button class="edit-btn" onclick="event.stopPropagation();openEdit(${i})" title="Upravit/Smazat">✎</button>` : ''}
-          <div class="room-status-badge ${r.isDirty ? 'status-dirty' : 'status-clean'}">${r.isDirty ? '🔴 Špinavý' : '🟢 Uklizený'}</div>
+          <div class="room-badges-wrap">${badgesHtml}</div>
         </div>
         <div class="room-label">
           <div class="room-name">${r.name}</div>
@@ -801,384 +569,192 @@
     if (!tempCustomItems || tempCustomItems.length === 0) { list.innerHTML = ''; return; }
     list.innerHTML = tempCustomItems.map((item, idx) => `
       <div class="edit-custom-item">
-        <div style="flex:1; font-size:13px; color:var(--color-text-primary);">
-          <strong>${item.text}</strong>
-          ${item.link ? `<br><a href="${item.link}" target="_blank" style="color:var(--color-text-secondary);font-size:11px;">${item.link}</a>` : ''}
-        </div>
+        <div style="flex:1; font-size:13px; color:var(--color-text-primary);"><strong>${item.text}</strong>
+        ${item.link ? `<br><a href="${item.link}" target="_blank" style="color:var(--color-text-secondary);font-size:11px;">${item.link}</a>` : ''}</div>
         <button type="button" class="del-btn" onclick="removeCustomItemFromEdit(${idx})">✕</button>
       </div>
     `).join('');
   }
-
   function addCustomItemToEdit() {
-    const text = document.getElementById('newCustomText').value.trim();
-    const link = document.getElementById('newCustomLink').value.trim();
-    if (!text) return;
-    tempCustomItems.push({ text, link });
-    document.getElementById('newCustomText').value = '';
-    document.getElementById('newCustomLink').value = '';
-    renderEditCustomItems();
+    const text = document.getElementById('newCustomText').value.trim(); const link = document.getElementById('newCustomLink').value.trim();
+    if (!text) return; tempCustomItems.push({ text, link }); document.getElementById('newCustomText').value = ''; document.getElementById('newCustomLink').value = ''; renderEditCustomItems();
   }
+  function removeCustomItemFromEdit(idx) { tempCustomItems.splice(idx, 1); renderEditCustomItems(); }
 
-  function removeCustomItemFromEdit(idx) {
-    tempCustomItems.splice(idx, 1);
-    renderEditCustomItems();
-  }
-
-  // Funkce pro editaci Vlastních stavových tlačítek
+  // Vlastní stavová tlačítka - Nově se zadává červený i zelený text
   function renderEditCustomStatuses() {
     const list = document.getElementById('editCustomStatusesList');
     if (!tempCustomStatuses || tempCustomStatuses.length === 0) { list.innerHTML = ''; return; }
-    list.innerHTML = tempCustomStatuses.map((cs, idx) => `
+    list.innerHTML = tempCustomStatuses.map((cs, idx) => {
+      const rTxt = cs.textRed || cs.label;
+      const gTxt = cs.textGreen || (cs.label + ' (Hotovo)');
+      return `
       <div class="edit-custom-item">
-        <div style="flex:1; font-size:13px; color:var(--color-text-primary);">
-          <strong>${cs.label}</strong>
-        </div>
+        <div style="flex:1; font-size:13px; color:var(--color-text-primary);">🔴 ${rTxt} <br> 🟢 ${gTxt}</div>
         <button type="button" class="del-btn" onclick="removeCustomStatusFromEdit(${idx})">✕</button>
-      </div>
-    `).join('');
+      </div>`;
+    }).join('');
   }
-
   function addCustomStatusToEdit() {
-    const label = document.getElementById('newCustomStatus').value.trim();
-    if (!label) return;
-    tempCustomStatuses.push({ label, isDone: false });
-    document.getElementById('newCustomStatus').value = '';
+    const red = document.getElementById('newCustomStatusRed').value.trim();
+    const green = document.getElementById('newCustomStatusGreen').value.trim();
+    if (!red) return; 
+    tempCustomStatuses.push({ textRed: red, textGreen: green || (red + ' (Hotovo)'), isDone: false });
+    document.getElementById('newCustomStatusRed').value = ''; document.getElementById('newCustomStatusGreen').value = '';
     renderEditCustomStatuses();
   }
-
-  function removeCustomStatusFromEdit(idx) {
-    tempCustomStatuses.splice(idx, 1);
-    renderEditCustomStatuses();
-  }
+  function removeCustomStatusFromEdit(idx) { tempCustomStatuses.splice(idx, 1); renderEditCustomStatuses(); }
 
   function openEdit(i) {
-    editIdx = i;
-    const isNew = (i === -1);
+    editIdx = i; const isNew = (i === -1);
     document.getElementById('editModalTitle').textContent = isNew ? 'Přidat nový pokoj' : 'Upravit pokoj';
     document.getElementById('editName').value = isNew ? '' : rooms[i].name;
+    document.getElementById('editHideDefaultStatus').checked = !isNew && rooms[i].hideDefaultStatus;
+    
     const curEmoji = isNew ? EMOJIS[0] : rooms[i].emoji;
+    document.getElementById('emojiPick').innerHTML = EMOJIS.map(e => `<span class="${e===curEmoji?'sel':''}" onclick="selEmoji(this,'${e}')">${e}</span>`).join('');
     
-    const ep = document.getElementById('emojiPick');
-    ep.innerHTML = EMOJIS.map(e => `<span class="${e===curEmoji?'sel':''}" onclick="selEmoji(this,'${e}')">${e}</span>`).join('');
-    
-    tempCustomItems = (isNew || !rooms[i].customItems) ? [] : JSON.parse(JSON.stringify(rooms[i].customItems));
-    renderEditCustomItems();
-
-    tempCustomStatuses = (isNew || !rooms[i].customStatuses) ? [] : JSON.parse(JSON.stringify(rooms[i].customStatuses));
-    renderEditCustomStatuses();
+    tempCustomItems = (isNew || !rooms[i].customItems) ? [] : JSON.parse(JSON.stringify(rooms[i].customItems)); renderEditCustomItems();
+    tempCustomStatuses = (isNew || !rooms[i].customStatuses) ? [] : JSON.parse(JSON.stringify(rooms[i].customStatuses)); renderEditCustomStatuses();
 
     let lrHtml = '<label style="margin-top:20px;">Propojit s pokoji (zašpiní se, když z nich někdo odjede):</label><div class="linked-rooms-list">';
     const curLinked = (!isNew && rooms[i].linkedRooms) ? rooms[i].linkedRooms : [];
     let hasOthers = false;
-    
     rooms.forEach((r, idx) => {
       if (idx !== i) {
-        hasOthers = true;
-        const isChecked = curLinked.includes(idx);
+        hasOthers = true; const isChecked = curLinked.includes(idx);
         lrHtml += `<label><input type="checkbox" value="${idx}" class="link-cb" ${isChecked ? 'checked' : ''}> ${r.name}</label>`;
       }
     });
-    
-    lrHtml += '</div>';
-    document.getElementById('linkedRoomsWrap').innerHTML = hasOthers ? lrHtml : '';
-    document.getElementById('delRoomBtn').style.display = isNew ? 'none' : 'block';
-    document.getElementById('editBg').classList.add('open');
+    lrHtml += '</div>'; document.getElementById('linkedRoomsWrap').innerHTML = hasOthers ? lrHtml : '';
+    document.getElementById('delRoomBtn').style.display = isNew ? 'none' : 'block'; document.getElementById('editBg').classList.add('open');
   }
 
-  function selEmoji(el) {
-    document.querySelectorAll('.emoji-pick span').forEach(s => s.classList.remove('sel'));
-    el.classList.add('sel');
-  }
+  function selEmoji(el) { document.querySelectorAll('.emoji-pick span').forEach(s => s.classList.remove('sel')); el.classList.add('sel'); }
   
   function saveEdit() {
-    const name = document.getElementById('editName').value.trim();
-    const sel = document.querySelector('.emoji-pick span.sel');
+    const name = document.getElementById('editName').value.trim(); const sel = document.querySelector('.emoji-pick span.sel');
+    const hideDefault = document.getElementById('editHideDefaultStatus').checked;
     const linkedRooms = Array.from(document.querySelectorAll('.link-cb:checked')).map(cb => parseInt(cb.value));
-
     if(name && sel) {
       if(editIdx === -1) {
-        rooms.push({name, emoji: sel.textContent, isDirty: false, linkedRooms, customItems: tempCustomItems, customStatuses: tempCustomStatuses});
+        rooms.push({name, emoji: sel.textContent, isDirty: false, linkedRooms, customItems: tempCustomItems, customStatuses: tempCustomStatuses, hideDefaultStatus: hideDefault});
       } else {
-        rooms[editIdx] = {name, emoji: sel.textContent, isDirty: rooms[editIdx].isDirty, linkedRooms, customItems: tempCustomItems, customStatuses: tempCustomStatuses};
-      }
-      saveToFirebase();
-    }
-    closeEdit();
+        rooms[editIdx] = {name, emoji: sel.textContent, isDirty: rooms[editIdx].isDirty, linkedRooms, customItems: tempCustomItems, customStatuses: tempCustomStatuses, hideDefaultStatus: hideDefault};
+      } saveToFirebase();
+    } closeEdit();
   }
 
   function deleteRoom() {
-    if(!confirm('Opravdu chcete smazat tento pokoj?\n\nVšechny rezervace a poznámky k tomuto pokoji budou nenávratně ztraceny!')) return;
-    
-    rooms.forEach(r => {
-      if (r.linkedRooms) {
-        r.linkedRooms = r.linkedRooms
-          .filter(idx => idx !== editIdx)
-          .map(idx => idx > editIdx ? idx - 1 : idx); 
-      }
-    });
-
+    if(!confirm('Opravdu smazat?')) return;
+    rooms.forEach(r => { if (r.linkedRooms) { r.linkedRooms = r.linkedRooms.filter(idx => idx !== editIdx).map(idx => idx > editIdx ? idx - 1 : idx); } });
     rooms.splice(editIdx, 1);
-    let newBookings = {}; 
-    let newNotes = {};
-    const oldLen = rooms.length + 1;
-    
+    let newBookings = {}; let newNotes = {}; const oldLen = rooms.length + 1;
     for(let j=0; j < oldLen; j++) {
-      if (j < editIdx) { 
-        if (bookings[j]) newBookings[j] = bookings[j]; 
-        if (notes[j]) newNotes[j] = notes[j]; 
-      } else if (j > editIdx) { 
-        if (bookings[j]) newBookings[j-1] = bookings[j]; 
-        if (notes[j]) newNotes[j-1] = notes[j]; 
-      }
-    }
-    
-    bookings = newBookings; 
-    notes = newNotes; 
-    saveToFirebase(); 
-    closeEdit();
+      if (j < editIdx) { if (bookings[j]) newBookings[j] = bookings[j]; if (notes[j]) newNotes[j] = notes[j]; } 
+      else if (j > editIdx) { if (bookings[j]) newBookings[j-1] = bookings[j]; if (notes[j]) newNotes[j-1] = notes[j]; }
+    } bookings = newBookings; notes = newNotes; saveToFirebase(); closeEdit();
   }
 
-  function closeEdit() { 
-    document.getElementById('editBg').classList.remove('open'); 
-  }
+  function closeEdit() { document.getElementById('editBg').classList.remove('open'); }
 
   function toggleDirty() {
     if(!currentUser || !currentUser.canToggle) return; 
     rooms[curRoom].isDirty = !rooms[curRoom].isDirty; 
-    
-    // Pokud pokoj označíme manuálně jako špinavý, vyresetujeme custom tlačítka
-    if (rooms[curRoom].isDirty && rooms[curRoom].customStatuses) {
-       rooms[curRoom].customStatuses.forEach(cs => cs.isDone = false);
-    }
-    
+    if (rooms[curRoom].isDirty && rooms[curRoom].customStatuses) { rooms[curRoom].customStatuses.forEach(cs => cs.isDone = false); }
     saveToFirebase();
   }
-
   function toggleCustomStatus(idx) {
     if(!currentUser || !currentUser.canToggle) return;
-    rooms[curRoom].customStatuses[idx].isDone = !rooms[curRoom].customStatuses[idx].isDone;
-    saveToFirebase();
+    rooms[curRoom].customStatuses[idx].isDone = !rooms[curRoom].customStatuses[idx].isDone; saveToFirebase();
   }
 
   function updateStatusBtn() {
-    const btn = document.getElementById('toggleStatusBtn'); 
-    const canToggle = currentUser && currentUser.canToggle;
-    
-    if (rooms[curRoom].isDirty) { 
-      btn.textContent = canToggle ? '🧹 Označit jako Uklizený' : '🔴 Pokoj: Špinavý'; 
-      btn.className = 'toggle-status-btn btn-dirty'; 
-    } else { 
-      btn.textContent = canToggle ? '🔴 Označit jako Špinavý' : '🟢 Pokoj: Uklizený'; 
-      btn.className = 'toggle-status-btn btn-clean'; 
+    const btn = document.getElementById('toggleStatusBtn'); const canToggle = currentUser && currentUser.canToggle;
+    if (rooms[curRoom].hideDefaultStatus) {
+      btn.style.display = 'none';
+    } else {
+      btn.style.display = 'inline-block';
+      if (rooms[curRoom].isDirty) { btn.textContent = canToggle ? '🧹 Označit jako Uklizený' : '🔴 Pokoj: Špinavý'; btn.className = 'toggle-status-btn btn-dirty'; } 
+      else { btn.textContent = canToggle ? '🔴 Označit jako Špinavý' : '🟢 Pokoj: Uklizený'; btn.className = 'toggle-status-btn btn-clean'; }
+      btn.disabled = !canToggle;
     }
-    
-    btn.disabled = !canToggle;
   }
 
   function renderRoomCustomStatuses() {
-    const wrap = document.getElementById('customStatusesWrap');
-    const statuses = rooms[curRoom].customStatuses || [];
-    const canToggle = currentUser && currentUser.canToggle;
-    
+    const wrap = document.getElementById('customStatusesWrap'); const statuses = rooms[curRoom].customStatuses || []; const canToggle = currentUser && currentUser.canToggle;
     wrap.innerHTML = statuses.map((cs, idx) => {
       const btnClass = cs.isDone ? 'btn-clean' : 'btn-dirty';
+      const rTxt = cs.textRed || cs.label;
+      const gTxt = cs.textGreen || (cs.label + ' (Hotovo)');
       const icon = cs.isDone ? '🟢' : '🔴';
-      const text = cs.isDone ? `${cs.label} (Hotovo)` : `${cs.label}`;
+      const text = cs.isDone ? gTxt : rTxt;
       return `<button class="toggle-status-btn ${btnClass}" style="margin-top:0;" ${!canToggle ? 'disabled' : ''} onclick="toggleCustomStatus(${idx})">${icon} ${text}</button>`;
     }).join('');
   }
 
   function openRoom(i) {
-    curRoom = i;
-    document.getElementById('modalTitle').textContent = rooms[i].name;
-    document.getElementById('modalSub').textContent = 'Pokoj '+(i+1)+' · sdílený kalendář';
+    curRoom = i; document.getElementById('modalTitle').textContent = rooms[i].name; document.getElementById('modalSub').textContent = 'Pokoj '+(i+1)+' · sdílený kalendář';
     document.getElementById('roomNotes').value = notes[i]||'';
     
-    const customItemsWrap = document.getElementById('roomCustomItemsWrap');
-    const cItems = rooms[i].customItems || [];
-    customItemsWrap.innerHTML = cItems.map(item => {
-      if(item.link) {
-        return `<a href="${item.link}" target="_blank" class="custom-btn">${item.text}</a>`;
-      } else {
-        return `<span class="custom-badge">${item.text}</span>`;
-      }
-    }).join('');
+    const customItemsWrap = document.getElementById('roomCustomItemsWrap'); const cItems = rooms[i].customItems || [];
+    customItemsWrap.innerHTML = cItems.map(item => { if(item.link) { return `<a href="${item.link}" target="_blank" class="custom-btn">${item.text}</a>`; } else { return `<span class="custom-badge">${item.text}</span>`; } }).join('');
 
-    updateStatusBtn();
-    renderRoomCustomStatuses();
+    updateStatusBtn(); renderRoomCustomStatuses();
     
-    const canBook = currentUser && currentUser.role !== 'staff';
-    const formWrap = document.getElementById('bookingFormWrap');
-    formWrap.style.display = canBook ? '' : 'none';
-    
-    document.getElementById('roomNotes').disabled = false;
-    document.getElementById('saveNoteBtn').style.display = '';
-    
-    renderCalendar(); 
-    renderBookings();
-    document.getElementById('modalBg').classList.add('open');
-    
-    setTimeout(() => { 
-      autoResize(document.getElementById('roomNotes')); 
-      autoResize(document.getElementById('bookingNote')); 
-    }, 10);
+    const canBook = currentUser && currentUser.role !== 'staff'; const formWrap = document.getElementById('bookingFormWrap'); formWrap.style.display = canBook ? '' : 'none';
+    document.getElementById('roomNotes').disabled = false; document.getElementById('saveNoteBtn').style.display = '';
+    renderCalendar(); renderBookings(); document.getElementById('modalBg').classList.add('open');
+    setTimeout(() => { autoResize(document.getElementById('roomNotes')); autoResize(document.getElementById('bookingNote')); }, 10);
   }
 
-  function closeModal() { 
-    document.getElementById('modalBg').classList.remove('open'); 
-  }
-  
-  function changeMonth(d) {
-    calMon += d;
-    if(calMon > 11) { calMon = 0; calYear++; }
-    if(calMon < 0) { calMon = 11; calYear--; }
-    renderCalendar();
-  }
+  function closeModal() { document.getElementById('modalBg').classList.remove('open'); }
+  function changeMonth(d) { calMon += d; if(calMon > 11) { calMon = 0; calYear++; } if(calMon < 0) { calMon = 11; calYear--; } renderCalendar(); }
 
   function renderCalendar() {
-    document.getElementById('calMonth').textContent = MONTHS[calMon] + ' ' + calYear;
-    const g = document.getElementById('calGrid'); 
-    const bookedDays = getBookedDays(); 
-    const today = new Date();
-    
-    let html = DAYS.map(d => `<div class="cal-header">${d}</div>`).join('');
-    const first = new Date(calYear, calMon, 1); 
-    let startDay = (first.getDay() + 6) % 7;
-    
-    for(let i=0; i<startDay; i++) {
-      html += `<div class="cal-day empty"></div>`;
-    }
-    
+    document.getElementById('calMonth').textContent = MONTHS[calMon] + ' ' + calYear; const g = document.getElementById('calGrid'); const bookedDays = getBookedDays(); const today = new Date();
+    let html = DAYS.map(d => `<div class="cal-header">${d}</div>`).join(''); const first = new Date(calYear, calMon, 1); let startDay = (first.getDay() + 6) % 7;
+    for(let i=0; i<startDay; i++) { html += `<div class="cal-day empty"></div>`; }
     const days = new Date(calYear, calMon+1, 0).getDate();
     for(let d=1; d<=days; d++) {
       const ds = `${calYear}-${String(calMon+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-      const isB = bookedDays.has(ds); 
-      const isT = today.getFullYear()===calYear && today.getMonth()===calMon && today.getDate()===d;
-      
+      const isB = bookedDays.has(ds); const isT = today.getFullYear()===calYear && today.getMonth()===calMon && today.getDate()===d;
       html += `<div class="cal-day${isB?' booked':''}${isT?' today':''}">${d}</div>`;
-    }
-    
-    g.innerHTML = html;
+    } g.innerHTML = html;
   }
 
   function getBookedDays() {
     const s = new Set();
-    (bookings[curRoom]||[]).forEach(b => {
-      let d = new Date(b.from);
-      const end = new Date(b.to);
-      while(d <= end) {
-        s.add(d.toISOString().slice(0,10));
-        d.setDate(d.getDate() + 1);
-      }
-    }); 
-    return s;
+    (bookings[curRoom]||[]).forEach(b => { let d = new Date(b.from); const end = new Date(b.to); while(d <= end) { s.add(d.toISOString().slice(0,10)); d.setDate(d.getDate() + 1); } }); return s;
   }
 
   function addBooking() {
-    const from = document.getElementById('dateFrom').value; 
-    const to = document.getElementById('dateTo').value;
-    if(!from || !to) return; 
-    
+    const from = document.getElementById('dateFrom').value; const to = document.getElementById('dateTo').value; if(!from || !to) return; 
     if(!bookings[curRoom]) bookings[curRoom] = [];
-    
-    bookings[curRoom].push({
-      from, 
-      to, 
-      note: document.getElementById('bookingNote').value.trim(), 
-      dirtyTriggered: false
-    });
-    
-    saveToFirebase();
-    
-    document.getElementById('dateFrom').value = ''; 
-    document.getElementById('dateTo').value = ''; 
-    document.getElementById('bookingNote').value = '';
-    autoResize(document.getElementById('bookingNote'));
+    bookings[curRoom].push({ from, to, note: document.getElementById('bookingNote').value.trim(), dirtyTriggered: false }); saveToFirebase();
+    document.getElementById('dateFrom').value = ''; document.getElementById('dateTo').value = ''; document.getElementById('bookingNote').value = ''; autoResize(document.getElementById('bookingNote'));
   }
 
   function renderBookings() {
-    const list = bookings[curRoom] || []; 
-    const el = document.getElementById('bookingsList'); 
-    const canDel = currentUser && currentUser.canDelete; 
-    
-    if(!list.length) { 
-      el.innerHTML = ''; 
-      return; 
-    }
-    
-    el.innerHTML = list.sort((a,b) => a.from > b.from ? 1 : -1).map((b,i) => `
-      <div class="booking-item">
-        <div>
-          <div class="booking-dates">${fmt(b.from)} → ${fmt(b.to)}</div>
-          ${b.note ? `<div class="booking-note">${b.note}</div>` : ''}
-        </div>
-        ${canDel ? `<button class="del-btn" onclick="delBooking(${i})" title="Smazat">✕</button>` : ''}
-      </div>
-    `).join('');
+    const list = bookings[curRoom] || []; const el = document.getElementById('bookingsList'); const canDel = currentUser && currentUser.canDelete; 
+    if(!list.length) { el.innerHTML = ''; return; }
+    el.innerHTML = list.sort((a,b) => a.from > b.from ? 1 : -1).map((b,i) => `<div class="booking-item"><div><div class="booking-dates">${fmt(b.from)} → ${fmt(b.to)}</div>${b.note ? `<div class="booking-note">${b.note}</div>` : ''}</div>${canDel ? `<button class="del-btn" onclick="delBooking(${i})" title="Smazat">✕</button>` : ''}</div>`).join('');
   }
+  function fmt(d) { const p = d.split('-'); return p[2] + '.' + p[1] + '.' + p[0]; }
+  function delBooking(i) { bookings[curRoom].splice(i, 1); saveToFirebase(); }
+  function saveNote() { notes[curRoom] = document.getElementById('roomNotes').value; saveToFirebase(); const s = document.getElementById('noteSaved'); s.style.opacity = 1; setTimeout(() => s.style.opacity = 0, 1800); }
+  function saveGeneralNote() { generalNotes = document.getElementById('generalNotes').value; saveToFirebase(); const s = document.getElementById('genNoteSaved'); s.style.opacity = 1; setTimeout(() => s.style.opacity = 0, 1800); }
+  function toggleTheme() { const isDark = document.body.classList.toggle('dark-mode'); localStorage.setItem('hr_theme', isDark ? 'dark' : 'light'); document.getElementById('themeToggleBtn').textContent = isDark ? '☀️' : '🌙'; }
 
-  function fmt(d) {
-    const p = d.split('-');
-    return p[2] + '.' + p[1] + '.' + p[0];
-  }
-  
-  function delBooking(i) {
-    bookings[curRoom].splice(i, 1);
-    saveToFirebase();
-  }
-  
-  function saveNote() {
-    notes[curRoom] = document.getElementById('roomNotes').value; 
-    saveToFirebase();
-    const s = document.getElementById('noteSaved'); 
-    s.style.opacity = 1;
-    setTimeout(() => s.style.opacity = 0, 1800);
-  }
-  
-  function saveGeneralNote() {
-    generalNotes = document.getElementById('generalNotes').value; 
-    saveToFirebase();
-    const s = document.getElementById('genNoteSaved'); 
-    s.style.opacity = 1; 
-    setTimeout(() => s.style.opacity = 0, 1800);
-  }
-  
-  function toggleTheme() {
-    const isDark = document.body.classList.toggle('dark-mode'); 
-    localStorage.setItem('hr_theme', isDark ? 'dark' : 'light');
-    document.getElementById('themeToggleBtn').textContent = isDark ? '☀️' : '🌙';
-  }
-
-  window.loginWithEmail = loginWithEmail; 
-  window.loginWithGoogle = loginWithGoogle; 
-  window.doLogout = doLogout; 
-  window.openRoom = openRoom;
-  window.closeModal = closeModal; 
-  window.changeMonth = changeMonth; 
-  window.addBooking = addBooking; 
-  window.delBooking = delBooking;
-  window.saveNote = saveNote; 
-  window.saveGeneralNote = saveGeneralNote; 
-  window.openEdit = openEdit; 
-  window.closeEdit = closeEdit;
-  window.saveEdit = saveEdit; 
-  window.deleteRoom = deleteRoom; 
-  window.selEmoji = selEmoji; 
-  window.toggleDirty = toggleDirty;
-  window.toggleCustomStatus = toggleCustomStatus;
-  window.toggleTheme = toggleTheme; 
-  window.openUsersAdmin = openUsersAdmin; 
-  window.closeUsersAdmin = closeUsersAdmin; 
-  window.addUserRole = addUserRole;
-  window.deleteUserRole = deleteUserRole; 
-  window.addStaffTask = addStaffTask; 
-  window.toggleStaffTask = toggleStaffTask; 
-  window.deleteStaffTask = deleteStaffTask;
-  window.addCustomItemToEdit = addCustomItemToEdit;
-  window.removeCustomItemFromEdit = removeCustomItemFromEdit;
-  window.addCustomStatusToEdit = addCustomStatusToEdit;
-  window.removeCustomStatusFromEdit = removeCustomStatusFromEdit;
+  window.loginWithEmail = loginWithEmail; window.loginWithGoogle = loginWithGoogle; window.doLogout = doLogout; window.openRoom = openRoom;
+  window.closeModal = closeModal; window.changeMonth = changeMonth; window.addBooking = addBooking; window.delBooking = delBooking;
+  window.saveNote = saveNote; window.saveGeneralNote = saveGeneralNote; window.openEdit = openEdit; window.closeEdit = closeEdit;
+  window.saveEdit = saveEdit; window.deleteRoom = deleteRoom; window.selEmoji = selEmoji; window.toggleDirty = toggleDirty;
+  window.toggleCustomStatus = toggleCustomStatus; window.toggleTheme = toggleTheme; window.openUsersAdmin = openUsersAdmin; 
+  window.closeUsersAdmin = closeUsersAdmin; window.addUserRole = addUserRole; window.deleteUserRole = deleteUserRole; 
+  window.addStaffTask = addStaffTask; window.toggleStaffTask = toggleStaffTask; window.deleteStaffTask = deleteStaffTask;
+  window.addCustomItemToEdit = addCustomItemToEdit; window.removeCustomItemFromEdit = removeCustomItemFromEdit;
+  window.addCustomStatusToEdit = addCustomStatusToEdit; window.removeCustomStatusFromEdit = removeCustomStatusFromEdit;
 
   document.getElementById('loginPass').addEventListener('keydown', function(e) { if(e.key === 'Enter') loginWithEmail(); });
   document.getElementById('loginEmail').addEventListener('keydown', function(e) { if(e.key === 'Enter') document.getElementById('loginPass').focus(); });
