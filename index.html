@@ -122,7 +122,6 @@
   .custom-badge { background: var(--color-background-secondary); border: 1px solid var(--color-border-tertiary); padding: 6px 12px; border-radius: var(--border-radius-md); font-size: 13px; font-weight: 700; color: var(--color-text-primary); }
   .custom-btn { background: var(--color-text-primary); color: var(--color-background-primary); border: 1px solid var(--color-border-primary); padding: 6px 12px; border-radius: var(--border-radius-md); font-size: 13px; font-weight: 700; text-decoration: none; display: inline-block; transition: opacity 0.2s; }
   .custom-btn:hover { opacity: 0.85; }
-  
   .edit-custom-item { display:flex; gap:8px; align-items:center; background: var(--color-background-secondary); padding: 8px 12px; border-radius: var(--border-radius-md); margin-bottom: 6px; border: 1px solid var(--color-border-secondary);}
 
   .toggle-status-btn{margin-top:12px;padding:8px 12px;border:none;border-radius:var(--border-radius-md);font-size:12px;font-weight:700;cursor:pointer;font-family:'Lato',sans-serif;transition:background 0.2s}
@@ -180,11 +179,9 @@
   .edit-modal h3{font-family:'Playfair Display',serif;font-size:20px;margin-bottom:1.5rem;color:var(--color-text-primary)}
   .edit-modal label{font-size:12px;font-weight:700;color:var(--color-text-secondary);display:block;margin-bottom:6px;margin-top:16px}
   
-  /* OPRAVENO: Textová pole neovlivňují zaškrtávací čtverečky */
   .edit-modal input[type="text"], .admin-form input[type="email"] {width:100%;padding:12px 14px;font-size:16px;border:1px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);font-family:'Lato',sans-serif;outline:none;appearance:none;}
   .edit-modal input[type="text"]:focus, .admin-form input[type="email"]:focus {border-color:var(--color-border-primary);}
   
-  /* Zajištění správného vzhledu pro čtverečky */
   input[type="checkbox"] {
     appearance: auto !important;
     -webkit-appearance: checkbox !important;
@@ -210,16 +207,13 @@
   .btn-cancel:hover{background:#e4e4e7}
   body.dark-mode .btn-cancel:hover{background:#27272a}
 
-  /* Admin tabulka uživatelů */
   .users-table {width:100%; border-collapse:collapse; margin-top:12px; font-size:14px;}
   .users-table th, .users-table td {padding:10px; text-align:left; border-bottom:1px solid var(--color-border-secondary); color:var(--color-text-primary);}
   .users-table th {font-weight:700; color:var(--color-text-secondary); font-size:12px; text-transform:uppercase;}
 
-  /* Úkoly pro personál */
   .task-item {display:flex; align-items:center; justify-content:space-between; background:var(--color-background-primary); padding:10px 14px; border:1px solid var(--color-border-tertiary); border-radius:var(--border-radius-md); margin-bottom:8px;}
   .task-label {display:flex; align-items:center; gap:12px; cursor:pointer; flex:1;}
 
-  /* Seznam propojených pokojů */
   .linked-rooms-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; background: var(--color-background-secondary); padding: 12px; border-radius: var(--border-radius-md); max-height: 160px; overflow-y: auto; border: 1px solid var(--color-border-secondary); }
   .linked-rooms-list label { font-size: 14px; margin: 0; display: flex; align-items: center; gap: 10px; cursor: pointer; color: var(--color-text-primary); text-transform: none; font-weight: 400; }
 
@@ -318,10 +312,15 @@
         <div class="modal-room-title" id="modalTitle"></div>
         <div class="modal-room-sub" id="modalSub"></div>
         
-        <!-- Zde se zobrazí vlastní štítky a tlačítka po rozkliknutí pokoje -->
         <div id="roomCustomItemsWrap" class="custom-items-wrap"></div>
         
-        <button id="toggleStatusBtn" class="toggle-status-btn" onclick="toggleDirty()"></button>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;">
+          <button id="toggleStatusBtn" class="toggle-status-btn" style="margin-top:0;" onclick="toggleDirty()"></button>
+          
+          <!-- Kontejner pro další stavová tlačítka (Minibar atd.) -->
+          <span id="customStatusesWrap" style="display:flex; gap:8px; flex-wrap:wrap;"></span>
+        </div>
+        
         <button class="close-btn" onclick="closeModal()">✕</button>
       </div>
       <div class="modal-body">
@@ -365,7 +364,6 @@
       <label>Ikona</label>
       <div class="emoji-pick" id="emojiPick"></div>
       
-      <!-- Nová sekce: Vlastní nápisy a tlačítka -->
       <label style="margin-top:20px;">Vlastní štítky a odkazy (PINy, návody...)</label>
       <div id="editCustomItemsList" style="margin-bottom:8px;"></div>
       <div style="display:flex; gap:8px;">
@@ -374,7 +372,14 @@
         <button type="button" class="add-btn" onclick="addCustomItemToEdit()" style="padding:12px 16px;">+</button>
       </div>
 
-      <!-- Kontejner pro vazby (pro sdílené pokoje) -->
+      <!-- Nová sekce: Vlastní stavová tlačítka (Úkoly pro daný pokoj) -->
+      <label style="margin-top:20px;">Vlastní stavová tlačítka (např. Minibar, Ručníky)</label>
+      <div id="editCustomStatusesList" style="margin-bottom:8px;"></div>
+      <div style="display:flex; gap:8px;">
+        <input type="text" id="newCustomStatus" placeholder="Název tlačítka (např. Doplnit minibar)" style="flex:1">
+        <button type="button" class="add-btn" onclick="addCustomStatusToEdit()" style="padding:12px 16px;">+</button>
+      </div>
+
       <div id="linkedRoomsWrap"></div>
 
       <div class="edit-btns">
@@ -455,8 +460,8 @@
   let staffTasks = [];
   let authorizedUsers = {}; 
   
-  // Proměnná pro ukládání štítků při editaci, než se modal uloží
   let tempCustomItems = []; 
+  let tempCustomStatuses = []; 
   
   let currentUser=null;
   let dbListenerObj = null; 
@@ -556,6 +561,7 @@
           renderCalendar();
           renderBookings();
           updateStatusBtn();
+          renderRoomCustomStatuses();
         }
       }
     });
@@ -590,12 +596,21 @@
           r.isDirty = true;
           b.dirtyTriggered = true;
           changed = true;
+          
+          // Pokud pokoj automaticky zčervená, vyresetují se mu i všechny custom úkoly
+          if (r.customStatuses) {
+             r.customStatuses.forEach(cs => cs.isDone = false);
+          }
 
           rooms.forEach((linkedRoom) => {
             if (linkedRoom.linkedRooms && linkedRoom.linkedRooms.includes(i)) {
               if(!linkedRoom.isDirty) {
                  linkedRoom.isDirty = true;
                  changed = true;
+                 // Vyresetování custom úkolů i u navázaného pokoje
+                 if (linkedRoom.customStatuses) {
+                    linkedRoom.customStatuses.forEach(cs => cs.isDone = false);
+                 }
               }
             }
           });
@@ -781,13 +796,9 @@
     }).join('');
   }
 
-  // --- FUNKCE PRO VLASTNÍ ŠTÍTKY A TLAČÍTKA ---
   function renderEditCustomItems() {
     const list = document.getElementById('editCustomItemsList');
-    if (!tempCustomItems || tempCustomItems.length === 0) {
-      list.innerHTML = '';
-      return;
-    }
+    if (!tempCustomItems || tempCustomItems.length === 0) { list.innerHTML = ''; return; }
     list.innerHTML = tempCustomItems.map((item, idx) => `
       <div class="edit-custom-item">
         <div style="flex:1; font-size:13px; color:var(--color-text-primary);">
@@ -803,7 +814,6 @@
     const text = document.getElementById('newCustomText').value.trim();
     const link = document.getElementById('newCustomLink').value.trim();
     if (!text) return;
-    
     tempCustomItems.push({ text, link });
     document.getElementById('newCustomText').value = '';
     document.getElementById('newCustomLink').value = '';
@@ -814,7 +824,33 @@
     tempCustomItems.splice(idx, 1);
     renderEditCustomItems();
   }
-  // ---------------------------------------------
+
+  // Funkce pro editaci Vlastních stavových tlačítek
+  function renderEditCustomStatuses() {
+    const list = document.getElementById('editCustomStatusesList');
+    if (!tempCustomStatuses || tempCustomStatuses.length === 0) { list.innerHTML = ''; return; }
+    list.innerHTML = tempCustomStatuses.map((cs, idx) => `
+      <div class="edit-custom-item">
+        <div style="flex:1; font-size:13px; color:var(--color-text-primary);">
+          <strong>${cs.label}</strong>
+        </div>
+        <button type="button" class="del-btn" onclick="removeCustomStatusFromEdit(${idx})">✕</button>
+      </div>
+    `).join('');
+  }
+
+  function addCustomStatusToEdit() {
+    const label = document.getElementById('newCustomStatus').value.trim();
+    if (!label) return;
+    tempCustomStatuses.push({ label, isDone: false });
+    document.getElementById('newCustomStatus').value = '';
+    renderEditCustomStatuses();
+  }
+
+  function removeCustomStatusFromEdit(idx) {
+    tempCustomStatuses.splice(idx, 1);
+    renderEditCustomStatuses();
+  }
 
   function openEdit(i) {
     editIdx = i;
@@ -826,9 +862,11 @@
     const ep = document.getElementById('emojiPick');
     ep.innerHTML = EMOJIS.map(e => `<span class="${e===curEmoji?'sel':''}" onclick="selEmoji(this,'${e}')">${e}</span>`).join('');
     
-    // Natažení uložených štítků
     tempCustomItems = (isNew || !rooms[i].customItems) ? [] : JSON.parse(JSON.stringify(rooms[i].customItems));
     renderEditCustomItems();
+
+    tempCustomStatuses = (isNew || !rooms[i].customStatuses) ? [] : JSON.parse(JSON.stringify(rooms[i].customStatuses));
+    renderEditCustomStatuses();
 
     let lrHtml = '<label style="margin-top:20px;">Propojit s pokoji (zašpiní se, když z nich někdo odjede):</label><div class="linked-rooms-list">';
     const curLinked = (!isNew && rooms[i].linkedRooms) ? rooms[i].linkedRooms : [];
@@ -860,9 +898,9 @@
 
     if(name && sel) {
       if(editIdx === -1) {
-        rooms.push({name, emoji: sel.textContent, isDirty: false, linkedRooms, customItems: tempCustomItems});
+        rooms.push({name, emoji: sel.textContent, isDirty: false, linkedRooms, customItems: tempCustomItems, customStatuses: tempCustomStatuses});
       } else {
-        rooms[editIdx] = {name, emoji: sel.textContent, isDirty: rooms[editIdx].isDirty, linkedRooms, customItems: tempCustomItems};
+        rooms[editIdx] = {name, emoji: sel.textContent, isDirty: rooms[editIdx].isDirty, linkedRooms, customItems: tempCustomItems, customStatuses: tempCustomStatuses};
       }
       saveToFirebase();
     }
@@ -908,6 +946,18 @@
   function toggleDirty() {
     if(!currentUser || !currentUser.canToggle) return; 
     rooms[curRoom].isDirty = !rooms[curRoom].isDirty; 
+    
+    // Pokud pokoj označíme manuálně jako špinavý, vyresetujeme custom tlačítka
+    if (rooms[curRoom].isDirty && rooms[curRoom].customStatuses) {
+       rooms[curRoom].customStatuses.forEach(cs => cs.isDone = false);
+    }
+    
+    saveToFirebase();
+  }
+
+  function toggleCustomStatus(idx) {
+    if(!currentUser || !currentUser.canToggle) return;
+    rooms[curRoom].customStatuses[idx].isDone = !rooms[curRoom].customStatuses[idx].isDone;
     saveToFirebase();
   }
 
@@ -916,14 +966,27 @@
     const canToggle = currentUser && currentUser.canToggle;
     
     if (rooms[curRoom].isDirty) { 
-      btn.textContent = canToggle ? '🧹 Označit jako Uklizený' : '🔴 Stav: Špinavý'; 
+      btn.textContent = canToggle ? '🧹 Označit jako Uklizený' : '🔴 Pokoj: Špinavý'; 
       btn.className = 'toggle-status-btn btn-dirty'; 
     } else { 
-      btn.textContent = canToggle ? '🔴 Označit jako Špinavý' : '🟢 Stav: Uklizený'; 
+      btn.textContent = canToggle ? '🔴 Označit jako Špinavý' : '🟢 Pokoj: Uklizený'; 
       btn.className = 'toggle-status-btn btn-clean'; 
     }
     
     btn.disabled = !canToggle;
+  }
+
+  function renderRoomCustomStatuses() {
+    const wrap = document.getElementById('customStatusesWrap');
+    const statuses = rooms[curRoom].customStatuses || [];
+    const canToggle = currentUser && currentUser.canToggle;
+    
+    wrap.innerHTML = statuses.map((cs, idx) => {
+      const btnClass = cs.isDone ? 'btn-clean' : 'btn-dirty';
+      const icon = cs.isDone ? '🟢' : '🔴';
+      const text = cs.isDone ? `${cs.label} (Hotovo)` : `${cs.label}`;
+      return `<button class="toggle-status-btn ${btnClass}" style="margin-top:0;" ${!canToggle ? 'disabled' : ''} onclick="toggleCustomStatus(${idx})">${icon} ${text}</button>`;
+    }).join('');
   }
 
   function openRoom(i) {
@@ -932,7 +995,6 @@
     document.getElementById('modalSub').textContent = 'Pokoj '+(i+1)+' · sdílený kalendář';
     document.getElementById('roomNotes').value = notes[i]||'';
     
-    // Vykreslení vlastních štítků a tlačítek u pokoje
     const customItemsWrap = document.getElementById('roomCustomItemsWrap');
     const cItems = rooms[i].customItems || [];
     customItemsWrap.innerHTML = cItems.map(item => {
@@ -944,6 +1006,7 @@
     }).join('');
 
     updateStatusBtn();
+    renderRoomCustomStatuses();
     
     const canBook = currentUser && currentUser.role !== 'staff';
     const formWrap = document.getElementById('bookingFormWrap');
@@ -1103,6 +1166,7 @@
   window.deleteRoom = deleteRoom; 
   window.selEmoji = selEmoji; 
   window.toggleDirty = toggleDirty;
+  window.toggleCustomStatus = toggleCustomStatus;
   window.toggleTheme = toggleTheme; 
   window.openUsersAdmin = openUsersAdmin; 
   window.closeUsersAdmin = closeUsersAdmin; 
@@ -1113,6 +1177,8 @@
   window.deleteStaffTask = deleteStaffTask;
   window.addCustomItemToEdit = addCustomItemToEdit;
   window.removeCustomItemFromEdit = removeCustomItemFromEdit;
+  window.addCustomStatusToEdit = addCustomStatusToEdit;
+  window.removeCustomStatusFromEdit = removeCustomStatusFromEdit;
 
   document.getElementById('loginPass').addEventListener('keydown', function(e) { if(e.key === 'Enter') loginWithEmail(); });
   document.getElementById('loginEmail').addEventListener('keydown', function(e) { if(e.key === 'Enter') document.getElementById('loginPass').focus(); });
