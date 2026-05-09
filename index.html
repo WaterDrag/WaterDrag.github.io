@@ -47,10 +47,11 @@
   .hotel-title{font-family:'Playfair Display',serif;font-size:24px;font-weight:600;color:var(--color-text-primary);letter-spacing:1px}
   .hotel-sub{font-size:12px;color:var(--color-text-secondary);letter-spacing:3px;text-transform:uppercase;margin-top:4px}
   
-  .theme-btn, .color-btn, .logout-btn {position:absolute; top:50%; transform:translateY(-50%); background:none; border:1px solid var(--color-border-tertiary); border-radius:var(--border-radius-md); font-family:'Lato',sans-serif; cursor:pointer; color:var(--color-text-secondary);}
+  .theme-btn, .color-btn, .stats-btn, .logout-btn {position:absolute; top:50%; transform:translateY(-50%); background:none; border:1px solid var(--color-border-tertiary); border-radius:var(--border-radius-md); font-family:'Lato',sans-serif; cursor:pointer; color:var(--color-text-secondary);}
   .logout-btn{right:16px; padding:6px 14px; font-size:12px; letter-spacing:0.5px;}
   .theme-btn {right:100px; padding:5px 10px; font-size:15px;}
   .color-btn {right:150px; padding:5px 10px; font-size:15px;}
+  .stats-btn {right:200px; padding:5px 10px; font-size:15px;}
 
   .user-info{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--color-text-secondary);display:flex;align-items:center}
   
@@ -134,10 +135,10 @@
   .cal-day.sel-mid { background: var(--color-border-secondary) !important; color: var(--color-text-primary) !important; }
 
   /* SPOLEČNÉ CHOVÁNÍ TLAČÍTEK (ANIMACE KLIKNUTÍ) */
-  .add-btn, .login-btn, .btn-save, .btn-cancel, .btn-delete-room, .toggle-status-btn, .shift-counter-btn, .del-btn, .google-btn, .cal-nav-btn, .custom-btn { transition: transform 0.1s ease, background 0.2s, opacity 0.2s; }
-  .add-btn:active, .login-btn:active, .btn-save:active, .btn-cancel:active, .btn-delete-room:active, .toggle-status-btn:active, .shift-counter-btn:active, .google-btn:active, .cal-nav-btn:active, .custom-btn:active { transform: scale(0.95); }
+  .add-btn, .login-btn, .btn-save, .btn-cancel, .btn-delete-room, .toggle-status-btn, .shift-counter-btn, .del-btn, .google-btn, .cal-nav-btn, .custom-btn, .stats-btn { transition: transform 0.1s ease, background 0.2s, opacity 0.2s; }
+  .add-btn:active, .login-btn:active, .btn-save:active, .btn-cancel:active, .btn-delete-room:active, .toggle-status-btn:active, .shift-counter-btn:active, .google-btn:active, .cal-nav-btn:active, .custom-btn:active, .stats-btn:active { transform: scale(0.95); }
   .del-btn:active, .close-btn:active { transform: scale(0.85); }
-  .theme-btn:active, .color-btn:active, .logout-btn:active { transform: translateY(-50%) scale(0.9); }
+  .theme-btn:active, .color-btn:active, .logout-btn:active, .stats-btn:active { transform: translateY(-50%) scale(0.9); }
 
   .add-btn{background:var(--color-text-primary);border:none;border-radius:var(--border-radius-md);padding:12px 16px;font-size:14px;cursor:pointer;color:var(--color-background-primary);font-family:'Lato',sans-serif;font-weight:700;}
   
@@ -198,14 +199,13 @@
   .linked-rooms-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; background: var(--color-background-secondary); padding: 12px; border-radius: var(--border-radius-md); max-height: 160px; overflow-y: auto; border: 1px solid var(--color-border-secondary); }
   .linked-rooms-list label { font-size: 14px; margin: 0; display: flex; align-items: center; gap: 10px; cursor: pointer; color: var(--color-text-primary); text-transform: none; font-weight: 400; }
 
-  .stats-panel { position:fixed; bottom:20px; right:20px; background:var(--color-background-primary); border:1px solid var(--color-border-tertiary); padding:16px; border-radius:12px; z-index:5000; box-shadow:0 10px 20px rgba(0,0,0,0.15); width:min(320px, calc(100vw - 40px)); max-height:60vh; overflow-y:auto; }
-  body.dark-mode .stats-panel { box-shadow:0 10px 20px rgba(0,0,0,0.6); border-color:var(--color-border-secondary); }
-  .stats-panel h4 { font-family:'Playfair Display',serif; font-size:18px; margin-bottom:12px; color:var(--color-text-primary); }
+  /* Nový styl pro uživatele v modalu statistik */
   .stats-panel-user { margin-bottom:12px; font-size:13px; color:var(--color-text-secondary); border-bottom:1px solid var(--color-border-secondary); padding-bottom:8px;}
   .stats-panel-user strong { color:var(--color-text-primary); }
 
   .shift-counter-wrap { display:flex; align-items:center; justify-content:space-between; background:var(--color-background-secondary); padding:8px 12px; border-radius:var(--border-radius-md); margin-bottom:8px;}
   .shift-counter-btn { width:32px; height:32px; background:var(--color-background-primary); border:1px solid var(--color-border-secondary); border-radius:50%; font-size:16px; font-weight:bold; cursor:pointer; color:var(--color-text-primary); }
+  .shift-counter-btn:hover { background:var(--color-border-tertiary); }
   .shift-counter-val { font-size:16px; font-weight:bold; color:var(--color-text-primary); width:40px; text-align:center;}
 
   @media (max-width: 640px) {
@@ -214,6 +214,7 @@
     .logout-btn { top: 1.25rem; right: 1rem; transform: none; padding: 6px 12px; font-size: 12px; }
     .theme-btn { top: 1.25rem; right: 5.5rem; transform: none; padding: 5px 10px; font-size:14px; }
     .color-btn { top: 1.25rem; right: 8.25rem; transform: none; padding: 5px 10px; font-size:14px; }
+    .stats-btn { top: 1.25rem; right: 11rem; transform: none; padding: 5px 10px; font-size:14px; }
     .hotel-title { font-size: 22px; margin-top: 0.5rem; }
     .mini-stats-wrap { margin: 0 16px 1.5rem; padding: 0; gap: 10px; justify-content: flex-start; }
     .stat-item { padding: 6px 12px; font-size: 12px; } .stat-val { padding: 2px 6px; font-size: 12px; }
@@ -230,7 +231,6 @@
     
     .cal-day { font-size: 12px; padding: 8px 0; }
     .add-btn, .btn-save, .btn-cancel, .btn-delete-room { padding: 14px 10px; } .general-notes-wrap { padding: 0 16px; margin-bottom: 2.5rem;}
-    .stats-panel { bottom:0; right:0; width:100%; border-radius: 24px 24px 0 0; border:none; border-top:1px solid var(--color-border-secondary); }
   }
   </style>
 </head>
@@ -267,6 +267,7 @@
     <div class="hotel-title">Penzion Rezervace</div>
     <div class="hotel-sub">správa pokojů</div>
     <button id="myShiftBtn" class="add-btn" style="display:none; margin: 12px auto 0;" onclick="openMyShift()">💼 Moje směna</button>
+    <button id="openStatsBtn" class="stats-btn" onclick="openStatsModal()" title="Výkazy směn" style="display:none;">📊</button>
     <button id="colorToggleBtn" class="color-btn" onclick="toggleColorMode()" title="Přepnout sytost barev">🎨</button>
     <button id="themeToggleBtn" class="theme-btn" onclick="toggleTheme()" title="Přepnout vzhled">🌙</button>
     <button class="logout-btn" onclick="doLogout()">Odhlásit</button>
@@ -299,8 +300,6 @@
     </div>
   </div>
 
-  <div id="statsPanel" class="stats-panel" style="display:none;"></div>
-
   <!-- MODAL: Moje směna -->
   <div class="edit-modal-bg" id="shiftBg">
     <div class="edit-modal" style="width: min(450px, 100%)">
@@ -323,6 +322,15 @@
         <button class="btn-save" onclick="saveMyShift()">Uložit a odeslat</button>
         <button class="btn-cancel" onclick="closeMyShift()">Zavřít</button>
       </div>
+    </div>
+  </div>
+
+  <!-- MODAL: VÝKAZY -->
+  <div class="edit-modal-bg" id="statsModalBg">
+    <div class="edit-modal" style="width: min(600px, 100%)">
+      <h3>📊 Výkazy směn</h3>
+      <div id="statsPanelContent" style="margin-bottom: 1.5rem;"></div>
+      <div class="edit-btns"><button class="btn-cancel" onclick="closeStatsModal()">Zavřít</button></div>
     </div>
   </div>
 
@@ -524,9 +532,8 @@
 
   const app = initializeApp(firebaseConfig); const db = getDatabase(app); const auth = getAuth(app); const messaging = getMessaging(app); const googleProvider = new GoogleAuthProvider();
 
-  // ROLE_PERMISSIONS - Owner může editovat, mazat atd., ale nevidí statistiky
   const ROLE_PERMISSIONS = {
-    staff: { role:'staff', label:'Zaměstnanec', badge:'badge-staff', canEdit:false, canDelete:false, canToggle:true, canSeeStatsPanel:true, canSeeAllStats:false, canLogShift:true },
+    staff: { role:'staff', label:'Zaměstnanec', badge:'badge-staff', canEdit:false, canDelete:false, canToggle:true, canSeeStatsPanel:false, canSeeAllStats:false, canLogShift:true },
     main_staff: { role:'main_staff', label:'Hlavní Staff', badge:'badge-admin', canEdit:false, canDelete:false, canToggle:true, canSeeStatsPanel:true, canSeeAllStats:true, canLogShift:true },
     admin: { role:'admin', label:'Admin', badge:'badge-admin', canEdit:true, canDelete:true, canToggle:true, canSeeStatsPanel:true, canSeeAllStats:false, canLogShift:true },
     owner: { role:'owner', label:'Majitelka', badge:'badge-owner', canEdit:true, canDelete:true, canToggle:true, canSeeStatsPanel:false, canSeeAllStats:false, canLogShift:false }
@@ -797,9 +804,22 @@
   }
   function closeShiftDetails() { document.getElementById('shiftDetailsBg').classList.remove('open'); }
 
+  function openStatsModal() {
+    renderStatsPanel();
+    document.getElementById('statsModalBg').classList.add('open');
+  }
+  function closeStatsModal() {
+    document.getElementById('statsModalBg').classList.remove('open');
+  }
+
   function renderStatsPanel() {
-    const panel = document.getElementById('statsPanel'); if (!currentUser || !currentUser.canSeeStatsPanel) { panel.style.display = 'none'; return; }
-    const myKey = currentUser.email.replace(/\./g, '_'); panel.style.display = 'block'; let html = '<h4>Výkazy úklidů</h4>'; let empty = true;
+    const btn = document.getElementById('openStatsBtn'); 
+    if (!currentUser || !currentUser.canSeeStatsPanel) { btn.style.display = 'none'; return; }
+    btn.style.display = 'block';
+    
+    const myKey = currentUser.email.replace(/\./g, '_'); 
+    const panelContent = document.getElementById('statsPanelContent'); 
+    let html = ''; let empty = true;
     for(const key in shiftData) {
       if (!currentUser.canSeeAllStats && key !== myKey) continue;
       const d = shiftData[key]; const user = authorizedUsers[key]; const nick = user ? (user.nickname || user.email) : key; const rate = parseFloat(user?.hourlyRate) || 0;
@@ -821,16 +841,16 @@
       const totalOverall = hoursMoney + tasksMoney;
       if(totalHours > 0 || tasksTxt.length > 0 || hasLogs) {
         empty = false;
-        html += `<div class="stats-panel-user"><div style="display:flex; justify-content:space-between; align-items:center;"><strong>${nick}</strong><button onclick="openShiftDetails('${key}')" style="background:none;border:1px solid var(--color-border-tertiary);border-radius:4px;padding:2px 6px;cursor:pointer;font-size:11px;color:var(--color-text-primary);">Podrobnosti</button></div>(Hodiny: ${totalHours})<br>${tasksTxt.join('<br>')}<br><strong style="color:#16A34A; margin-top:4px; display:block;">Celkem odměna: ${totalOverall} Kč</strong></div>`;
+        html += `<div class="stats-panel-user"><div style="display:flex; justify-content:space-between; align-items:center;"><strong>${nick}</strong><button onclick="openShiftDetails('${key}')" style="background:var(--color-background-primary);border:1px solid var(--color-border-tertiary);border-radius:4px;padding:4px 8px;cursor:pointer;font-size:11px;color:var(--color-text-primary);">Podrobnosti</button></div>(Hodiny: ${totalHours})<br>${tasksTxt.join('<br>')}<br><strong style="color:#16A34A; margin-top:4px; display:block;">Celkem odměna: ${totalOverall} Kč</strong></div>`;
       }
     }
     if(empty) html += '<div style="font-size:13px; color:var(--color-text-secondary); margin-bottom:12px;">Zatím nejsou zadané žádné výkazy.</div>';
-    if (currentUser.canSeeAllStats) { html += `<button class="btn-delete-room" onclick="resetShiftData()" style="width:100%; padding:12px;">Vynulovat vše (Vyplaceno)</button>`; }
-    panel.innerHTML = html;
+    if (currentUser.canSeeAllStats) { html += `<button class="btn-delete-room" onclick="resetShiftData()" style="width:100%; padding:12px; margin-top: 12px;">Vynulovat vše (Vyplaceno)</button>`; }
+    panelContent.innerHTML = html;
   }
 
   function resetShiftData() {
-    if(confirm('Chcete VYNULOVAT všechny statistiky a počítadla úklidů? (1/3)')) { if(confirm('OPRAVDU to chcete udělat? Údaje nepůjdou vrátit! (2/3)')) { if(confirm('POSLEDNÍ VAROVÁNÍ: Smazat natrvalo všechny odpracované hodiny a úklidy? (3/3)')) { shiftData = {}; saveToFirebase(); } } }
+    if(confirm('Chcete VYNULOVAT všechny statistiky a počítadla úklidů? (1/3)')) { if(confirm('OPRAVDU to chcete udělat? Údaje nepůjdou vrátit! (2/3)')) { if(confirm('POSLEDNÍ VAROVÁNÍ: Smazat natrvalo všechny odpracované hodiny a úklidy? (3/3)')) { shiftData = {}; saveToFirebase(); closeStatsModal(); } } }
   }
 
   function renderStaffTasks() {
@@ -981,6 +1001,7 @@
   }
 
   function closeModal() { document.getElementById('modalBg').classList.remove('open'); }
+  
   function changeMonth(d) { 
       calMon += d; if(calMon > 11) { calMon = 0; calYear++; } if(calMon < 0) { calMon = 11; calYear--; } 
       renderRoomCalendar(); 
@@ -1135,13 +1156,14 @@
   function viewPhoto(dataUrl) { document.getElementById('photoViewerImg').src = dataUrl; document.getElementById('photoViewerBg').classList.add('open'); }
   function deletePhoto(idx) { if(confirm("Opravdu smazat tuto fotku?")) { rooms[curRoom].photos.splice(idx, 1); saveToFirebase(); renderPhotos(); } }
 
-  window.loginWithEmail = loginWithEmail; window.loginWithGoogle = loginWithGoogle; window.doLogout = doLogout; window.openRoom = openRoom; window.closeModal = closeModal; window.changeMonth = changeMonth; window.delBooking = delBooking; window.saveNote = saveNote; window.saveGeneralNote = saveGeneralNote; window.openEdit = openEdit; window.closeEdit = closeEdit; window.saveEdit = saveEdit; window.deleteRoom = deleteRoom; window.selEmoji = selEmoji; window.clearEmojiSelection = clearEmojiSelection; window.toggleDirty = toggleDirty; window.toggleCustomStatus = toggleCustomStatus; window.toggleTheme = toggleTheme; window.toggleColorMode = toggleColorMode; window.openUsersAdmin = openUsersAdmin; window.closeUsersAdmin = closeUsersAdmin; window.addUserRole = addUserRole; window.deleteUserRole = deleteUserRole; window.editUserRole = editUserRole; window.addStaffTask = addStaffTask; window.toggleStaffTask = toggleStaffTask; window.deleteStaffTask = deleteStaffTask; window.addCustomItemToEdit = addCustomItemToEdit; window.removeCustomItemFromEdit = removeCustomItemFromEdit; window.addCustomStatusToEdit = addCustomStatusToEdit; window.removeCustomStatusFromEdit = removeCustomStatusFromEdit; window.addPaidTaskToEdit = addPaidTaskToEdit; window.removePaidTaskFromEdit = removePaidTaskFromEdit; window.openMyShift = openMyShift; window.closeMyShift = closeMyShift; window.changeShiftDate = changeShiftDate; window.changeShiftTask = changeShiftTask; window.saveMyShift = saveMyShift; window.resetShiftData = resetShiftData; window.openShiftDetails = openShiftDetails; window.closeShiftDetails = closeShiftDetails; window.closeNewBookingsModal = closeNewBookingsModal; window.handlePhotoUpload = handlePhotoUpload; window.viewPhoto = viewPhoto; window.deletePhoto = deletePhoto; window.openBookingModal = openBookingModal; window.closeBookingModal = closeBookingModal; window.bookingCalDayClick = bookingCalDayClick; window.resetBookingSelection = resetBookingSelection; window.saveBooking = saveBooking;
+  window.loginWithEmail = loginWithEmail; window.loginWithGoogle = loginWithGoogle; window.doLogout = doLogout; window.openRoom = openRoom; window.closeModal = closeModal; window.changeMonth = changeMonth; window.delBooking = delBooking; window.saveNote = saveNote; window.saveGeneralNote = saveGeneralNote; window.openEdit = openEdit; window.closeEdit = closeEdit; window.saveEdit = saveEdit; window.deleteRoom = deleteRoom; window.selEmoji = selEmoji; window.clearEmojiSelection = clearEmojiSelection; window.toggleDirty = toggleDirty; window.toggleCustomStatus = toggleCustomStatus; window.toggleTheme = toggleTheme; window.toggleColorMode = toggleColorMode; window.openUsersAdmin = openUsersAdmin; window.closeUsersAdmin = closeUsersAdmin; window.addUserRole = addUserRole; window.deleteUserRole = deleteUserRole; window.editUserRole = editUserRole; window.addStaffTask = addStaffTask; window.toggleStaffTask = toggleStaffTask; window.deleteStaffTask = deleteStaffTask; window.addCustomItemToEdit = addCustomItemToEdit; window.removeCustomItemFromEdit = removeCustomItemFromEdit; window.addCustomStatusToEdit = addCustomStatusToEdit; window.removeCustomStatusFromEdit = removeCustomStatusFromEdit; window.addPaidTaskToEdit = addPaidTaskToEdit; window.removePaidTaskFromEdit = removePaidTaskFromEdit; window.openMyShift = openMyShift; window.closeMyShift = closeMyShift; window.changeShiftDate = changeShiftDate; window.changeShiftTask = changeShiftTask; window.saveMyShift = saveMyShift; window.resetShiftData = resetShiftData; window.openShiftDetails = openShiftDetails; window.closeShiftDetails = closeShiftDetails; window.closeNewBookingsModal = closeNewBookingsModal; window.handlePhotoUpload = handlePhotoUpload; window.viewPhoto = viewPhoto; window.deletePhoto = deletePhoto; window.openBookingModal = openBookingModal; window.closeBookingModal = closeBookingModal; window.bookingCalDayClick = bookingCalDayClick; window.resetBookingSelection = resetBookingSelection; window.saveBooking = saveBooking; window.openStatsModal = openStatsModal; window.closeStatsModal = closeStatsModal;
   
   document.getElementById('loginPass').addEventListener('keydown', function(e) { if(e.key === 'Enter') loginWithEmail(); });
   document.getElementById('loginEmail').addEventListener('keydown', function(e) { if(e.key === 'Enter') document.getElementById('loginPass').focus(); });
   document.getElementById('modalBg').addEventListener('click', function(e) { if(e.target === this) closeModal(); });
   document.getElementById('editBg').addEventListener('click', function(e) { if(e.target === this) closeEdit(); });
   document.getElementById('usersAdminBg').addEventListener('click', function(e) { if(e.target === this) closeUsersAdmin(); });
+  document.getElementById('statsModalBg').addEventListener('click', function(e) { if(e.target === this) closeStatsModal(); });
 </script>
 </body>
 </html>
