@@ -162,7 +162,9 @@
   .edit-modal input[type="text"], .edit-modal input[type="number"], .admin-form input[type="email"], .admin-form input[type="text"], .admin-form input[type="number"], .edit-modal input[type="date"] {width:100%;padding:12px 14px;font-size:16px;border:1px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);font-family:'Lato',sans-serif;outline:none;appearance:none;}
   .edit-modal input[type="text"]:focus, .edit-modal input[type="number"]:focus, .edit-modal input[type="date"]:focus, .admin-form input[type="email"]:focus, .admin-form input[type="text"]:focus, .admin-form input[type="number"]:focus {border-color:var(--color-border-primary);}
   
-  input[type="checkbox"] {appearance: auto !important; -webkit-appearance: checkbox !important; width: 18px !important; height: 18px !important; margin: 0; cursor: pointer; accent-color: var(--color-text-primary);}
+  /* VYLEPŠENÁ BARVA ZAŠKRTÁVÁTEK PRO LEPŠÍ VIDITELNOST */
+  input[type="checkbox"] {appearance: auto !important; -webkit-appearance: checkbox !important; width: 18px !important; height: 18px !important; margin: 0; cursor: pointer; accent-color: #16A34A;}
+  body.dark-mode input[type="checkbox"] {accent-color: #22c55e;}
 
   .emoji-pick{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
   .emoji-pick span{font-size:32px;cursor:pointer;padding:6px;border-radius:var(--border-radius-md);border:2px solid transparent;transition:all 0.2s;background:var(--color-background-secondary)}
