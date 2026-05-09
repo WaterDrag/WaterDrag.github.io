@@ -279,7 +279,6 @@
     
     <button id="myShiftBtn" class="add-btn" style="display:none; margin: 12px auto 0;" onclick="openMyShift()">💼 Moje směna</button>
     
-    <!-- Gear Menu a tlačítko Výkazů -->
     <div class="settings-menu-wrap" id="menuActionsWrap" style="display:none;">
       <button id="topStatsBtn" class="gear-btn" onclick="openStatsModal()" style="display:none; font-size:16px; padding:6px 10px;" title="Výkazy směn">📊</button>
       
@@ -323,7 +322,6 @@
     </div>
   </div>
 
-  <!-- MODAL: Moje směna -->
   <div class="edit-modal-bg" id="shiftBg">
     <div class="edit-modal" style="width: min(450px, 100%)">
       <h3>💼 Moje směna</h3>
@@ -348,7 +346,6 @@
     </div>
   </div>
 
-  <!-- MODAL: VÝKAZY S MOŽNOSTÍ ZÁLOH -->
   <div class="edit-modal-bg" id="statsModalBg">
     <div class="edit-modal" style="width: min(600px, 100%); max-height:85vh; display:flex; flex-direction:column;">
       <h3 id="statsMainTitle">📊 Výkazy směn</h3>
@@ -357,7 +354,6 @@
     </div>
   </div>
 
-  <!-- MODAL: Detaily výkazu práce pro vedení -->
   <div class="edit-modal-bg" id="shiftDetailsBg" style="z-index:100001;">
     <div class="edit-modal" style="width: min(500px, 100%)">
       <h3 id="sdName">Detaily výkazu</h3>
@@ -366,7 +362,6 @@
     </div>
   </div>
 
-  <!-- NOVÉ MODAL: Upozornění na nové rezervace (pro personál) -->
   <div class="edit-modal-bg" id="newBookingsModalBg" style="z-index: 99999;">
     <div class="edit-modal" style="width: min(500px, 100%)">
       <h3>🔔 Nové rezervace</h3>
@@ -378,12 +373,10 @@
     </div>
   </div>
 
-  <!-- NOVÉ MODAL: Prohlížení fotky přes celou obrazovku -->
   <div class="modal-bg" id="photoViewerBg" style="z-index: 999999; padding: 2rem;" onclick="this.classList.remove('open')">
       <img id="photoViewerImg" style="max-width: 100%; max-height: 100%; border-radius: 8px; object-fit: contain; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
   </div>
 
-  <!-- MODAL PRO POKOJ (Jen prohlížení kalendáře a poznámky) -->
   <div class="modal-bg" id="modalBg">
     <div class="modal">
       <div class="modal-top">
@@ -416,7 +409,6 @@
         <div class="section-label">Poznámky k pokoji</div>
         <textarea class="notes-area" id="roomNotes" oninput="autoResize(this)" placeholder="Stav pokoje, vybavení, opravy..."></textarea>
         
-        <!-- FOTKY ZÁVAD -->
         <label class="photo-upload-label">
             📸 Přidat fotku (Fotoaparát / Galerie)
             <input type="file" accept="image/*" style="display:none;" onchange="handlePhotoUpload(this)">
@@ -431,7 +423,6 @@
     </div>
   </div>
 
-  <!-- PŘIDÁNÍ/ÚPRAVA REZERVACE S INTERAKTIVNÍM KALENDÁŘEM -->
   <div class="edit-modal-bg" id="bookingModalBg" style="z-index: 100000;">
     <div class="edit-modal" style="width: min(450px, 100%)">
       <h3 id="bookingModalTitle">Nová rezervace</h3>
@@ -458,7 +449,6 @@
     </div>
   </div>
 
-  <!-- MODAL ÚPRAVY POKOJE -->
   <div class="edit-modal-bg" id="editBg">
     <div class="edit-modal">
       <h3 id="editModalTitle">Upravit pokoj</h3>
@@ -509,7 +499,6 @@
     </div>
   </div>
 
-  <!-- MODAL SPRÁVY UŽIVATELŮ -->
   <div class="edit-modal-bg" id="usersAdminBg">
     <div class="edit-modal" style="width: min(650px, 100%)">
       <h3>Správa přístupů</h3>
@@ -558,28 +547,23 @@
    * VYSVĚTLIVKY K JEDNOTLIVÝM OPRÁVNĚNÍM (PERMISSIONS):
    * =========================================================================
    * canEdit: true/false
-   *   - Zobrazí tlačítko tužky (✎) na kartě pokoje.
-   *   - Dovoluje otevírat nastavení pokoje (změna názvu, ikony, placených úkonů, štítků).
-   * 
-   * canDelete: true/false
-   *   - Zobrazí tlačítko křížku (✕) u existujících rezervací v kalendáři pokoje.
-   *   - Dovoluje mazat rezervace (přidávat a upravovat nové rezervace mohou všichni kromě role 'staff').
-   * 
-   * canToggle: true/false
-   *   - Dovoluje klikat na stavová tlačítka uvnitř pokoje (Uklizeno/Špinavé a vlastní stavy).
-   *   - Dovoluje mazat nahrané fotky závad.
-   * 
-   * canSeeStatsPanel: true/false
-   *   - Zobrazí tlačítko grafu (📊) v horní liště.
-   *   - Dovoluje vůbec otevřít okno "Výkazy směn" a prohlížet archivy.
-   * 
-   * canSeeAllStats: true/false
-   *   - Pokud je TRUE: Uživatel ve výkazech vidí VŠECHNY lidi a má právo udělat "Vynulovat vše" (uzávěrku).
-   *   - Pokud je FALSE: Uživatel ve výkazech vidí pouze sám sebe a své peníze.
-   * 
-   * canLogShift: true/false
-   *   - Zobrazí tlačítko "💼 Moje směna" v horní liště.
-   *   - Dovoluje uživateli zadávat si odpracované hodiny a odškrtávat placené úkoly.
+   * - Zobrazí tlačítko tužky (✎) na kartě pokoje.
+   * - Dovoluje otevírat nastavení pokoje (změna názvu, ikony, placených úkonů, štítků).
+   * * canDelete: true/false
+   * - Zobrazí tlačítko křížku (✕) u existujících rezervací v kalendáři pokoje.
+   * - Dovoluje mazat rezervace (přidávat a upravovat nové rezervace mohou všichni kromě role 'staff').
+   * * canToggle: true/false
+   * - Dovoluje klikat na stavová tlačítka uvnitř pokoje (Uklizeno/Špinavé a vlastní stavy).
+   * - Dovoluje mazat nahrané fotky závad.
+   * * canSeeStatsPanel: true/false
+   * - Zobrazí tlačítko grafu (📊) v horní liště.
+   * - Dovoluje vůbec otevřít okno "Výkazy směn" a prohlížet archivy.
+   * * canSeeAllStats: true/false
+   * - Pokud je TRUE: Uživatel ve výkazech vidí VŠECHNY lidi a má právo udělat "Vynulovat vše" (uzávěrku).
+   * - Pokud je FALSE: Uživatel ve výkazech vidí pouze sám sebe a své peníze.
+   * * canLogShift: true/false
+   * - Zobrazí tlačítko "💼 Moje směna" v horní liště.
+   * - Dovoluje uživateli zadávat si odpracované hodiny a odškrtávat placené úkoly.
    * ========================================================================= */
   
   const ROLE_PERMISSIONS = {
@@ -635,6 +619,7 @@
           requestNotificationPermission(key); 
           startDatabaseListener();
 
+          // Časovač, který každou minutu zkontroluje časy 10:00 a 15:00 a případně překreslí barvy
           if(autoRefreshInterval) clearInterval(autoRefreshInterval);
           autoRefreshInterval = setInterval(() => {
               autoDirtyCheck();
@@ -721,6 +706,11 @@
     hasShownNewBookingsModal = true;
   }
 
+  function closeNewBookingsModal() {
+    document.getElementById('newBookingsModalBg').classList.remove('open'); const myKey = currentUser.email.replace(/\./g, '_');
+    if (authorizedUsers[myKey]) { authorizedUsers[myKey].lastViewedBookings = Date.now(); currentUser.lastViewedBookings = authorizedUsers[myKey].lastViewedBookings; saveToFirebase(); }
+  }
+
   function renderMiniStats() {
     let arrivals = 0; let departures = 0; let cleanings = 0;
     const todayStr = getLocalIsoDate(0);
@@ -757,6 +747,7 @@
     rooms.forEach((r, i) => {
       if(r.isDirty === undefined) { r.isDirty = false; changed = true; }
       (bookings[i]||[]).forEach(b => {
+        // Pokoj se automaticky označí jako špinavý až když je den odjezdu a zároveň 10:00 nebo později.
         if ((b.to < todayStr || (b.to === todayStr && currentHour >= 10)) && !b.dirtyTriggered) {
           r.isDirty = true; b.dirtyTriggered = true; changed = true;
           if (r.customStatuses) { r.customStatuses.forEach(cs => cs.isDone = false); }
@@ -771,6 +762,7 @@
     if(changed) saveToFirebase();
   }
 
+  // Funkce, která hlídá reálnou aktuální obsazenost pokoje od 15:00 do 10:00
   function isRoomOccupied(roomIdx) {
     const todayStr = getLocalIsoDate();
     const currentHour = new Date().getHours();
@@ -778,10 +770,10 @@
     for (const b of bks) {
       if (b.from <= todayStr && b.to >= todayStr) {
         if (b.from === todayStr && b.to === todayStr) {
-            if (currentHour >= 15 && currentHour < 10) return true;
+            if (currentHour >= 15 && currentHour < 10) return true; // Edgecase na 1-denní přesahy
         }
-        if (b.from === todayStr && currentHour < 15) continue;
-        if (b.to === todayStr && currentHour >= 10) continue;
+        if (b.from === todayStr && currentHour < 15) continue; // Před 15:00 v den check-inu je pokoj ještě prázdný
+        if (b.to === todayStr && currentHour >= 10) continue; // Po 10:00 v den check-outu je už prázdný
         return true;
       }
     }
@@ -790,6 +782,7 @@
 
   function getRoomStateClass(roomIdx) {
     if (isRoomOccupied(roomIdx)) return 'bg-state-active';
+    
     const todayStr = getLocalIsoDate(0); const plus3Str = getLocalIsoDate(3);
     const bks = bookings[roomIdx] || [];
     for (const b of bks) { 
@@ -1045,6 +1038,7 @@
       const occupied = isRoomOccupied(i);
       const stateClass = getRoomStateClass(i); let badgesHtml = '';
       
+      // Skrytí štítku Uklizeno/Špinavé, pokud je pokoj obsazený a je po 15:00
       if (!r.hideDefaultStatus && !occupied) { 
           badgesHtml += `<div class="room-status-badge ${r.isDirty ? 'status-dirty' : 'status-clean'}">${r.isDirty ? '🔴 Špinavý' : '🟢 Uklizený'}</div>`; 
       }
@@ -1145,6 +1139,7 @@
     const btn = document.getElementById('toggleStatusBtn'); const canToggle = currentUser && currentUser.canToggle;
     const occupied = isRoomOccupied(curRoom);
     
+    // Tlačítko se schová pokud je u pokoje nastaveno skrývání NEBO pokud je zrovna obsazený hostem
     if (rooms[curRoom].hideDefaultStatus || occupied) { 
         btn.style.display = 'none'; 
     } else {
@@ -1333,7 +1328,9 @@
   function viewPhoto(dataUrl) { document.getElementById('photoViewerImg').src = dataUrl; document.getElementById('photoViewerBg').classList.add('open'); }
   function deletePhoto(idx) { if(confirm("Opravdu smazat tuto fotku?")) { rooms[curRoom].photos.splice(idx, 1); saveToFirebase(); renderPhotos(); } }
 
-  /* ROZDĚLENÍ ZÁPISŮ FUNKCÍ PRO BEZPEČNÉ KOPÍROVÁNÍ (PREVENCE USEKNUTÍ) */
+  /* =========================================================================
+   * EXPORT FUNKCÍ DO GLOBÁLNÍHO WINDOW OBJEKTU PRO HTML TLAČÍTKA
+   * ========================================================================= */
   window.loginWithEmail = loginWithEmail;
   window.loginWithGoogle = loginWithGoogle;
   window.doLogout = doLogout;
