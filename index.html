@@ -69,7 +69,6 @@
   .room-name{font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--color-text-primary);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .room-num{font-size:12px;color:var(--color-text-secondary);letter-spacing:1px}
 
-  /* Obal pro štítky na kartě (aby se daly vrstvit pod sebou) */
   .room-badges-wrap {position:absolute; bottom:12px; left:12px; display:flex; flex-direction:column; gap:4px; align-items:flex-start; z-index:2; max-width:85%;}
   .room-status-badge{padding:4px 8px;border-radius:var(--border-radius-md);font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;box-shadow:0 2px 4px rgba(0,0,0,0.1); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;}
   
@@ -254,7 +253,6 @@
         <div id="roomCustomItemsWrap" class="custom-items-wrap"></div>
         
         <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;">
-          <!-- Výchozí Uklizeno tlačítko (může být skryto) -->
           <button id="toggleStatusBtn" class="toggle-status-btn" style="margin-top:0;" onclick="toggleDirty()"></button>
           <span id="customStatusesWrap" style="display:flex; gap:8px; flex-wrap:wrap;"></span>
         </div>
@@ -296,8 +294,12 @@
       <h3 id="editModalTitle">Upravit pokoj</h3>
       <label>Název pokoje</label>
       <input type="text" id="editName" maxlength="22">
-      <label>Ikona</label>
-      <div class="emoji-pick" id="emojiPick"></div>
+      
+      <label>Ikona (vyberte nebo vložte vlastní)</label>
+      <div style="display:flex; gap:8px; align-items:flex-start;">
+        <div class="emoji-pick" id="emojiPick" style="margin-top:0; flex:1;"></div>
+        <input type="text" id="customEmojiInput" placeholder="Jiná?" maxlength="5" title="Vložte z klávesnice libovolné emoji" oninput="clearEmojiSelection()" style="width: 70px !important; flex:none; height:46px; font-size:24px; text-align:center; padding:0; border:2px solid var(--color-border-secondary); border-radius:var(--border-radius-md); background:var(--color-background-primary);">
+      </div>
       
       <label style="margin-top:20px; display:flex; align-items:center; gap:8px; cursor:pointer; color:var(--color-text-primary); text-transform:none;">
         <input type="checkbox" id="editHideDefaultStatus"> Skrýt výchozí tlačítko (Uklizeno/Špinavé)
@@ -375,7 +377,7 @@
     admin: { role:'admin', label:'Admin', badge:'badge-admin', canEdit:true, canDelete:true, canToggle:true },
     owner: { role:'owner', label:'Majitelka', badge:'badge-owner', canEdit:false, canDelete:false, canToggle:false }
   };
-  const EMOJIS=['🛏️','🏨','🌊','🌿','🔑','🛁','🍾','🌅','🌙','🏔️','🌸','🎋','🦋','🕯️','🍷','🐶','🚿','🔥'];
+  const EMOJIS=['🛏️','🏨','🍳','🍽️','☕','🚗','🚲','⛺','🌊','🌿','🔑','🛁','🍾','🌅','🌙','🏔️','🌸','🎋','🦋','🕯️','🍷','🐶','🚿','🔥'];
   const defaultRooms=[{name:'Pokoj 101',emoji:'🛏️', isDirty: false}, {name:'Deluxe Suite',emoji:'🏨', isDirty: false}];
 
   let rooms = []; let bookings = {}; let notes = {}; let generalNotes = ''; let staffTasks = []; let authorizedUsers = {}; 
@@ -581,7 +583,6 @@
   }
   function removeCustomItemFromEdit(idx) { tempCustomItems.splice(idx, 1); renderEditCustomItems(); }
 
-  // Vlastní stavová tlačítka - Nově se zadává červený i zelený text
   function renderEditCustomStatuses() {
     const list = document.getElementById('editCustomStatusesList');
     if (!tempCustomStatuses || tempCustomStatuses.length === 0) { list.innerHTML = ''; return; }
@@ -612,7 +613,10 @@
     document.getElementById('editHideDefaultStatus').checked = !isNew && rooms[i].hideDefaultStatus;
     
     const curEmoji = isNew ? EMOJIS[0] : rooms[i].emoji;
-    document.getElementById('emojiPick').innerHTML = EMOJIS.map(e => `<span class="${e===curEmoji?'sel':''}" onclick="selEmoji(this,'${e}')">${e}</span>`).join('');
+    const isCustomEmoji = !EMOJIS.includes(curEmoji);
+    
+    document.getElementById('emojiPick').innerHTML = EMOJIS.map(e => `<span class="${(!isCustomEmoji && e===curEmoji)?'sel':''}" onclick="selEmoji(this)">${e}</span>`).join('');
+    document.getElementById('customEmojiInput').value = isCustomEmoji ? curEmoji : '';
     
     tempCustomItems = (isNew || !rooms[i].customItems) ? [] : JSON.parse(JSON.stringify(rooms[i].customItems)); renderEditCustomItems();
     tempCustomStatuses = (isNew || !rooms[i].customStatuses) ? [] : JSON.parse(JSON.stringify(rooms[i].customStatuses)); renderEditCustomStatuses();
@@ -630,17 +634,24 @@
     document.getElementById('delRoomBtn').style.display = isNew ? 'none' : 'block'; document.getElementById('editBg').classList.add('open');
   }
 
-  function selEmoji(el) { document.querySelectorAll('.emoji-pick span').forEach(s => s.classList.remove('sel')); el.classList.add('sel'); }
-  
+  function selEmoji(el) { document.querySelectorAll('.emoji-pick span').forEach(s => s.classList.remove('sel')); el.classList.add('sel'); document.getElementById('customEmojiInput').value = ''; }
+  function clearEmojiSelection() { document.querySelectorAll('.emoji-pick span').forEach(s => s.classList.remove('sel')); }
+
   function saveEdit() {
-    const name = document.getElementById('editName').value.trim(); const sel = document.querySelector('.emoji-pick span.sel');
+    const name = document.getElementById('editName').value.trim(); 
+    let finalEmoji = document.getElementById('customEmojiInput').value.trim();
+    if(!finalEmoji) {
+      const sel = document.querySelector('.emoji-pick span.sel');
+      finalEmoji = sel ? sel.textContent : '🛏️';
+    }
+    
     const hideDefault = document.getElementById('editHideDefaultStatus').checked;
     const linkedRooms = Array.from(document.querySelectorAll('.link-cb:checked')).map(cb => parseInt(cb.value));
-    if(name && sel) {
+    if(name && finalEmoji) {
       if(editIdx === -1) {
-        rooms.push({name, emoji: sel.textContent, isDirty: false, linkedRooms, customItems: tempCustomItems, customStatuses: tempCustomStatuses, hideDefaultStatus: hideDefault});
+        rooms.push({name, emoji: finalEmoji, isDirty: false, linkedRooms, customItems: tempCustomItems, customStatuses: tempCustomStatuses, hideDefaultStatus: hideDefault});
       } else {
-        rooms[editIdx] = {name, emoji: sel.textContent, isDirty: rooms[editIdx].isDirty, linkedRooms, customItems: tempCustomItems, customStatuses: tempCustomStatuses, hideDefaultStatus: hideDefault};
+        rooms[editIdx] = {name, emoji: finalEmoji, isDirty: rooms[editIdx].isDirty, linkedRooms, customItems: tempCustomItems, customStatuses: tempCustomStatuses, hideDefaultStatus: hideDefault};
       } saveToFirebase();
     } closeEdit();
   }
@@ -755,6 +766,7 @@
   window.addStaffTask = addStaffTask; window.toggleStaffTask = toggleStaffTask; window.deleteStaffTask = deleteStaffTask;
   window.addCustomItemToEdit = addCustomItemToEdit; window.removeCustomItemFromEdit = removeCustomItemFromEdit;
   window.addCustomStatusToEdit = addCustomStatusToEdit; window.removeCustomStatusFromEdit = removeCustomStatusFromEdit;
+  window.clearEmojiSelection = clearEmojiSelection;
 
   document.getElementById('loginPass').addEventListener('keydown', function(e) { if(e.key === 'Enter') loginWithEmail(); });
   document.getElementById('loginEmail').addEventListener('keydown', function(e) { if(e.key === 'Enter') document.getElementById('loginPass').focus(); });
