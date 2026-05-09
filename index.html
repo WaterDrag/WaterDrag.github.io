@@ -47,14 +47,22 @@
   .hotel-title{font-family:'Playfair Display',serif;font-size:24px;font-weight:600;color:var(--color-text-primary);letter-spacing:1px}
   .hotel-sub{font-size:12px;color:var(--color-text-secondary);letter-spacing:3px;text-transform:uppercase;margin-top:4px}
   
-  .theme-btn, .color-btn, .stats-btn, .logout-btn {position:absolute; top:50%; transform:translateY(-50%); background:none; border:1px solid var(--color-border-tertiary); border-radius:var(--border-radius-md); font-family:'Lato',sans-serif; cursor:pointer; color:var(--color-text-secondary);}
-  .logout-btn{right:16px; padding:6px 14px; font-size:12px; letter-spacing:0.5px;}
-  .theme-btn {right:100px; padding:5px 10px; font-size:15px;}
-  .color-btn {right:150px; padding:5px 10px; font-size:15px;}
-  .stats-btn {right:200px; padding:5px 10px; font-size:15px;}
-
   .user-info{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--color-text-secondary);display:flex;align-items:center}
   
+  /* --- NOVÉ: Gear Menu (Ozubené kolo) --- */
+  .settings-menu-wrap { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); z-index: 1000; }
+  .gear-btn { background: var(--color-background-primary); border: 1px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); color: var(--color-text-secondary); font-size: 20px; padding: 6px 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.1s ease, border-color 0.2s, background 0.2s; }
+  .gear-btn:hover { border-color: var(--color-border-primary); background: var(--color-background-secondary); }
+  .gear-btn:active { transform: scale(0.9); }
+
+  .settings-dropdown { display: none; position: absolute; top: calc(100% + 8px); right: 0; background: var(--color-background-primary); border: 1px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); width: 190px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); padding: 6px; opacity: 0; transform: translateY(-10px); transition: opacity 0.2s ease, transform 0.2s ease; pointer-events: none; }
+  body.dark-mode .settings-dropdown { box-shadow: 0 10px 20px rgba(0,0,0,0.6); }
+  .settings-dropdown.show { display: block; opacity: 1; transform: translateY(0); pointer-events: auto; }
+  .settings-dropdown button { display: flex; align-items: center; gap: 12px; width: 100%; background: none; border: none; padding: 10px 12px; font-family: 'Lato', sans-serif; font-size: 14px; color: var(--color-text-primary); text-align: left; cursor: pointer; border-radius: 4px; transition: background 0.2s; }
+  .settings-dropdown button:hover { background: var(--color-background-secondary); }
+  .settings-dropdown button:active { transform: scale(0.98); }
+  .menu-divider { height: 1px; background: var(--color-border-secondary); margin: 6px 0; }
+
   .admin-actions-wrap{max-width:1200px;margin:0 auto 1.5rem;padding:0 24px;text-align:center; display:flex; justify-content:center; gap:12px; flex-wrap:wrap;}
   .mini-stats-wrap { max-width: 1200px; margin: 0 auto 1.5rem; padding: 0 24px; display: flex; justify-content: flex-start; gap: 20px; flex-wrap: wrap; }
   .stat-item { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: var(--color-text-primary); background: var(--color-background-primary); border: 1px solid var(--color-border-secondary); padding: 8px 16px; border-radius: var(--border-radius-md); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
@@ -135,10 +143,9 @@
   .cal-day.sel-mid { background: var(--color-border-secondary) !important; color: var(--color-text-primary) !important; }
 
   /* SPOLEČNÉ CHOVÁNÍ TLAČÍTEK (ANIMACE KLIKNUTÍ) */
-  .add-btn, .login-btn, .btn-save, .btn-cancel, .btn-delete-room, .toggle-status-btn, .shift-counter-btn, .del-btn, .google-btn, .cal-nav-btn, .custom-btn, .stats-btn { transition: transform 0.1s ease, background 0.2s, opacity 0.2s; }
-  .add-btn:active, .login-btn:active, .btn-save:active, .btn-cancel:active, .btn-delete-room:active, .toggle-status-btn:active, .shift-counter-btn:active, .google-btn:active, .cal-nav-btn:active, .custom-btn:active, .stats-btn:active { transform: scale(0.95); }
+  .add-btn, .login-btn, .btn-save, .btn-cancel, .btn-delete-room, .toggle-status-btn, .shift-counter-btn, .del-btn, .google-btn, .cal-nav-btn, .custom-btn { transition: transform 0.1s ease, background 0.2s, opacity 0.2s; }
+  .add-btn:active, .login-btn:active, .btn-save:active, .btn-cancel:active, .btn-delete-room:active, .toggle-status-btn:active, .shift-counter-btn:active, .google-btn:active, .cal-nav-btn:active, .custom-btn:active { transform: scale(0.95); }
   .del-btn:active, .close-btn:active { transform: scale(0.85); }
-  .theme-btn:active, .color-btn:active, .logout-btn:active, .stats-btn:active { transform: translateY(-50%) scale(0.9); }
 
   .add-btn{background:var(--color-text-primary);border:none;border-radius:var(--border-radius-md);padding:12px 16px;font-size:14px;cursor:pointer;color:var(--color-background-primary);font-family:'Lato',sans-serif;font-weight:700;}
   
@@ -208,13 +215,15 @@
   .shift-counter-btn:hover { background:var(--color-border-tertiary); }
   .shift-counter-val { font-size:16px; font-weight:bold; color:var(--color-text-primary); width:40px; text-align:center;}
 
+  /* Záložky pro zálohy */
+  .backup-tab-btn { padding:6px 12px; font-size:12px; border-radius:4px; border:1px solid var(--color-border-primary); cursor:pointer; font-family:'Lato',sans-serif; transition:all 0.2s; white-space:nowrap; }
+
   @media (max-width: 640px) {
     .hotel-header { padding-top: 3.5rem; padding-bottom: 1.25rem; }
     .user-info { top: 1.25rem; left: 1rem; transform: none; font-size: 13px; }
-    .logout-btn { top: 1.25rem; right: 1rem; transform: none; padding: 6px 12px; font-size: 12px; }
-    .theme-btn { top: 1.25rem; right: 5.5rem; transform: none; padding: 5px 10px; font-size:14px; }
-    .color-btn { top: 1.25rem; right: 8.25rem; transform: none; padding: 5px 10px; font-size:14px; }
-    .stats-btn { top: 1.25rem; right: 11rem; transform: none; padding: 5px 10px; font-size:14px; }
+    
+    .settings-menu-wrap { top: 1.25rem; transform: none; }
+    
     .hotel-title { font-size: 22px; margin-top: 0.5rem; }
     .mini-stats-wrap { margin: 0 16px 1.5rem; padding: 0; gap: 10px; justify-content: flex-start; }
     .stat-item { padding: 6px 12px; font-size: 12px; } .stat-val { padding: 2px 6px; font-size: 12px; }
@@ -266,11 +275,21 @@
     <div class="user-info" id="userInfo"></div>
     <div class="hotel-title">Penzion Rezervace</div>
     <div class="hotel-sub">správa pokojů</div>
+    
     <button id="myShiftBtn" class="add-btn" style="display:none; margin: 12px auto 0;" onclick="openMyShift()">💼 Moje směna</button>
-    <button id="openStatsBtn" class="stats-btn" onclick="openStatsModal()" title="Výkazy směn" style="display:none;">📊</button>
-    <button id="colorToggleBtn" class="color-btn" onclick="toggleColorMode()" title="Přepnout sytost barev">🎨</button>
-    <button id="themeToggleBtn" class="theme-btn" onclick="toggleTheme()" title="Přepnout vzhled">🌙</button>
-    <button class="logout-btn" onclick="doLogout()">Odhlásit</button>
+    
+    <!-- Gear Menu -->
+    <div class="settings-menu-wrap" id="menuActionsWrap" style="display:none;">
+      <button class="gear-btn" onclick="toggleSettingsMenu(event)">⚙️</button>
+      <div class="settings-dropdown" id="settingsDropdown">
+        <button id="menuStatsBtn" onclick="openStatsModal()" style="display:none;">📊 Výkazy směn</button>
+        <button onclick="toggleColorMode()">🎨 Sytost barev</button>
+        <button onclick="toggleTheme()" id="menuThemeBtn">🌙 Vzhled</button>
+        <div class="menu-divider"></div>
+        <button onclick="doLogout()" style="color: var(--color-text-danger);">🚪 Odhlásit</button>
+      </div>
+    </div>
+
   </div>
   
   <div id="adminActionsWrap" class="admin-actions-wrap" style="display:none;">
@@ -328,7 +347,6 @@
   <!-- MODAL: VÝKAZY S MOŽNOSTÍ ZÁLOH -->
   <div class="edit-modal-bg" id="statsModalBg">
     <div class="edit-modal" style="width: min(600px, 100%); max-height:85vh; display:flex; flex-direction:column;">
-      <h3 id="statsMainTitle">📊 Výkazy směn</h3>
       <div id="statsPanelContent" style="margin-bottom: 1.5rem; overflow-y:auto; flex:1;"></div>
       <div class="edit-btns"><button class="btn-cancel" onclick="closeStatsModal()">Zavřít</button></div>
     </div>
@@ -360,7 +378,7 @@
       <img id="photoViewerImg" style="max-width: 100%; max-height: 100%; border-radius: 8px; object-fit: contain; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
   </div>
 
-  <!-- MODAL PRO POKOJ -->
+  <!-- MODAL PRO POKOJ (Jen prohlížení kalendáře a poznámky) -->
   <div class="modal-bg" id="modalBg">
     <div class="modal">
       <div class="modal-top">
@@ -555,7 +573,10 @@
   const MONTHS=['Leden','Únor','Březen','Duben','Květen','Červen','Červenec','Srpen','Září','Říjen','Listopad','Prosinec'];
   const DAYS=['Po','Út','St','Čt','Pá','So','Ne'];
 
-  const savedTheme = localStorage.getItem('hr_theme'); document.getElementById('themeToggleBtn').textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+  const savedTheme = localStorage.getItem('hr_theme'); 
+  document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('menuThemeBtn').innerHTML = savedTheme === 'dark' ? '☀️ Vzhled: Světlý' : '🌙 Vzhled: Tmavý';
+  });
 
   onAuthStateChanged(auth, async (user) => {
     const errEl = document.getElementById('loginErr');
@@ -568,11 +589,16 @@
         if (userRecord && ROLE_PERMISSIONS[userRecord.role]) {
           currentUser = { email: email, ...ROLE_PERMISSIONS[userRecord.role], lastViewedBookings: userRecord.lastViewedBookings || 0 }; errEl.textContent = '';
           document.getElementById('screenLogin').classList.remove('active'); document.getElementById('screenApp').classList.add('active');
-          document.getElementById('userInfo').innerHTML = `${currentUser.label} <span class="role-badge ${currentUser.badge}">${currentUser.role}</span>`;
-          document.getElementById('myShiftBtn').style.display = currentUser.canLogShift ? 'inline-block' : 'none';
           
-          const statsBtn = document.getElementById('openStatsBtn');
-          statsBtn.style.display = currentUser.canSeeStatsPanel ? 'block' : 'none';
+          // Nastavení zobrazení jména a menu
+          const displayName = userRecord.nickname || ROLE_PERMISSIONS[userRecord.role].label;
+          document.getElementById('userInfo').innerHTML = `<span style="font-weight:700; color:var(--color-text-primary); font-size:14px;">${displayName}</span>`;
+          
+          document.getElementById('myShiftBtn').style.display = currentUser.canLogShift ? 'inline-block' : 'none';
+          document.getElementById('menuActionsWrap').style.display = 'block';
+          
+          const statsBtn = document.getElementById('menuStatsBtn');
+          statsBtn.style.display = currentUser.canSeeStatsPanel ? 'flex' : 'none';
 
           requestNotificationPermission(key); startDatabaseListener();
         } else { errEl.textContent = 'Váš e-mail nemá oprávnění k přístupu.'; signOut(auth); }
@@ -601,19 +627,36 @@
         document.getElementById('generalNotes').value = generalNotes; autoResize(document.getElementById('generalNotes'));
         renderRooms(); renderMiniStats(); renderStaffTasks();
         if (document.getElementById('statsModalBg').classList.contains('open')) { 
-            // Pokud jsme v archivu záloh, nepřekreslujeme zpět na aktuální zobrazení
-            // Pouze updatujeme data na pozadí, pokud nejsou aktivně prohlížena historická
+            // Pokud jsme v archivu záloh, nepřekreslujeme
         }
         checkAndShowNewBookings();
         if(document.getElementById('usersAdminBg').classList.contains('open')) { renderUsersAdmin(); }
         if(document.getElementById('modalBg').classList.contains('open') && curRoom !== -1) {
-          // Udržení focusu v textarea při update
           const isFocused = document.activeElement === document.getElementById('roomNotes');
           if (!isFocused) document.getElementById('roomNotes').value = notes[curRoom] || '';
           renderRoomCalendar(); renderBookings(); renderPhotos(); updateStatusBtn(); renderRoomCustomStatuses();
         }
       }
     });
+  }
+
+  // --- NOVÉ FUNKCE PRO MENU ---
+  function toggleSettingsMenu(event) {
+    event.stopPropagation();
+    document.getElementById('settingsDropdown').classList.toggle('show');
+  }
+
+  window.addEventListener('click', function(e) {
+    const dropdown = document.getElementById('settingsDropdown');
+    if (dropdown && dropdown.classList.contains('show') && !e.target.closest('.settings-menu-wrap')) {
+      dropdown.classList.remove('show');
+    }
+  });
+
+  function toggleTheme() { 
+      const isDark = document.body.classList.toggle('dark-mode'); 
+      localStorage.setItem('hr_theme', isDark ? 'dark' : 'light'); 
+      document.getElementById('menuThemeBtn').innerHTML = isDark ? '☀️ Vzhled: Světlý' : '🌙 Vzhled: Tmavý'; 
   }
 
   function toggleColorMode() {
@@ -797,8 +840,8 @@
   }
   function closeShiftDetails() { document.getElementById('shiftDetailsBg').classList.remove('open'); }
 
-  // --- SPRÁVA ZOBRAZENÍ VÝKAZŮ (MODAL A ARCHIV) ---
   function openStatsModal() {
+    document.getElementById('statsMainTitle').style.display = 'block';
     renderStatsPanel('current');
     document.getElementById('statsModalBg').classList.add('open');
   }
@@ -808,23 +851,21 @@
 
   function renderStatsPanel(mode = 'current', backupIdx = -1) {
     if (!currentUser || !currentUser.canSeeStatsPanel) return;
-    
     const myKey = currentUser.email.replace(/\./g, '_'); 
     const panelContent = document.getElementById('statsPanelContent'); 
     let html = '';
     
-    // ZOBRAZENÍ SEZNAMU HISTORIE ZÁLOH
     if (mode === 'history') {
-         html += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-                    <h4 style="margin:0; font-family:'Playfair Display',serif; color:var(--color-text-primary);">🗄️ Archiv výkazů</h4>
-                    <button class="cal-nav-btn" onclick="renderStatsPanel('current')" style="padding:6px 12px; font-size:12px;">🔙 Zpět na aktuální</button>
+         document.getElementById('statsMainTitle').style.display = 'none';
+         html += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; padding-top: 10px;">
+                    <h4 style="margin:0; font-family:'Playfair Display',serif; color:var(--color-text-primary); font-size:20px;">🗄️ Archiv výkazů</h4>
+                    <button class="cal-nav-btn" onclick="renderStatsPanel('current')" style="padding:6px 12px; font-size:12px;">🔙 Zpět</button>
                   </div>`;
                   
          if (!shiftDataBackups || shiftDataBackups.length === 0) {
             html += `<div style="font-size:13px; color:var(--color-text-secondary); text-align:center; padding: 20px;">Zatím nejsou k dispozici žádné uzavřené měsíce.</div>`;
          } else {
             html += `<div style="display:flex; flex-direction:column; gap:8px;">`;
-            // Od nejnovější po nejstarší
             for (let i = shiftDataBackups.length - 1; i >= 0; i--) {
                 const b = shiftDataBackups[i];
                 const d = new Date(b.date);
@@ -840,14 +881,15 @@
          return;
     }
 
-    // ZOBRAZENÍ KONKRÉTNÍHO VÝKAZU (Aktuální nebo Historický)
+    document.getElementById('statsMainTitle').style.display = 'block';
     const isBackup = (mode === 'backup');
     const sourceData = isBackup ? shiftDataBackups[backupIdx].data : shiftData;
 
     if (isBackup) {
+        document.getElementById('statsMainTitle').style.display = 'none';
         const d = new Date(shiftDataBackups[backupIdx].date);
         const dateStr = d.getDate() + '.' + (d.getMonth()+1) + '. v ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
-        html += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; background:var(--color-background-secondary); padding:8px 12px; border-radius:var(--border-radius-md); border:1px solid var(--color-border-secondary);">
+        html += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; background:var(--color-background-secondary); padding:8px 12px; border-radius:var(--border-radius-md); border:1px solid var(--color-border-secondary); margin-top: 10px;">
                    <div style="font-size:13px; font-weight:bold; color:var(--color-text-primary);">Prohlížíte zálohu:<br><span style="font-size:12px; font-weight:normal; color:var(--color-text-secondary);">${dateStr}</span></div>
                    <button class="cal-nav-btn" onclick="renderStatsPanel('history')" style="padding:6px 12px; font-size:12px; font-weight:bold;">🔙 Zpět na archiv</button>
                  </div>`;
@@ -1187,8 +1229,6 @@
       generalNotes = document.getElementById('generalNotes').value; saveToFirebase(); 
       const s = document.getElementById('genNoteSaved'); s.classList.add('show'); setTimeout(() => s.classList.remove('show'), 1800); 
   }
-  
-  function toggleTheme() { const isDark = document.body.classList.toggle('dark-mode'); localStorage.setItem('hr_theme', isDark ? 'dark' : 'light'); document.getElementById('themeToggleBtn').textContent = isDark ? '☀️' : '🌙'; }
 
   function handlePhotoUpload(input) {
       const file = input.files[0]; if(!file) return; const reader = new FileReader();
@@ -1216,7 +1256,7 @@
   function viewPhoto(dataUrl) { document.getElementById('photoViewerImg').src = dataUrl; document.getElementById('photoViewerBg').classList.add('open'); }
   function deletePhoto(idx) { if(confirm("Opravdu smazat tuto fotku?")) { rooms[curRoom].photos.splice(idx, 1); saveToFirebase(); renderPhotos(); } }
 
-  window.loginWithEmail = loginWithEmail; window.loginWithGoogle = loginWithGoogle; window.doLogout = doLogout; window.openRoom = openRoom; window.closeModal = closeModal; window.changeMonth = changeMonth; window.delBooking = delBooking; window.saveNote = saveNote; window.saveGeneralNote = saveGeneralNote; window.openEdit = openEdit; window.closeEdit = closeEdit; window.saveEdit = saveEdit; window.deleteRoom = deleteRoom; window.selEmoji = selEmoji; window.clearEmojiSelection = clearEmojiSelection; window.toggleDirty = toggleDirty; window.toggleCustomStatus = toggleCustomStatus; window.toggleTheme = toggleTheme; window.toggleColorMode = toggleColorMode; window.openUsersAdmin = openUsersAdmin; window.closeUsersAdmin = closeUsersAdmin; window.addUserRole = addUserRole; window.deleteUserRole = deleteUserRole; window.editUserRole = editUserRole; window.addStaffTask = addStaffTask; window.toggleStaffTask = toggleStaffTask; window.deleteStaffTask = deleteStaffTask; window.addCustomItemToEdit = addCustomItemToEdit; window.removeCustomItemFromEdit = removeCustomItemFromEdit; window.addCustomStatusToEdit = addCustomStatusToEdit; window.removeCustomStatusFromEdit = removeCustomStatusFromEdit; window.addPaidTaskToEdit = addPaidTaskToEdit; window.removePaidTaskFromEdit = removePaidTaskFromEdit; window.openMyShift = openMyShift; window.closeMyShift = closeMyShift; window.changeShiftDate = changeShiftDate; window.changeShiftTask = changeShiftTask; window.saveMyShift = saveMyShift; window.resetShiftData = resetShiftData; window.openShiftDetails = openShiftDetails; window.closeShiftDetails = closeShiftDetails; window.closeNewBookingsModal = closeNewBookingsModal; window.handlePhotoUpload = handlePhotoUpload; window.viewPhoto = viewPhoto; window.deletePhoto = deletePhoto; window.openBookingModal = openBookingModal; window.closeBookingModal = closeBookingModal; window.bookingCalDayClick = bookingCalDayClick; window.resetBookingSelection = resetBookingSelection; window.saveBooking = saveBooking; window.openStatsModal = openStatsModal; window.closeStatsModal = closeStatsModal; window.renderStatsPanel = renderStatsPanel;
+  window.loginWithEmail = loginWithEmail; window.loginWithGoogle = loginWithGoogle; window.doLogout = doLogout; window.openRoom = openRoom; window.closeModal = closeModal; window.changeMonth = changeMonth; window.delBooking = delBooking; window.saveNote = saveNote; window.saveGeneralNote = saveGeneralNote; window.openEdit = openEdit; window.closeEdit = closeEdit; window.saveEdit = saveEdit; window.deleteRoom = deleteRoom; window.selEmoji = selEmoji; window.clearEmojiSelection = clearEmojiSelection; window.toggleDirty = toggleDirty; window.toggleCustomStatus = toggleCustomStatus; window.toggleColorMode = toggleColorMode; window.openUsersAdmin = openUsersAdmin; window.closeUsersAdmin = closeUsersAdmin; window.addUserRole = addUserRole; window.deleteUserRole = deleteUserRole; window.editUserRole = editUserRole; window.addStaffTask = addStaffTask; window.toggleStaffTask = toggleStaffTask; window.deleteStaffTask = deleteStaffTask; window.addCustomItemToEdit = addCustomItemToEdit; window.removeCustomItemFromEdit = removeCustomItemFromEdit; window.addCustomStatusToEdit = addCustomStatusToEdit; window.removeCustomStatusFromEdit = removeCustomStatusFromEdit; window.addPaidTaskToEdit = addPaidTaskToEdit; window.removePaidTaskFromEdit = removePaidTaskFromEdit; window.openMyShift = openMyShift; window.closeMyShift = closeMyShift; window.changeShiftDate = changeShiftDate; window.changeShiftTask = changeShiftTask; window.saveMyShift = saveMyShift; window.resetShiftData = resetShiftData; window.openShiftDetails = openShiftDetails; window.closeShiftDetails = closeShiftDetails; window.closeNewBookingsModal = closeNewBookingsModal; window.handlePhotoUpload = handlePhotoUpload; window.viewPhoto = viewPhoto; window.deletePhoto = deletePhoto; window.openBookingModal = openBookingModal; window.closeBookingModal = closeBookingModal; window.bookingCalDayClick = bookingCalDayClick; window.resetBookingSelection = resetBookingSelection; window.saveBooking = saveBooking; window.openStatsModal = openStatsModal; window.closeStatsModal = closeStatsModal; window.renderStatsPanel = renderStatsPanel; window.toggleSettingsMenu = toggleSettingsMenu; window.toggleTheme = toggleTheme;
   
   document.getElementById('loginPass').addEventListener('keydown', function(e) { if(e.key === 'Enter') loginWithEmail(); });
   document.getElementById('loginEmail').addEventListener('keydown', function(e) { if(e.key === 'Enter') document.getElementById('loginPass').focus(); });
