@@ -49,8 +49,8 @@
   
   .user-info{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--color-text-secondary);display:flex;align-items:center}
   
-  /* --- NOVÉ: Gear Menu (Ozubené kolo) --- */
-  .settings-menu-wrap { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); z-index: 1000; }
+  /* --- Gear Menu (Ozubené kolo) a Tlačítko Výkazy --- */
+  .settings-menu-wrap { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); z-index: 1000; display:flex; gap:8px; align-items:center;}
   .gear-btn { background: var(--color-background-primary); border: 1px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); color: var(--color-text-secondary); font-size: 20px; padding: 6px 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.1s ease, border-color 0.2s, background 0.2s; }
   .gear-btn:hover { border-color: var(--color-border-primary); background: var(--color-background-secondary); }
   .gear-btn:active { transform: scale(0.9); }
@@ -278,15 +278,18 @@
     
     <button id="myShiftBtn" class="add-btn" style="display:none; margin: 12px auto 0;" onclick="openMyShift()">💼 Moje směna</button>
     
-    <!-- Gear Menu -->
+    <!-- Gear Menu a tlačítko Výkazů -->
     <div class="settings-menu-wrap" id="menuActionsWrap" style="display:none;">
-      <button class="gear-btn" onclick="toggleSettingsMenu(event)">⚙️</button>
-      <div class="settings-dropdown" id="settingsDropdown">
-        <button id="menuStatsBtn" onclick="openStatsModal()" style="display:none;">📊 Výkazy směn</button>
-        <button onclick="toggleColorMode()">🎨 Sytost barev</button>
-        <button onclick="toggleTheme()" id="menuThemeBtn">🌙 Vzhled</button>
-        <div class="menu-divider"></div>
-        <button onclick="doLogout()" style="color: var(--color-text-danger);">🚪 Odhlásit</button>
+      <button id="topStatsBtn" class="gear-btn" onclick="openStatsModal()" style="display:none; font-size:16px; padding:6px 10px;" title="Výkazy směn">📊</button>
+      
+      <div style="position:relative;">
+        <button class="gear-btn" onclick="toggleSettingsMenu(event)">⚙️</button>
+        <div class="settings-dropdown" id="settingsDropdown">
+          <button onclick="toggleColorMode()">🎨 Sytost barev</button>
+          <button onclick="toggleTheme()" id="menuThemeBtn">🌙 Vzhled</button>
+          <div class="menu-divider"></div>
+          <button onclick="doLogout()" style="color: var(--color-text-danger);">🚪 Odhlásit</button>
+        </div>
       </div>
     </div>
 
@@ -347,6 +350,7 @@
   <!-- MODAL: VÝKAZY S MOŽNOSTÍ ZÁLOH -->
   <div class="edit-modal-bg" id="statsModalBg">
     <div class="edit-modal" style="width: min(600px, 100%); max-height:85vh; display:flex; flex-direction:column;">
+      <h3 id="statsMainTitle">📊 Výkazy směn</h3>
       <div id="statsPanelContent" style="margin-bottom: 1.5rem; overflow-y:auto; flex:1;"></div>
       <div class="edit-btns"><button class="btn-cancel" onclick="closeStatsModal()">Zavřít</button></div>
     </div>
@@ -378,7 +382,7 @@
       <img id="photoViewerImg" style="max-width: 100%; max-height: 100%; border-radius: 8px; object-fit: contain; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
   </div>
 
-  <!-- MODAL PRO POKOJ (Jen prohlížení kalendáře a poznámky) -->
+  <!-- MODAL PRO POKOJ -->
   <div class="modal-bg" id="modalBg">
     <div class="modal">
       <div class="modal-top">
@@ -536,7 +540,6 @@
   import { getDatabase, ref, onValue, set, get, child } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
   import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
   import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-messaging.js";
-
   const firebaseConfig = {
     apiKey: "AIzaSyADuzLjk-9pp56rDCphkG20GGghNI2ZOCY",
     authDomain: "penzionmanagement.firebaseapp.com",
@@ -590,14 +593,17 @@
           currentUser = { email: email, ...ROLE_PERMISSIONS[userRecord.role], lastViewedBookings: userRecord.lastViewedBookings || 0 }; errEl.textContent = '';
           document.getElementById('screenLogin').classList.remove('active'); document.getElementById('screenApp').classList.add('active');
           
-          // Nastavení zobrazení jména a menu
+          // Nastavení zobrazení jména, role a menu
           const displayName = userRecord.nickname || ROLE_PERMISSIONS[userRecord.role].label;
-          document.getElementById('userInfo').innerHTML = `<span style="font-weight:700; color:var(--color-text-primary); font-size:14px;">${displayName}</span>`;
+          const badgeClass = ROLE_PERMISSIONS[userRecord.role].badge;
+          const roleName = ROLE_PERMISSIONS[userRecord.role].role;
+          
+          document.getElementById('userInfo').innerHTML = `<span style="font-weight:700; color:var(--color-text-primary); font-size:14px;">${displayName}</span> <span class="role-badge ${badgeClass}">${roleName}</span>`;
           
           document.getElementById('myShiftBtn').style.display = currentUser.canLogShift ? 'inline-block' : 'none';
-          document.getElementById('menuActionsWrap').style.display = 'block';
+          document.getElementById('menuActionsWrap').style.display = 'flex';
           
-          const statsBtn = document.getElementById('menuStatsBtn');
+          const statsBtn = document.getElementById('topStatsBtn');
           statsBtn.style.display = currentUser.canSeeStatsPanel ? 'flex' : 'none';
 
           requestNotificationPermission(key); startDatabaseListener();
@@ -627,7 +633,7 @@
         document.getElementById('generalNotes').value = generalNotes; autoResize(document.getElementById('generalNotes'));
         renderRooms(); renderMiniStats(); renderStaffTasks();
         if (document.getElementById('statsModalBg').classList.contains('open')) { 
-            // Pokud jsme v archivu záloh, nepřekreslujeme
+            // Pokud jsme v archivu záloh, nepřekreslujeme aktivně
         }
         checkAndShowNewBookings();
         if(document.getElementById('usersAdminBg').classList.contains('open')) { renderUsersAdmin(); }
