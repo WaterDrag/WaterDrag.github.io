@@ -553,6 +553,36 @@
 
   const app = initializeApp(firebaseConfig); const db = getDatabase(app); const auth = getAuth(app); const messaging = getMessaging(app); const googleProvider = new GoogleAuthProvider();
 
+/* =========================================================================
+   * VYSVĚTLIVKY K JEDNOTLIVÝM OPRÁVNĚNÍM (PERMISSIONS):
+   * =========================================================================
+   * canEdit: true/false
+   *   - Zobrazí tlačítko tužky (✎) na kartě pokoje.
+   *   - Dovoluje otevírat nastavení pokoje (změna názvu, ikony, placených úkonů, štítků).
+   * 
+   * canDelete: true/false
+   *   - Zobrazí tlačítko křížku (✕) u existujících rezervací v kalendáři pokoje.
+   *   - Dovoluje mazat rezervace (přidávat a upravovat nové rezervace mohou všichni kromě role 'staff').
+   * 
+   * canToggle: true/false
+   *   - Dovoluje klikat na stavová tlačítka uvnitř pokoje (Uklizeno/Špinavé a vlastní stavy).
+   *   - Dovoluje mazat nahrané fotky závad.
+   * 
+   * canSeeStatsPanel: true/false
+   *   - Zobrazí tlačítko grafu (📊) v horní liště.
+   *   - Dovoluje vůbec otevřít okno "Výkazy směn" a prohlížet archivy.
+   * 
+   * canSeeAllStats: true/false
+   *   - Pokud je TRUE: Uživatel ve výkazech vidí VŠECHNY lidi a má právo udělat "Vynulovat vše" (uzávěrku).
+   *   - Pokud je FALSE: Uživatel ve výkazech vidí pouze sám sebe a své peníze.
+   * 
+   * canLogShift: true/false
+   *   - Zobrazí tlačítko "💼 Moje směna" v horní liště.
+   *   - Dovoluje uživateli zadávat si odpracované hodiny a odškrtávat placené úkoly.
+   * ========================================================================= */
+
+
+  
   // Oprávnění
   const ROLE_PERMISSIONS = {
     staff: { role:'staff', label:'Zaměstnanec', badge:'badge-staff', canEdit:false, canDelete:false, canToggle:true, canSeeStatsPanel:true, canSeeAllStats:false, canLogShift:true },
