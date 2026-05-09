@@ -267,13 +267,13 @@
   <div class="edit-modal-bg" id="shiftBg">
     <div class="edit-modal" style="width: min(450px, 100%)">
       <h3>💼 Moje dnešní směna</h3>
-      <p style="font-size:12px; color:var(--color-text-secondary); margin-bottom:16px;">Zadejte odpracované hodiny a naklikejte placené úkony. Údaje se odesílají vedení.</p>
-      
-      <label>Odpracované hodiny (např. 8.5)</label>
-      <input type="number" step="0.5" id="myShiftHours" placeholder="Počet hodin" style="margin-bottom:20px;">
+      <p style="font-size:12px; color:var(--color-text-secondary); margin-bottom:16px;">Naklikejte placené úkony a zadejte odpracované hodiny. Údaje se odesílají vedení.</p>
       
       <label>Placené úkony (napříč pokoji):</label>
       <div id="myShiftRoomsList" style="margin-bottom:16px; border-top:1px solid var(--color-border-secondary); padding-top:8px;"></div>
+
+      <label style="margin-top:20px;">Odpracované hodiny (např. 8.5)</label>
+      <input type="number" step="0.5" id="myShiftHours" placeholder="Počet hodin" style="margin-bottom:16px;">
 
       <label>Poznámka k dnešní směně/hodinám:</label>
       <textarea id="myShiftNote" placeholder="Dnes jsem pracovala navíc, protože..." style="width:100%; min-height:60px; padding:12px; border-radius:var(--border-radius-md); border:1px solid var(--color-border-secondary); background:var(--color-background-primary); color:var(--color-text-primary); font-family:'Lato',sans-serif; resize:vertical; outline:none; margin-bottom:16px;"></textarea>
@@ -865,7 +865,6 @@
     document.getElementById('emojiPick').innerHTML = EMOJIS.map(e => `<span class="${(!isCustomEmoji && e===curEmoji)?'sel':''}" onclick="selEmoji(this)">${e}</span>`).join('');
     document.getElementById('customEmojiInput').value = isCustomEmoji ? curEmoji : '';
     
-    // Vyčištění textových polí pro přidávání položek pro jistotu
     document.getElementById('newPaidTaskName').value = ''; document.getElementById('newPaidTaskPrice').value = '';
     document.getElementById('newCustomText').value = ''; document.getElementById('newCustomLink').value = '';
     document.getElementById('newCustomStatusRed').value = ''; document.getElementById('newCustomStatusGreen').value = '';
@@ -889,7 +888,6 @@
     let finalEmoji = document.getElementById('customEmojiInput').value.trim();
     if(!finalEmoji) { const sel = document.querySelector('.emoji-pick span.sel'); finalEmoji = sel ? sel.textContent : '🛏️'; }
 
-    // BLBUVZDORNOST: Pokud uživatel vyplnil políčka, ale neklikl na tlačítko +, uložíme to za něj automaticky
     const pendingPaidName = document.getElementById('newPaidTaskName').value.trim();
     if (pendingPaidName) {
       const pendingPaidPrice = parseFloat(document.getElementById('newPaidTaskPrice').value) || 0;
