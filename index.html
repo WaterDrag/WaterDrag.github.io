@@ -471,7 +471,10 @@
     owner: { role:'owner', label:'Majitelka', badge:'badge-owner', canEdit:false, canDelete:false, canToggle:false, canSeeStats:false, canLogShift:false }
   };
   const EMOJIS=['🛏️','🏨','🍳','🍽️','☕','🚗','🚲','⛺','🌊','🌿','🔑','🛁','🍾','🌅','🌙','🏔️','🌸','🎋','🦋','🕯️','🍷','🐶','🚿','🔥'];
-  const BOOKING_COLORS = ['#60A5FA', '#34D399', '#FBBF24', '#F87171', '#C084FC', '#FB923C', '#2DD4BF', '#F472B6'];
+  
+  // ZCELA NOVÁ KONTRASTNÍ BAREVNÁ PALETA (Modrá, Oranžová, Limetková, Růžová, Žlutá, Fialová, Tyrkysová, Červená)
+  const BOOKING_COLORS = ['#60A5FA', '#FB923C', '#84CC16', '#F472B6', '#FBBF24', '#C084FC', '#2DD4BF', '#F87171'];
+  
   const defaultRooms=[{name:'Pokoj 101',emoji:'🛏️', isDirty: false}, {name:'Deluxe Suite',emoji:'🏨', isDirty: false}];
 
   let rooms = []; let bookings = {}; let notes = {}; let generalNotes = ''; let staffTasks = []; let authorizedUsers = {}; 
@@ -576,8 +579,6 @@
 
   function autoDirtyCheck() {
     const todayStr = getLocalIsoDate(); let changed = false;
-
-    // --- NOVÉ: Promazávání starých rezervací (starší než 90 dní) ---
     const cutoffDate = new Date(); cutoffDate.setDate(cutoffDate.getDate() - 90);
     const cutoffStr = cutoffDate.getFullYear() + '-' + String(cutoffDate.getMonth()+1).padStart(2,'0') + '-' + String(cutoffDate.getDate()).padStart(2,'0');
 
@@ -588,7 +589,6 @@
         if (bookings[roomIdx].length !== originalLen) changed = true;
       }
     }
-    // ---------------------------------------------------------------
 
     rooms.forEach((r, i) => {
       if(r.isDirty === undefined) { r.isDirty = false; changed = true; }
