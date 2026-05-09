@@ -86,9 +86,9 @@
   .status-clean{background:#DCFCE7;color:#166534} .status-dirty{background:#FEE2E2;color:#991B1B}
   body.dark-mode .status-clean{background:#064e3b;color:#34d399} body.dark-mode .status-dirty{background:#450a0a;color:#f87171}
 
-  .edit-btn{position:absolute;top:8px;right:8px;background:rgba(255,255,255,0.9);color:#18181b;border:1px solid var(--color-border-secondary);border-radius:50%;width:32px;height:32px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s,transform 0.2s;z-index:3}
+  .edit-btn{position:absolute;top:8px;right:8px;background:rgba(255,255,255,0.9);color:#18181b;border:1px solid var(--color-border-secondary);border-radius:50%;width:32px;height:32px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;z-index:3}
   body.dark-mode .edit-btn { background: rgba(0,0,0,0.8); color: #fff; }
-  .room-card:hover .edit-btn{opacity:1} .edit-btn:hover{transform:scale(1.1)}
+  .room-card:hover .edit-btn{opacity:1}
 
   .general-notes-wrap{max-width:1200px;margin:0 auto 1.5rem;padding:0 24px}
 
@@ -512,12 +512,12 @@
 
   const app = initializeApp(firebaseConfig); const db = getDatabase(app); const auth = getAuth(app); const messaging = getMessaging(app); const googleProvider = new GoogleAuthProvider();
 
-  // ZMĚNA PRÁV PRO MAJITELKU: Odemčeny funkce mazání, úpravy pokojů a správa výkazů
+  // ZMĚNA PRÁV PRO MAJITELKU: Odemčeny funkce mazání a editace
   const ROLE_PERMISSIONS = {
     staff: { role:'staff', label:'Zaměstnanec', badge:'badge-staff', canEdit:false, canDelete:false, canToggle:true, canSeeStatsPanel:true, canSeeAllStats:false, canLogShift:true },
     main_staff: { role:'main_staff', label:'Hlavní Staff', badge:'badge-admin', canEdit:false, canDelete:false, canToggle:true, canSeeStatsPanel:true, canSeeAllStats:true, canLogShift:true },
     admin: { role:'admin', label:'Admin', badge:'badge-admin', canEdit:true, canDelete:true, canToggle:true, canSeeStatsPanel:true, canSeeAllStats:false, canLogShift:true },
-    owner: { role:'owner', label:'Majitelka', badge:'badge-owner', canEdit:true, canDelete:true, canToggle:true, canSeeStatsPanel:true, canSeeAllStats:true, canLogShift:false }
+    owner: { role:'owner', label:'Majitelka', badge:'badge-owner', canEdit:true, canDelete:true, canToggle:true, canSeeStatsPanel:false, canSeeAllStats:false, canLogShift:false }
   };
   const EMOJIS=['🛏️','🏨','🍳','🍽️','☕','🚗','🚲','⛺','🌊','🌿','🔑','🛁','🍾','🌅','🌙','🏔️','🌸','🎋','🦋','🕯️','🍷','🐶','🚿','🔥'];
   const BOOKING_COLORS = ['#60A5FA', '#FB923C', '#84CC16', '#F472B6', '#FBBF24', '#C084FC', '#2DD4BF', '#F87171'];
@@ -981,6 +981,9 @@
   function getBookedDaysMap() {
     const map = {};
     (bookings[curRoom]||[]).forEach((b, i) => {
+      // Ignorovat rezervaci, kterou zrovna upravujeme, ať neruší barvami kalendář
+      if (editBookingIdx === i) return; 
+      
       const color = BOOKING_COLORS[i % BOOKING_COLORS.length];
       let d = new Date(b.from + 'T00:00:00'); const end = new Date(b.to + 'T00:00:00');
       while(d <= end) {
@@ -1021,7 +1024,9 @@
           if(dayMap[ds].length === 1) style = `background: ${dayMap[ds][0]}; border-color: rgba(0,0,0,0.1);`;
           else style = `background: linear-gradient(135deg, ${dayMap[ds][0]} 50%, ${dayMap[ds][1]} 50%); border-color: rgba(0,0,0,0.1);`;
       }
-      if (selStart === ds || selEnd === ds) cls += ' sel-node'; else if (selStart && selEnd && ds > selStart && ds < selEnd) cls += ' sel-mid';
+      if (selStart === ds || selEnd === ds) { cls += ' sel-node'; style = ''; }
+      else if (selStart && selEnd && ds > selStart && ds < selEnd) { cls += ' sel-mid'; style = ''; }
+      
       html += `<div class="${cls}" style="${style}" onclick="calDayClick('${ds}')">${d}</div>`;
     } g.innerHTML = html;
   }
@@ -1045,16 +1050,17 @@
   }
 
   function cancelBookingEdit() {
-    editBookingIdx = -1; selStart = null; selEnd = null;
-    document.getElementById('dateFrom').value = ''; document.getElementById('dateTo').value = ''; document.getElementById('bookingNote').value = '';
+    editBookingIdx = -1; resetCalendarSelection();
+    document.getElementById('bookingNote').value = '';
     document.getElementById('saveBookingBtn').textContent = '+ Přidat rezervaci'; document.getElementById('saveBookingBtn').style.background = '';
     document.getElementById('cancelEditBtn').style.display = 'none'; document.getElementById('bookingHelpText').innerHTML = '💡 Klikněte 2x do kalendáře (Příjezd a Odjezd)';
-    autoResize(document.getElementById('bookingNote')); renderCalendar(); renderBookings();
+    autoResize(document.getElementById('bookingNote')); renderBookings();
   }
 
   function renderBookings() {
     const list = bookings[curRoom] || []; const el = document.getElementById('bookingsList'); const canDel = currentUser && currentUser.canDelete; 
     if(!list.length) { el.innerHTML = ''; return; }
+    
     el.innerHTML = list.map((b,i) => {
         const color = BOOKING_COLORS[i % BOOKING_COLORS.length];
         return `<div class="booking-item" style="border-left: 4px solid ${color};"><div><div class="booking-dates">${fmt(b.from)} → ${fmt(b.to)}</div>${b.note ? `<div class="booking-note">${b.note}</div>` : ''}</div><div style="display:flex; gap:4px;">${canDel ? `<button class="del-btn" style="color:var(--color-text-primary); font-size:14px;" onclick="editBooking(${i})" title="Upravit">✎</button> <button class="del-btn" style="font-size:14px;" onclick="delBooking(${i})" title="Smazat">✕</button>` : ''}</div></div>`;
