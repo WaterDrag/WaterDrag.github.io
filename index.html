@@ -198,6 +198,11 @@
   .task-label {display:flex; align-items:center; gap:12px; cursor:pointer; flex:1;}
   .task-checkbox {width:18px; height:18px; accent-color:var(--color-text-primary);}
 
+  /* Seznam propojených pokojů */
+  .linked-rooms-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; background: var(--color-background-secondary); padding: 12px; border-radius: var(--border-radius-md); max-height: 160px; overflow-y: auto; border: 1px solid var(--color-border-secondary); }
+  .linked-rooms-list label { font-size: 14px; margin: 0; display: flex; align-items: center; gap: 10px; cursor: pointer; color: var(--color-text-primary); text-transform: none; font-weight: 400; }
+  .linked-rooms-list input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: var(--color-text-primary); }
+
   @media (max-width: 640px) {
     .hotel-header { padding-top: 3.5rem; padding-bottom: 1.25rem; }
     .user-info { top: 1.25rem; left: 1rem; transform: none; font-size: 13px; }
@@ -335,6 +340,10 @@
       <input type="text" id="editName" maxlength="22">
       <label>Ikona</label>
       <div class="emoji-pick" id="emojiPick"></div>
+      
+      <!-- Kontejner pro vazby (pro sdílené pokoje) -->
+      <div id="linkedRoomsWrap"></div>
+
       <div class="edit-btns">
         <button class="btn-save" onclick="saveEdit()">Uložit</button>
         <button class="btn-delete-room" id="delRoomBtn" onclick="deleteRoom()">Smazat</button>
@@ -394,7 +403,6 @@ const firebaseConfig = {
   const messaging = getMessaging(app);
   const googleProvider = new GoogleAuthProvider();
 
-  // Oprávnění spojená s rolemi (Owner má zablokované úpravy a mazání)
   const ROLE_PERMISSIONS = {
     staff: { role:'staff', label:'Zaměstnanec', badge:'badge-staff', canEdit:false, canDelete:false, canToggle:true },
     admin: { role:'admin', label:'Admin', badge:'badge-admin', canEdit:true, canDelete:true, canToggle:true },
@@ -424,20 +432,15 @@ const firebaseConfig = {
   const savedTheme = localStorage.getItem('hr_theme');
   document.getElementById('themeToggleBtn').textContent = savedTheme === 'dark' ? '☀️' : '🌙';
 
-  // --- KROK 1: NEJPRVE SE POUZE ČEKÁ NA OVĚŘENÍ AUTENTIZACE ---
   onAuthStateChanged(auth, async (user) => {
     const errEl = document.getElementById('loginErr');
-    
     if (user) {
       const email = user.email.toLowerCase();
       const key = email.replace(/\./g, '_');
-
       try {
         errEl.textContent = 'Ověřuji oprávnění v databázi...';
-        
         const snapshot = await get(child(ref(db), 'authorizedUsers/' + key));
         let userRecord = snapshot.val();
-
         if (!userRecord) {
            const allUsersSnap = await get(child(ref(db), 'authorizedUsers'));
            if (!allUsersSnap.exists()) {
@@ -445,19 +448,15 @@ const firebaseConfig = {
               await set(ref(db, 'authorizedUsers/' + key), userRecord);
            }
         }
-
         if (userRecord && ROLE_PERMISSIONS[userRecord.role]) {
           const roleData = ROLE_PERMISSIONS[userRecord.role];
           currentUser = { email: email, ...roleData };
           errEl.textContent = '';
-          
           document.getElementById('screenLogin').classList.remove('active');
           document.getElementById('screenApp').classList.add('active');
           document.getElementById('userInfo').innerHTML = `${currentUser.label} <span class="role-badge ${currentUser.badge}">${currentUser.role}</span>`;
-
           requestNotificationPermission(key);
           startDatabaseListener();
-          
         } else {
           errEl.textContent = 'Váš e-mail nemá oprávnění k přístupu. Kontaktujte administrátora.';
           signOut(auth);
@@ -469,10 +468,7 @@ const firebaseConfig = {
       }
     } else {
       currentUser = null;
-      if(dbListenerObj) {
-        dbListenerObj(); 
-        dbListenerObj = null;
-      }
+      if(dbListenerObj) { dbListenerObj(); dbListenerObj = null; }
       document.getElementById('screenApp').classList.remove('active');
       document.getElementById('screenLogin').classList.add('active');
       document.getElementById('loginEmail').value = '';
@@ -481,10 +477,8 @@ const firebaseConfig = {
     }
   });
 
-  // --- KROK 2: FUNKCE NA PŘIPOJENÍ K DATABÁZI ---
   function startDatabaseListener() {
     if (dbListenerObj) return; 
-    
     dbListenerObj = onValue(ref(db, '/'), (snapshot) => {
       const data = snapshot.val();
       if (data) {
@@ -501,7 +495,6 @@ const firebaseConfig = {
         generalNotes = '';
         staffTasks = [];
       }
-
       if(currentUser && document.getElementById('screenApp').classList.contains('active')){
         document.getElementById('generalNotes').value = generalNotes;
         autoResize(document.getElementById('generalNotes'));
@@ -520,17 +513,8 @@ const firebaseConfig = {
 
   function saveToFirebase(){
     try {
-      set(ref(db, '/'), {
-        rooms: rooms,
-        bookings: bookings,
-        notes: notes,
-        generalNotes: generalNotes,
-        staffTasks: staffTasks,
-        authorizedUsers: authorizedUsers
-      });
-    } catch(e) {
-      console.error("Chyba uložení do databáze:", e);
-    }
+      set(ref(db, '/'), { rooms, bookings, notes, generalNotes, staffTasks, authorizedUsers });
+    } catch(e) { console.error("Chyba uložení:", e); }
   }
 
   function getLocalIsoDate(daysOffset = 0) {
@@ -542,13 +526,26 @@ const firebaseConfig = {
   function autoDirtyCheck() {
     const todayStr = getLocalIsoDate();
     let changed = false;
+    
     rooms.forEach((r, i) => {
       if(r.isDirty === undefined) { r.isDirty = false; changed = true; }
+      
       (bookings[i]||[]).forEach(b => {
         if (b.to <= todayStr && !b.dirtyTriggered) {
+          // Hlavní pokoj se zašpiní
           r.isDirty = true;
           b.dirtyTriggered = true;
           changed = true;
+
+          // NOVINKA: Znečištění navázaných pokojů (např. kuchyně)
+          rooms.forEach((linkedRoom) => {
+            if (linkedRoom.linkedRooms && linkedRoom.linkedRooms.includes(i)) {
+              if(!linkedRoom.isDirty) {
+                 linkedRoom.isDirty = true;
+                 changed = true;
+              }
+            }
+          });
         }
       });
     });
@@ -572,25 +569,17 @@ const firebaseConfig = {
     const p = document.getElementById('loginPass').value;
     const err = document.getElementById('loginErr');
     err.textContent = 'Přihlašování...';
-    
-    signInWithEmailAndPassword(auth, e, p).catch((error) => {
-      err.textContent = 'Špatný e-mail nebo heslo.';
-    });
+    signInWithEmailAndPassword(auth, e, p).catch(() => { err.textContent = 'Špatný e-mail nebo heslo.'; });
   }
 
   function loginWithGoogle(){
     const err = document.getElementById('loginErr');
     err.textContent = 'Otevírám Google...';
-    signInWithPopup(auth, googleProvider).catch((error) => {
-      err.textContent = 'Přihlášení přes Google bylo zrušeno nebo selhalo.';
-    });
+    signInWithPopup(auth, googleProvider).catch(() => { err.textContent = 'Přihlášení zrušeno nebo selhalo.'; });
   }
 
-  function doLogout(){
-    signOut(auth);
-  }
+  function doLogout(){ signOut(auth); }
 
-  // --- AUTOMATICKÉ ZVĚTŠOVÁNÍ TEXTU ---
   function autoResize(el) {
     if(!el) return;
     el.style.height = 'auto';
@@ -598,152 +587,80 @@ const firebaseConfig = {
   }
   window.autoResize = autoResize;
 
-  // --- SPRÁVA UŽIVATELŮ (ADMIN PANEL) ---
-  function openUsersAdmin() {
-    renderUsersAdmin();
-    document.getElementById('usersAdminBg').classList.add('open');
-  }
-
-  function closeUsersAdmin() {
-    document.getElementById('usersAdminBg').classList.remove('open');
-  }
-
+  // --- SPRÁVA UŽIVATELŮ ---
+  function openUsersAdmin() { renderUsersAdmin(); document.getElementById('usersAdminBg').classList.add('open'); }
+  function closeUsersAdmin() { document.getElementById('usersAdminBg').classList.remove('open'); }
   function renderUsersAdmin() {
     const tbody = document.getElementById('usersTableBody');
     let html = '';
-    
     for (const key in authorizedUsers) {
       const u = authorizedUsers[key];
       const badge = ROLE_PERMISSIONS[u.role].badge;
-      html += `
-        <tr>
-          <td>${u.email}</td>
-          <td><span class="role-badge ${badge}">${u.role}</span></td>
-          <td style="text-align:right">
-            ${u.email !== currentUser.email ? `<button class="del-btn" onclick="deleteUserRole('${key}')">✕</button>` : ''}
-          </td>
-        </tr>
-      `;
+      html += `<tr><td>${u.email}</td><td><span class="role-badge ${badge}">${u.role}</span></td>
+      <td style="text-align:right">${u.email !== currentUser.email ? `<button class="del-btn" onclick="deleteUserRole('${key}')">✕</button>` : ''}</td></tr>`;
     }
     tbody.innerHTML = html;
   }
-
   function addUserRole() {
     const email = document.getElementById('newUserEmail').value.trim().toLowerCase();
     const role = document.getElementById('newUserRole').value;
     if(!email) return;
-
     const key = email.replace(/\./g, '_');
     authorizedUsers[key] = { email: email, role: role };
     saveToFirebase();
-    
     document.getElementById('newUserEmail').value = '';
     renderUsersAdmin();
   }
-
   function deleteUserRole(key) {
     if(confirm('Opravdu chcete tomuto e-mailu odebrat přístup?')) {
-      delete authorizedUsers[key];
-      saveToFirebase();
-      renderUsersAdmin();
+      delete authorizedUsers[key]; saveToFirebase(); renderUsersAdmin();
     }
   }
 
   // --- ÚKOLY PRO PERSONÁL ---
   function renderStaffTasks() {
     const wrap = document.getElementById('staffTasksWrap');
-    // Owner nesmí vidět tyto tajné úkoly
-    if (!currentUser || currentUser.role === 'owner') {
-      wrap.style.display = 'none';
-      return;
-    }
+    if (!currentUser || currentUser.role === 'owner') { wrap.style.display = 'none'; return; }
     wrap.style.display = 'block';
-
     const list = document.getElementById('staffTasksList');
-    if (!staffTasks.length) {
-      list.innerHTML = '<div style="font-size:13px; color:var(--color-text-secondary); margin-bottom:12px;">Aktuálně nejsou žádné úkoly.</div>';
-      return;
-    }
-
+    if (!staffTasks.length) { list.innerHTML = '<div style="font-size:13px; color:var(--color-text-secondary); margin-bottom:12px;">Aktuálně nejsou žádné úkoly.</div>'; return; }
     list.innerHTML = staffTasks.map((t, i) => `
-      <div class="task-item">
-        <label class="task-label">
-          <input type="checkbox" class="task-checkbox" ${t.done ? 'checked' : ''} onchange="toggleStaffTask(${i})">
-          <span style="${t.done ? 'text-decoration:line-through; color:var(--color-text-secondary);' : 'color:var(--color-text-primary);'} font-size:14px; word-break:break-word;">
-            ${t.text}
-          </span>
-        </label>
-        <button class="del-btn" onclick="deleteStaffTask(${i})">✕</button>
-      </div>
+      <div class="task-item"><label class="task-label">
+      <input type="checkbox" class="task-checkbox" ${t.done ? 'checked' : ''} onchange="toggleStaffTask(${i})">
+      <span style="${t.done ? 'text-decoration:line-through; color:var(--color-text-secondary);' : 'color:var(--color-text-primary);'} font-size:14px; word-break:break-word;">${t.text}</span>
+      </label><button class="del-btn" onclick="deleteStaffTask(${i})">✕</button></div>
     `).join('');
   }
-
   function addStaffTask() {
-    const input = document.getElementById('newStaffTask');
-    const text = input.value.trim();
-    if (!text) return;
-    staffTasks.push({ text: text, done: false });
-    saveToFirebase();
-    input.value = '';
+    const input = document.getElementById('newStaffTask'); const text = input.value.trim();
+    if (!text) return; staffTasks.push({ text: text, done: false }); saveToFirebase(); input.value = '';
   }
+  function toggleStaffTask(i) { staffTasks[i].done = !staffTasks[i].done; saveToFirebase(); }
+  function deleteStaffTask(i) { staffTasks.splice(i, 1); saveToFirebase(); }
 
-  function toggleStaffTask(i) {
-    staffTasks[i].done = !staffTasks[i].done;
-    saveToFirebase();
-  }
-
-  function deleteStaffTask(i) {
-    staffTasks.splice(i, 1);
-    saveToFirebase();
-  }
-
-  // --- ZBYTEK APLIKACE ---
   async function requestNotificationPermission(userEmailKey) {
   try {
-    console.log('Žádám o povolení notifikací...');
     const permission = await Notification.requestPermission();
-    
     if (permission === 'granted') {
-      console.log('Povolení uděleno!');
-      
       const currentToken = await getToken(messaging, { vapidKey: 'BIoCmJ-hEN_QLVC2sVdcBtHc-n92Ojf7No6T2GYPX90oydHJQLkGFvnBR7N2JLVzPgisDn_ZzFXvmCmVIVHW7BU' });
-      
-      if (currentToken) {
-        await set(ref(db, `authorizedUsers/${userEmailKey}/notificationToken`), currentToken);
-        console.log('Token uložen:', currentToken);
-      }
-    } else {
-      console.log('Uživatel notifikace nepovolil.');
+      if (currentToken) await set(ref(db, `authorizedUsers/${userEmailKey}/notificationToken`), currentToken);
     }
-  } catch (error) {
-    console.error('Chyba při žádosti o notifikace:', error);
+  } catch (error) { console.error('Chyba notifikací:', error); }
   }
-}
+
   function renderRooms(){
     autoDirtyCheck();
-    
-    // POUZE ADMIN VIDÍ HORNÍ MENU
-    const adminWrap = document.getElementById('adminActionsWrap');
-    adminWrap.style.display = (currentUser && currentUser.role === 'admin') ? 'flex' : 'none';
-
+    document.getElementById('adminActionsWrap').style.display = (currentUser && currentUser.role === 'admin') ? 'flex' : 'none';
     const g=document.getElementById('roomsGrid');
-    const canEditRoom = currentUser && currentUser.canEdit; // Pouze admin může editovat
-
+    const canEditRoom = currentUser && currentUser.canEdit;
     g.innerHTML=rooms.map((r,i)=> {
       const stateClass = getRoomStateClass(i);
-      return `
-      <div class="room-card ${stateClass}" onclick="openRoom(${i})">
-        <div class="room-img">
-          <span class="emoji">${r.emoji}</span>
+      return `<div class="room-card ${stateClass}" onclick="openRoom(${i})">
+        <div class="room-img"><span class="emoji">${r.emoji}</span>
           ${canEditRoom?`<button class="edit-btn" onclick="event.stopPropagation();openEdit(${i})" title="Upravit/Smazat">✎</button>`:''}
-          <div class="room-status-badge ${r.isDirty ? 'status-dirty' : 'status-clean'}">
-            ${r.isDirty ? '🔴 Špinavý' : '🟢 Uklizený'}
-          </div>
+          <div class="room-status-badge ${r.isDirty ? 'status-dirty' : 'status-clean'}">${r.isDirty ? '🔴 Špinavý' : '🟢 Uklizený'}</div>
         </div>
-        <div class="room-label">
-          <div class="room-name">${r.name}</div>
-          <div class="room-num">${(bookings[i]||[]).length} rezervací</div>
-        </div>
+        <div class="room-label"><div class="room-name">${r.name}</div><div class="room-num">${(bookings[i]||[]).length} rezervací</div></div>
       </div>`
     }).join('');
   }
@@ -756,6 +673,21 @@ const firebaseConfig = {
     const curEmoji = isNew ? EMOJIS[0] : rooms[i].emoji;
     const ep = document.getElementById('emojiPick');
     ep.innerHTML = EMOJIS.map(e=>`<span class="${e===curEmoji?'sel':''}" onclick="selEmoji(this,'${e}')">${e}</span>`).join('');
+    
+    // Vygenerování seznamu checkboxů pro propojené pokoje (vazby)
+    let lrHtml = '<label style="margin-top:20px;">Propojit s pokoji (zašpiní se, když z nich někdo odjede):</label><div class="linked-rooms-list">';
+    const curLinked = (!isNew && rooms[i].linkedRooms) ? rooms[i].linkedRooms : [];
+    let hasOthers = false;
+    rooms.forEach((r, idx) => {
+      if (idx !== i) {
+        hasOthers = true;
+        const isChecked = curLinked.includes(idx);
+        lrHtml += `<label><input type="checkbox" value="${idx}" class="link-cb" ${isChecked ? 'checked' : ''}> ${r.name}</label>`;
+      }
+    });
+    lrHtml += '</div>';
+    document.getElementById('linkedRoomsWrap').innerHTML = hasOthers ? lrHtml : '';
+
     document.getElementById('delRoomBtn').style.display = isNew ? 'none' : 'block';
     document.getElementById('editBg').classList.add('open');
   }
@@ -765,9 +697,13 @@ const firebaseConfig = {
   function saveEdit(){
     const name=document.getElementById('editName').value.trim();
     const sel=document.querySelector('.emoji-pick span.sel');
+    
+    // Načtení všech zaškrtnutých pokojů z modalu
+    const linkedRooms = Array.from(document.querySelectorAll('.link-cb:checked')).map(cb => parseInt(cb.value));
+
     if(name && sel){
-      if(editIdx === -1) rooms.push({name, emoji: sel.textContent, isDirty: false});
-      else rooms[editIdx] = {name, emoji: sel.textContent, isDirty: rooms[editIdx].isDirty};
+      if(editIdx === -1) rooms.push({name, emoji: sel.textContent, isDirty: false, linkedRooms});
+      else rooms[editIdx] = {name, emoji: sel.textContent, isDirty: rooms[editIdx].isDirty, linkedRooms};
       saveToFirebase();
     }
     closeEdit();
@@ -775,43 +711,37 @@ const firebaseConfig = {
 
   function deleteRoom() {
     if(!confirm('Opravdu chcete smazat tento pokoj?\n\nVšechny rezervace a poznámky k tomuto pokoji budou nenávratně ztraceny!')) return;
+    
+    // Než pokoj smažeme, musíme u ostatních pokojů bezpečně smazat vazby na tento pokoj
+    rooms.forEach(r => {
+      if (r.linkedRooms) {
+        r.linkedRooms = r.linkedRooms
+          .filter(idx => idx !== editIdx) // Odstranit smazaný pokoj
+          .map(idx => idx > editIdx ? idx - 1 : idx); // Posunout indexy o 1 dolů
+      }
+    });
+
     rooms.splice(editIdx, 1);
-    let newBookings = {};
-    let newNotes = {};
+    let newBookings = {}; let newNotes = {};
     const oldLen = rooms.length + 1;
     for(let j=0; j < oldLen; j++) {
-      if (j < editIdx) {
-        if (bookings[j]) newBookings[j] = bookings[j];
-        if (notes[j]) newNotes[j] = notes[j];
-      } else if (j > editIdx) {
-        if (bookings[j]) newBookings[j-1] = bookings[j];
-        if (notes[j]) newNotes[j-1] = notes[j];
-      }
+      if (j < editIdx) { if (bookings[j]) newBookings[j] = bookings[j]; if (notes[j]) newNotes[j] = notes[j]; } 
+      else if (j > editIdx) { if (bookings[j]) newBookings[j-1] = bookings[j]; if (notes[j]) newNotes[j-1] = notes[j]; }
     }
-    bookings = newBookings;
-    notes = newNotes;
-    saveToFirebase();
-    closeEdit();
+    bookings = newBookings; notes = newNotes; saveToFirebase(); closeEdit();
   }
 
   function closeEdit(){document.getElementById('editBg').classList.remove('open');}
 
   function toggleDirty() {
     if(!currentUser || !currentUser.canToggle) return; 
-    rooms[curRoom].isDirty = !rooms[curRoom].isDirty;
-    saveToFirebase();
+    rooms[curRoom].isDirty = !rooms[curRoom].isDirty; saveToFirebase();
   }
 
   function updateStatusBtn() {
-    const btn = document.getElementById('toggleStatusBtn');
-    const canToggle = currentUser && currentUser.canToggle;
-    if (rooms[curRoom].isDirty) {
-      btn.textContent = canToggle ? '🧹 Označit jako Uklizený' : '🔴 Stav: Špinavý';
-      btn.className = 'toggle-status-btn btn-dirty';
-    } else {
-      btn.textContent = canToggle ? '🔴 Označit jako Špinavý' : '🟢 Stav: Uklizený';
-      btn.className = 'toggle-status-btn btn-clean';
-    }
+    const btn = document.getElementById('toggleStatusBtn'); const canToggle = currentUser && currentUser.canToggle;
+    if (rooms[curRoom].isDirty) { btn.textContent = canToggle ? '🧹 Označit jako Uklizený' : '🔴 Stav: Špinavý'; btn.className = 'toggle-status-btn btn-dirty'; } 
+    else { btn.textContent = canToggle ? '🔴 Označit jako Špinavý' : '🟢 Stav: Uklizený'; btn.className = 'toggle-status-btn btn-clean'; }
     btn.disabled = !canToggle;
   }
 
@@ -821,23 +751,14 @@ const firebaseConfig = {
     document.getElementById('modalSub').textContent='Pokoj '+(i+1)+' · sdílený kalendář';
     document.getElementById('roomNotes').value=notes[i]||'';
     updateStatusBtn();
-    
     const canBook = currentUser && currentUser.role !== 'staff';
     const formWrap = document.getElementById('bookingFormWrap');
     formWrap.style.display = canBook ? '' : 'none';
     document.getElementById('roomNotes').disabled = false;
     document.getElementById('saveNoteBtn').style.display = '';
-    
-    renderCalendar();
-    renderBookings();
-    
+    renderCalendar(); renderBookings();
     document.getElementById('modalBg').classList.add('open');
-    
-    // Zarovnání výšky textarea po načtení
-    setTimeout(() => {
-        autoResize(document.getElementById('roomNotes'));
-        autoResize(document.getElementById('bookingNote'));
-    }, 10);
+    setTimeout(() => { autoResize(document.getElementById('roomNotes')); autoResize(document.getElementById('bookingNote')); }, 10);
   }
 
   function closeModal(){document.getElementById('modalBg').classList.remove('open');}
@@ -845,18 +766,14 @@ const firebaseConfig = {
 
   function renderCalendar(){
     document.getElementById('calMonth').textContent=MONTHS[calMon]+' '+calYear;
-    const g=document.getElementById('calGrid');
-    const bookedDays=getBookedDays();
-    const today=new Date();
+    const g=document.getElementById('calGrid'); const bookedDays=getBookedDays(); const today=new Date();
     let html=DAYS.map(d=>`<div class="cal-header">${d}</div>`).join('');
-    const first=new Date(calYear,calMon,1);
-    let startDay=(first.getDay()+6)%7;
+    const first=new Date(calYear,calMon,1); let startDay=(first.getDay()+6)%7;
     for(let i=0;i<startDay;i++)html+=`<div class="cal-day empty"></div>`;
     const days=new Date(calYear,calMon+1,0).getDate();
     for(let d=1;d<=days;d++){
       const ds=`${calYear}-${String(calMon+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-      const isB=bookedDays.has(ds);
-      const isT=today.getFullYear()===calYear&&today.getMonth()===calMon&&today.getDate()===d;
+      const isB=bookedDays.has(ds); const isT=today.getFullYear()===calYear&&today.getMonth()===calMon&&today.getDate()===d;
       html+=`<div class="cal-day${isB?' booked':''}${isT?' today':''}">${d}</div>`;
     }
     g.innerHTML=html;
@@ -867,83 +784,49 @@ const firebaseConfig = {
     (bookings[curRoom]||[]).forEach(b=>{
       let d=new Date(b.from);const end=new Date(b.to);
       while(d<=end){s.add(d.toISOString().slice(0,10));d.setDate(d.getDate()+1);}
-    });
-    return s;
+    }); return s;
   }
 
   function addBooking(){
-    const from=document.getElementById('dateFrom').value;
-    const to=document.getElementById('dateTo').value;
+    const from=document.getElementById('dateFrom').value; const to=document.getElementById('dateTo').value;
     if(!from||!to)return; 
     if(!bookings[curRoom])bookings[curRoom]=[];
     bookings[curRoom].push({from,to,note:document.getElementById('bookingNote').value.trim(), dirtyTriggered: false});
     saveToFirebase();
-    document.getElementById('dateFrom').value='';
-    document.getElementById('dateTo').value='';
-    document.getElementById('bookingNote').value='';
+    document.getElementById('dateFrom').value=''; document.getElementById('dateTo').value=''; document.getElementById('bookingNote').value='';
     autoResize(document.getElementById('bookingNote'));
   }
 
   function renderBookings(){
-    const list=bookings[curRoom]||[];
-    const el=document.getElementById('bookingsList');
-    const canDel=currentUser&&currentUser.canDelete; // Owner už mazat nesmí
+    const list=bookings[curRoom]||[]; const el=document.getElementById('bookingsList'); const canDel=currentUser&&currentUser.canDelete; 
     if(!list.length){el.innerHTML='';return;}
     el.innerHTML=list.sort((a,b)=>a.from>b.from?1:-1).map((b,i)=>`
-      <div class="booking-item">
-        <div>
-          <div class="booking-dates">${fmt(b.from)} → ${fmt(b.to)}</div>
-          ${b.note?`<div class="booking-note">${b.note}</div>`:''}
-        </div>
-        ${canDel?`<button class="del-btn" onclick="delBooking(${i})" title="Smazat">✕</button>`:''}
-      </div>`).join('');
+      <div class="booking-item"><div><div class="booking-dates">${fmt(b.from)} → ${fmt(b.to)}</div>
+      ${b.note?`<div class="booking-note">${b.note}</div>`:''}</div>
+      ${canDel?`<button class="del-btn" onclick="delBooking(${i})" title="Smazat">✕</button>`:''}</div>`).join('');
   }
 
   function fmt(d){const p=d.split('-');return p[2]+'.'+p[1]+'.'+p[0];}
   function delBooking(i){bookings[curRoom].splice(i,1);saveToFirebase();}
   function saveNote(){
-    notes[curRoom]=document.getElementById('roomNotes').value;
-    saveToFirebase();
-    const s=document.getElementById('noteSaved');
-    s.style.opacity=1;setTimeout(()=>s.style.opacity=0,1800);
+    notes[curRoom]=document.getElementById('roomNotes').value; saveToFirebase();
+    const s=document.getElementById('noteSaved'); s.style.opacity=1;setTimeout(()=>s.style.opacity=0,1800);
   }
   function saveGeneralNote() {
-    generalNotes = document.getElementById('generalNotes').value;
-    saveToFirebase();
-    const s = document.getElementById('genNoteSaved');
-    s.style.opacity = 1;
-    setTimeout(() => s.style.opacity = 0, 1800);
+    generalNotes = document.getElementById('generalNotes').value; saveToFirebase();
+    const s = document.getElementById('genNoteSaved'); s.style.opacity = 1; setTimeout(() => s.style.opacity = 0, 1800);
   }
   function toggleTheme() {
-    const isDark = document.body.classList.toggle('dark-mode');
-    localStorage.setItem('hr_theme', isDark ? 'dark' : 'light');
+    const isDark = document.body.classList.toggle('dark-mode'); localStorage.setItem('hr_theme', isDark ? 'dark' : 'light');
     document.getElementById('themeToggleBtn').textContent = isDark ? '☀️' : '🌙';
   }
 
-  window.loginWithEmail = loginWithEmail;
-  window.loginWithGoogle = loginWithGoogle;
-  window.doLogout = doLogout;
-  window.openRoom = openRoom;
-  window.closeModal = closeModal;
-  window.changeMonth = changeMonth;
-  window.addBooking = addBooking;
-  window.delBooking = delBooking;
-  window.saveNote = saveNote;
-  window.saveGeneralNote = saveGeneralNote;
-  window.openEdit = openEdit;
-  window.closeEdit = closeEdit;
-  window.saveEdit = saveEdit;
-  window.deleteRoom = deleteRoom;
-  window.selEmoji = selEmoji;
-  window.toggleDirty = toggleDirty;
-  window.toggleTheme = toggleTheme;
-  window.openUsersAdmin = openUsersAdmin;
-  window.closeUsersAdmin = closeUsersAdmin;
-  window.addUserRole = addUserRole;
-  window.deleteUserRole = deleteUserRole;
-  window.addStaffTask = addStaffTask;
-  window.toggleStaffTask = toggleStaffTask;
-  window.deleteStaffTask = deleteStaffTask;
+  window.loginWithEmail = loginWithEmail; window.loginWithGoogle = loginWithGoogle; window.doLogout = doLogout; window.openRoom = openRoom;
+  window.closeModal = closeModal; window.changeMonth = changeMonth; window.addBooking = addBooking; window.delBooking = delBooking;
+  window.saveNote = saveNote; window.saveGeneralNote = saveGeneralNote; window.openEdit = openEdit; window.closeEdit = closeEdit;
+  window.saveEdit = saveEdit; window.deleteRoom = deleteRoom; window.selEmoji = selEmoji; window.toggleDirty = toggleDirty;
+  window.toggleTheme = toggleTheme; window.openUsersAdmin = openUsersAdmin; window.closeUsersAdmin = closeUsersAdmin; window.addUserRole = addUserRole;
+  window.deleteUserRole = deleteUserRole; window.addStaffTask = addStaffTask; window.toggleStaffTask = toggleStaffTask; window.deleteStaffTask = deleteStaffTask;
 
   document.getElementById('loginPass').addEventListener('keydown',function(e){if(e.key==='Enter')loginWithEmail();});
   document.getElementById('loginEmail').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('loginPass').focus();});
