@@ -50,7 +50,6 @@
   
   .user-info{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--color-text-secondary);display:flex;align-items:center}
   
-  /* --- Gear Menu (Ozubené kolo) a Tlačítko Výkazy --- */
   .settings-menu-wrap { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); z-index: 10000; display:flex; gap:8px; align-items:center;}
   .gear-btn { background: var(--color-background-primary); border: 1px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); color: var(--color-text-secondary); font-size: 20px; padding: 6px 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.1s ease, border-color 0.2s, background 0.2s; }
   .gear-btn:hover { border-color: var(--color-border-primary); background: var(--color-background-secondary); }
@@ -138,15 +137,12 @@
   .cal-day.empty{cursor:default}
   .cal-day.booked{color:#18181b !important;font-weight:700;} 
   
-  /* VYLEPŠENÉ ZVÝRAZNĚNÍ DNEŠNÍHO DNE */
   .cal-day.today { border: 3px solid var(--color-text-primary) !important; font-weight: 900 !important; font-size: 15px; transform: scale(1.15); position: relative; z-index: 5; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
   .cal-day.today.booked { color: #000 !important; text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0 0 8px #fff !important; }
   
-  /* --- KRESLENÍ VÝBĚRU REZERVACE V KALENDÁŘI --- */
   .cal-day.sel-node { background: var(--color-text-primary) !important; color: var(--color-background-primary) !important; border-color: var(--color-text-primary) !important; font-weight:bold; transform: scale(1.05); z-index:6; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
   .cal-day.sel-mid { background: var(--color-border-secondary) !important; color: var(--color-text-primary) !important; }
 
-  /* SPOLEČNÉ CHOVÁNÍ TLAČÍTEK (ANIMACE KLIKNUTÍ) */
   .add-btn, .login-btn, .btn-save, .btn-cancel, .btn-delete-room, .toggle-status-btn, .shift-counter-btn, .del-btn, .google-btn, .cal-nav-btn, .custom-btn { transition: transform 0.1s ease, background 0.2s, opacity 0.2s; }
   .add-btn:active, .login-btn:active, .btn-save:active, .btn-cancel:active, .btn-delete-room:active, .toggle-status-btn:active, .shift-counter-btn:active, .google-btn:active, .cal-nav-btn:active, .custom-btn:active { transform: scale(0.95); }
   .del-btn:active, .close-btn:active { transform: scale(0.85); }
@@ -189,7 +185,6 @@
   .edit-modal input[type="text"], .edit-modal input[type="number"], .admin-form input[type="email"], .admin-form input[type="text"], .admin-form input[type="number"], .edit-modal input[type="date"] {width:100%;padding:12px 14px;font-size:16px;border:1px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);font-family:'Lato',sans-serif;outline:none;appearance:none;}
   .edit-modal input[type="text"]:focus, .edit-modal input[type="number"]:focus, .edit-modal input[type="date"]:focus, .admin-form input[type="email"]:focus, .admin-form input[type="text"]:focus, .admin-form input[type="number"]:focus {border-color:var(--color-border-primary);}
   
-  /* VYLEPŠENÁ BARVA ZAŠKRTÁVÁTEK PRO LEPŠÍ VIDITELNOST */
   input[type="checkbox"] {appearance: auto !important; -webkit-appearance: checkbox !important; width: 18px !important; height: 18px !important; margin: 0; cursor: pointer; accent-color: #16A34A;}
   body.dark-mode input[type="checkbox"] {accent-color: #22c55e;}
 
@@ -210,7 +205,6 @@
   .linked-rooms-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; background: var(--color-background-secondary); padding: 12px; border-radius: var(--border-radius-md); max-height: 160px; overflow-y: auto; border: 1px solid var(--color-border-secondary); }
   .linked-rooms-list label { font-size: 14px; margin: 0; display: flex; align-items: center; gap: 10px; cursor: pointer; color: var(--color-text-primary); text-transform: none; font-weight: 400; }
 
-  /* Styl pro uživatele v modalu statistik */
   .stats-panel-user { margin-bottom:12px; font-size:13px; color:var(--color-text-secondary); border-bottom:1px solid var(--color-border-secondary); padding-bottom:8px;}
   .stats-panel-user strong { color:var(--color-text-primary); }
 
@@ -219,40 +213,26 @@
   .shift-counter-btn:hover { background:var(--color-border-tertiary); }
   .shift-counter-val { font-size:16px; font-weight:bold; color:var(--color-text-primary); width:40px; text-align:center;}
 
-  /* Záložky pro zálohy */
-  .backup-tab-btn { padding:6px 12px; font-size:12px; border-radius:4px; border:1px solid var(--color-border-primary); cursor:pointer; font-family:'Lato',sans-serif; transition:all 0.2s; white-space:nowrap; }
-
   @media (max-width: 640px) {
     .hotel-header { padding-top: 3.5rem; padding-bottom: 1.25rem; }
     .user-info { top: 1.25rem; left: 1rem; transform: none; font-size: 13px; }
-    
     .settings-menu-wrap { top: 1.25rem; transform: none; }
-    
     .hotel-title { font-size: 22px; margin-top: 0.5rem; }
     .mini-stats-wrap { margin: 0 16px 1.5rem; padding: 0; gap: 10px; justify-content: flex-start; }
     .stat-item { padding: 6px 12px; font-size: 12px; } .stat-val { padding: 2px 6px; font-size: 12px; }
     .rooms-grid { grid-template-columns: repeat(2, 1fr); padding: 0 16px 24px; gap: 12px; }
     .room-img .emoji { font-size: 40px; } .room-name { font-size: 14px; }
-    
     .modal-bg { padding: 0; align-items: flex-end; } .modal { border-radius: 24px 24px 0 0; max-height: 85vh; border: none; }
     .modal-top { border-radius: 24px 24px 0 0; padding: 1.5rem 1.5rem 1rem; } .modal-body { padding: 1.25rem 1.25rem 2.5rem; }
     .edit-modal-bg { padding: 0; align-items: flex-end; } .edit-modal { border-radius: 24px 24px 0 0; padding: 1.5rem 1.5rem 2.5rem; border: none; }
-    
-    /* Vlastní animace pro mobil (vysunutí zezdola) */
     @keyframes modalSlideUpPhone { 0% { opacity: 0; transform: translateY(100%); } 100% { opacity: 1; transform: translateY(0); } }
     .modal-bg.open .modal, .edit-modal-bg.open .edit-modal { animation: modalSlideUpPhone 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-    
     .cal-day { font-size: 12px; padding: 8px 0; }
     .add-btn, .btn-save, .btn-cancel, .btn-delete-room { padding: 14px 10px; } .general-notes-wrap { padding: 0 16px; margin-bottom: 2.5rem;}
   }
   </style>
 </head>
 <body>
-
-<script>
-  if(localStorage.getItem('hr_theme') === 'dark') document.body.classList.add('dark-mode');
-  if(localStorage.getItem('hr_color_mode') === 'vivid') document.body.classList.add('vivid-colors');
-</script>
 
 <div id="screenLogin" class="screen active">
   <div class="login-wrap">
@@ -263,7 +243,7 @@
         <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
         Přihlásit přes Google
       </button>
-      <div class="divider">Nebo e-mailem</div>
+      <div class="divider" style="text-align:center; margin:1rem 0; font-size:12px; color:var(--color-text-secondary);">Nebo e-mailem</div>
       <label class="login-label">E-mail</label>
       <input type="email" id="loginEmail" placeholder="vas@email.cz" autocomplete="email">
       <label class="login-label">Heslo</label>
@@ -284,7 +264,6 @@
     
     <div class="settings-menu-wrap" id="menuActionsWrap" style="display:none;">
       <button id="topStatsBtn" class="gear-btn" onclick="openStatsModal()" style="display:none; font-size:16px; padding:6px 10px;" title="Výkazy směn">📊</button>
-      
       <div style="position:relative;">
         <button class="gear-btn" onclick="toggleSettingsMenu(event)">⚙️</button>
         <div class="settings-dropdown" id="settingsDropdown">
@@ -295,7 +274,6 @@
         </div>
       </div>
     </div>
-
   </div>
   
   <div id="adminActionsWrap" class="admin-actions-wrap" style="display:none;">
@@ -304,7 +282,6 @@
   </div>
 
   <div id="miniStats" class="mini-stats-wrap"></div>
-
   <div class="rooms-grid" id="roomsGrid"></div>
 
   <div class="general-notes-wrap">
@@ -317,38 +294,34 @@
   </div>
 
   <div class="general-notes-wrap" id="staffTasksWrap" style="display:none;">
-    <div class="section-label">Úkoly pro personál (Skryté pro majitelku)</div>
+    <div class="section-label">Úkoly pro personál</div>
     <div id="staffTasksList"></div>
     <div style="display:flex; gap:8px; margin-top:12px;">
-      <input type="text" id="newStaffTask" placeholder="Nový úkol (např. vynést tříděný odpad)..." style="flex:1; padding:12px 14px; border-radius:var(--border-radius-md); border:1px solid var(--color-border-secondary); background:var(--color-background-primary); color:var(--color-text-primary); font-family:'Lato',sans-serif; outline:none;">
+      <input type="text" id="newStaffTask" placeholder="Nový úkol..." style="flex:1; padding:12px 14px; border-radius:var(--border-radius-md); border:1px solid var(--color-border-secondary); background:var(--color-background-primary); color:var(--color-text-primary); font-family:'Lato',sans-serif; outline:none;">
       <button class="add-btn" onclick="addStaffTask()">Přidat úkol</button>
     </div>
   </div>
 
+  <!-- MODAL: Moje směna -->
   <div class="edit-modal-bg" id="shiftBg">
     <div class="edit-modal" style="width: min(450px, 100%)">
       <h3>💼 Moje směna</h3>
-      <p style="font-size:12px; color:var(--color-text-secondary); margin-bottom:16px;">Vyberte datum, naklikejte placené úkony a zadejte odpracované hodiny.</p>
-      
       <label>Vyberte den:</label>
       <input type="date" id="shiftDateSelect" onchange="changeShiftDate()" style="margin-bottom:16px;">
-
-      <label>Placené úkony (napříč pokoji):</label>
+      <label>Placené úkony:</label>
       <div id="myShiftRoomsList" style="margin-bottom:16px; border-top:1px solid var(--color-border-secondary); padding-top:8px;"></div>
-
-      <label style="margin-top:20px;">Odpracované hodiny (např. 8.5)</label>
+      <label>Odpracované hodiny:</label>
       <input type="number" step="0.5" id="myShiftHours" placeholder="Počet hodin" style="margin-bottom:16px;">
-
-      <label>Poznámka k vybranému dni:</label>
-      <textarea id="myShiftNote" placeholder="Dnes jsem pracovala navíc, protože..." style="width:100%; min-height:60px; padding:12px; border-radius:var(--border-radius-md); border:1px solid var(--color-border-secondary); background:var(--color-background-primary); color:var(--color-text-primary); font-family:'Lato',sans-serif; resize:vertical; outline:none; margin-bottom:16px;"></textarea>
-
+      <label>Poznámka:</label>
+      <textarea id="myShiftNote" style="width:100%; min-height:60px; padding:12px; border-radius:var(--border-radius-md); border:1px solid var(--color-border-secondary); background:var(--color-background-primary); color:var(--color-text-primary); font-family:'Lato',sans-serif; resize:vertical; outline:none; margin-bottom:16px;"></textarea>
       <div class="edit-btns">
-        <button class="btn-save" onclick="saveMyShift()">Uložit a odeslat</button>
+        <button class="btn-save" onclick="saveMyShift()">Uložit</button>
         <button class="btn-cancel" onclick="closeMyShift()">Zavřít</button>
       </div>
     </div>
   </div>
 
+  <!-- MODAL: VÝKAZY -->
   <div class="edit-modal-bg" id="statsModalBg">
     <div class="edit-modal" style="width: min(600px, 100%); max-height:85vh; display:flex; flex-direction:column;">
       <h3 id="statsMainTitle">📊 Výkazy směn</h3>
@@ -357,14 +330,15 @@
     </div>
   </div>
 
+  <!-- MODAL: Detaily výkazu -->
   <div class="edit-modal-bg" id="shiftDetailsBg" style="z-index:100001;">
     <div class="edit-modal" style="width: min(500px, 100%)">
-      <h3>Detaily výkazu</h3>
+      <h3 id="sdName">Detaily výkazu</h3>
       <div id="sdContent" style="font-size:14px; color:var(--color-text-primary); margin-bottom:1.5rem; line-height:1.5;"></div>
-      <div class="edit-btns"><button class="btn-cancel" onclick="closeShiftDetails()">Zavřít okno</button></div>
+      <div class="edit-btns"><button class="btn-cancel" onclick="closeShiftDetails()">Zavřít</button></div>
     </div>
   </div>
-
+<!-- NOVÉ MODAL: Upozornění na nové rezervace (pro personál) -->
   <div class="edit-modal-bg" id="newBookingsModalBg" style="z-index: 99999;">
     <div class="edit-modal" style="width: min(500px, 100%)">
       <h3>🔔 Nové rezervace</h3>
@@ -376,10 +350,12 @@
     </div>
   </div>
 
+  <!-- NOVÉ MODAL: Prohlížení fotky přes celou obrazovku -->
   <div class="modal-bg" id="photoViewerBg" style="z-index: 999999; padding: 2rem;" onclick="this.classList.remove('open')">
       <img id="photoViewerImg" style="max-width: 100%; max-height: 100%; border-radius: 8px; object-fit: contain; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
   </div>
 
+  <!-- MODAL PRO POKOJ (Jen prohlížení kalendáře a poznámky) -->
   <div class="modal-bg" id="modalBg">
     <div class="modal">
       <div class="modal-top">
@@ -412,6 +388,7 @@
         <div class="section-label">Poznámky k pokoji</div>
         <textarea class="notes-area" id="roomNotes" oninput="autoResize(this)" placeholder="Stav pokoje, vybavení, opravy..."></textarea>
         
+        <!-- FOTKY ZÁVAD -->
         <label class="photo-upload-label">
             📸 Přidat fotku (Fotoaparát / Galerie)
             <input type="file" accept="image/*" style="display:none;" onchange="handlePhotoUpload(this)">
@@ -425,6 +402,8 @@
       </div>
     </div>
   </div>
+
+  <!-- PŘIDÁNÍ/ÚPRAVA REZERVACE S INTERAKTIVNÍM KALENDÁŘEM -->
   <div class="edit-modal-bg" id="bookingModalBg" style="z-index: 100000;">
     <div class="edit-modal" style="width: min(450px, 100%)">
       <h3 id="bookingModalTitle">Nová rezervace</h3>
@@ -451,6 +430,7 @@
     </div>
   </div>
 
+  <!-- MODAL ÚPRAVY POKOJE -->
   <div class="edit-modal-bg" id="editBg">
     <div class="edit-modal">
       <h3 id="editModalTitle">Upravit pokoj</h3>
@@ -501,6 +481,7 @@
     </div>
   </div>
 
+  <!-- MODAL SPRÁVY UŽIVATELŮ -->
   <div class="edit-modal-bg" id="usersAdminBg">
     <div class="edit-modal" style="width: min(650px, 100%)">
       <h3>Správa přístupů</h3>
@@ -546,29 +527,6 @@
 
   const app = initializeApp(firebaseConfig); const db = getDatabase(app); const auth = getAuth(app); const messaging = getMessaging(app); const googleProvider = new GoogleAuthProvider();
 
-  /* =========================================================================
-   * VYSVĚTLIVKY K JEDNOTLIVÝM OPRÁVNĚNÍM (PERMISSIONS):
-   * =========================================================================
-   * canEdit: true/false
-   * - Zobrazí tlačítko tužky (✎) na kartě pokoje.
-   * - Dovoluje otevírat nastavení pokoje (změna názvu, ikony, placených úkonů, štítků).
-   * * canDelete: true/false
-   * - Zobrazí tlačítko křížku (✕) u existujících rezervací v kalendáři pokoje.
-   * - Dovoluje mazat rezervace (přidávat a upravovat nové rezervace mohou všichni kromě role 'staff').
-   * * canToggle: true/false
-   * - Dovoluje klikat na stavová tlačítka uvnitř pokoje (Uklizeno/Špinavé a vlastní stavy).
-   * - Dovoluje mazat nahrané fotky závad.
-   * * canSeeStatsPanel: true/false
-   * - Zobrazí tlačítko grafu (📊) v horní liště.
-   * - Dovoluje vůbec otevřít okno "Výkazy směn" a prohlížet archivy.
-   * * canSeeAllStats: true/false
-   * - Pokud je TRUE: Uživatel ve výkazech vidí VŠECHNY lidi a má právo udělat "Vynulovat vše" (uzávěrku).
-   * - Pokud je FALSE: Uživatel ve výkazech vidí pouze sám sebe a své peníze.
-   * * canLogShift: true/false
-   * - Zobrazí tlačítko "💼 Moje směna" v horní liště.
-   * - Dovoluje uživateli zadávat si odpracované hodiny a odškrtávat placené úkoly.
-   * ========================================================================= */
-  
   const ROLE_PERMISSIONS = {
     staff: { role:'staff', label:'Zaměstnanec', badge:'badge-staff', canEdit:false, canDelete:false, canToggle:true, canSeeStatsPanel:true, canSeeAllStats:false, canLogShift:true },
     main_staff: { role:'main_staff', label:'Hlavní Staff', badge:'badge-admin', canEdit:false, canDelete:false, canToggle:true, canSeeStatsPanel:true, canSeeAllStats:true, canLogShift:true },
@@ -897,6 +855,7 @@
     document.getElementById('sdContent').innerHTML = `<strong>Odpracováno:</strong> ${totalHours} hod (Sazba: ${rate} Kč/h = ${hoursMoney} Kč)<br><strong>Úkony (Celkem: ${overallTasksMoney} Kč)</strong>${logsHtml}<strong style="font-size:16px; color:#16A34A; margin-top:16px; display:block; border-top:1px solid var(--color-border-secondary); padding-top:8px;">K výplatě celkem: ${hoursMoney + overallTasksMoney} Kč</strong>`;
     document.getElementById('shiftDetailsBg').classList.add('open');
   }
+  
   function closeShiftDetails() { document.getElementById('shiftDetailsBg').classList.remove('open'); }
 
   function openStatsModal() {
@@ -904,6 +863,7 @@
     renderStatsPanel('current');
     document.getElementById('statsModalBg').classList.add('open');
   }
+  
   function closeStatsModal() {
     document.getElementById('statsModalBg').classList.remove('open');
   }
@@ -1325,7 +1285,9 @@
   function viewPhoto(dataUrl) { document.getElementById('photoViewerImg').src = dataUrl; document.getElementById('photoViewerBg').classList.add('open'); }
   function deletePhoto(idx) { if(confirm("Opravdu smazat tuto fotku?")) { rooms[curRoom].photos.splice(idx, 1); saveToFirebase(); renderPhotos(); } }
 
-  /* EXPORT FUNKCÍ PRO HTML */
+  /* =========================================================================
+   * EXPORT FUNKCÍ PRO HTML (PEVNĚ SEŘAZENO PROTI USEKNUTÍ)
+   * ========================================================================= */
   window.loginWithEmail = loginWithEmail;
   window.loginWithGoogle = loginWithGoogle;
   window.doLogout = doLogout;
