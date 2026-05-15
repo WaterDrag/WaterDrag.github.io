@@ -307,7 +307,6 @@
     </div>
   </div>
 
-  <!-- MODAL: Moje směna -->
   <div class="edit-modal-bg" id="shiftBg">
     <div class="edit-modal" style="width: min(450px, 100%)">
       <h3>💼 Moje směna</h3>
@@ -326,7 +325,6 @@
     </div>
   </div>
 
-  <!-- MODAL: VÝKAZY -->
   <div class="edit-modal-bg" id="statsModalBg">
     <div class="edit-modal" style="width: min(600px, 100%); max-height:85vh; display:flex; flex-direction:column;">
       <h3 id="statsMainTitle">📊 Výkazy směn</h3>
@@ -335,7 +333,6 @@
     </div>
   </div>
 
-  <!-- MODAL: Detaily výkazu -->
   <div class="edit-modal-bg" id="shiftDetailsBg" style="z-index:100001;">
     <div class="edit-modal" style="width: min(500px, 100%)">
       <h3 id="sdName">Detaily výkazu</h3>
@@ -343,6 +340,169 @@
       <div class="edit-btns"><button class="btn-cancel" onclick="closeShiftDetails()">Zavřít</button></div>
     </div>
   </div>
+
+  <div class="edit-modal-bg" id="newBookingsModalBg" style="z-index: 99999;">
+    <div class="edit-modal" style="width: min(500px, 100%)">
+      <h3>🔔 Nové rezervace</h3>
+      <p style="font-size:13px; color:var(--color-text-secondary); margin-bottom:16px;">Od vašeho posledního přihlášení byly přidány tyto nové termíny:</p>
+      <div id="newBookingsList" style="max-height: 400px; overflow-y: auto; margin-bottom: 16px; padding: 8px;"></div>
+      <div class="edit-btns">
+        <button class="btn-save" onclick="closeNewBookingsModal()">Rozumím, zavřít</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-bg" id="photoViewerBg" style="z-index: 999999; padding: 2rem;" onclick="this.classList.remove('open')">
+      <img id="photoViewerImg" style="max-width: 100%; max-height: 100%; border-radius: 8px; object-fit: contain; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+  </div>
+
+  <div class="modal-bg" id="modalBg">
+    <div class="modal">
+      <div class="modal-top">
+        <div class="modal-room-title" id="modalTitle"></div>
+        <div class="modal-room-sub" id="modalSub"></div>
+        <div id="roomCustomItemsWrap" class="custom-items-wrap"></div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;">
+          <button id="toggleStatusBtn" class="toggle-status-btn" style="margin-top:0;" onclick="toggleDirty()"></button>
+          <span id="customStatusesWrap" style="display:flex; gap:8px; flex-wrap:wrap;"></span>
+        </div>
+        <button class="close-btn" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        
+        <div class="section-label" style="margin-top:0; display:flex; justify-content:space-between; align-items:center;">
+          Kalendář a Rezervace
+        </div>
+        
+        <button class="add-btn" id="openBookingBtn" onclick="openBookingModal(-1)" style="width:100%; margin-bottom:1rem; display:none;">+ Nová rezervace</button>
+        
+        <div class="cal-nav">
+          <button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button>
+          <span class="cal-month" id="calMonth"></span>
+          <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
+        </div>
+        <div class="calendar-grid" id="calGrid" style="pointer-events:none;"></div>
+        
+        <div id="bookingsList" class="bookings-list" style="margin-top:1.25rem"></div>
+        
+        <div class="section-label">Poznámky k pokoji</div>
+        <textarea class="notes-area" id="roomNotes" oninput="autoResize(this)" placeholder="Stav pokoje, vybavení, opravy..."></textarea>
+        
+        <label class="photo-upload-label">
+            📸 Přidat fotku (Fotoaparát / Galerie)
+            <input type="file" accept="image/*" style="display:none;" onchange="handlePhotoUpload(this)">
+        </label>
+        <div class="photo-grid" id="roomPhotosGrid"></div>
+
+        <div style="display:flex;align-items:center; margin-top:12px;">
+          <button class="save-note-btn" id="saveNoteBtn" onclick="saveNote()" style="margin-top:0;">Uložit poznámky</button>
+          <span class="note-saved" id="noteSaved">✓ Uloženo</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="edit-modal-bg" id="bookingModalBg" style="z-index: 100000;">
+    <div class="edit-modal" style="width: min(450px, 100%)">
+      <h3 id="bookingModalTitle">Nová rezervace</h3>
+      <p style="font-size:12px; color:var(--color-text-secondary); margin-bottom:12px;" id="bookingHelpText">💡 Klikněte 2x do kalendáře pro výběr data (Příjezd a Odjezd).</p>
+      
+      <div class="cal-nav">
+        <button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button>
+        <span class="cal-month" id="bookingCalMonth"></span>
+        <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
+      </div>
+      <div class="calendar-grid" id="bookingCalGrid" style="margin-bottom:16px;"></div>
+      
+      <div style="display:flex; gap:12px; margin-bottom:12px;">
+        <input type="text" id="bDateFrom" placeholder="Příjezd" readonly style="flex:1; padding:12px; font-size:14px; border:1px solid var(--color-border-secondary); border-radius:var(--border-radius-md); background:var(--color-background-secondary); text-align:center; color:var(--color-text-primary); cursor:pointer;" onclick="resetBookingSelection()">
+        <input type="text" id="bDateTo" placeholder="Odjezd" readonly style="flex:1; padding:12px; font-size:14px; border:1px solid var(--color-border-secondary); border-radius:var(--border-radius-md); background:var(--color-background-secondary); text-align:center; color:var(--color-text-primary); cursor:pointer;" onclick="resetBookingSelection()">
+      </div>
+      
+      <textarea id="bBookingNote" oninput="autoResize(this)" placeholder="Speciální poznámky k rezervaci (VIP, atd.)" style="width:100%; min-height:60px; padding:12px; border-radius:var(--border-radius-md); border:1px solid var(--color-border-secondary); background:var(--color-background-primary); color:var(--color-text-primary); font-family:'Lato',sans-serif; resize:vertical; outline:none; margin-bottom:16px;"></textarea>
+
+      <div class="edit-btns">
+        <button class="btn-save" id="saveBookingBtn" onclick="saveBooking()">Uložit rezervaci</button>
+        <button class="btn-cancel" onclick="closeBookingModal()">Zrušit</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="edit-modal-bg" id="editBg">
+    <div class="edit-modal">
+      <h3 id="editModalTitle">Upravit pokoj</h3>
+      <label>Název pokoje</label>
+      <input type="text" id="editName" maxlength="22">
+      
+      <label>Ikona (vyberte nebo vložte vlastní)</label>
+      <div style="display:flex; gap:8px; align-items:flex-start;">
+        <div class="emoji-pick" id="emojiPick" style="margin-top:0; flex:1;"></div>
+        <input type="text" id="customEmojiInput" placeholder="Jiná?" maxlength="5" title="Vložte z klávesnice libovolné emoji" oninput="clearEmojiSelection()" style="width: 70px !important; flex:none; height:46px; font-size:24px; text-align:center; padding:0; border:2px solid var(--color-border-secondary); border-radius:var(--border-radius-md); background:var(--color-background-primary);">
+      </div>
+
+      <label style="margin-top:20px;">Placené úkony (Odměny pro personál)</label>
+      <div id="editPaidTasksList" style="margin-bottom:8px;"></div>
+      <div style="display:flex; gap:8px;">
+        <input type="text" id="newPaidTaskName" placeholder="Název úkonu (např. Basic úklid)" style="flex:2">
+        <input type="number" id="newPaidTaskPrice" placeholder="Cena (Kč)" style="flex:1">
+        <button type="button" class="add-btn" onclick="addPaidTaskToEdit()" style="padding:12px 16px;">+</button>
+      </div>
+
+      <label style="margin-top:20px; display:flex; align-items:center; gap:8px; cursor:pointer; color:var(--color-text-primary); text-transform:none;">
+        <input type="checkbox" id="editHideDefaultStatus"> Skrýt výchozí tlačítko (Uklizeno/Špinavé)
+      </label>
+
+      <label style="margin-top:20px;">Vlastní štítky a odkazy (PINy, návody...)</label>
+      <div id="editCustomItemsList" style="margin-bottom:8px;"></div>
+      <div style="display:flex; gap:8px;">
+        <input type="text" id="newCustomText" placeholder="Nápis (např. PIN 1234)" style="flex:1">
+        <input type="text" id="newCustomLink" placeholder="Odkaz (http...)" style="flex:1">
+        <button type="button" class="add-btn" onclick="addCustomItemToEdit()" style="padding:12px 16px;">+</button>
+      </div>
+
+      <label style="margin-top:20px;">Vlastní stavová tlačítka (zobrazí se na hlavní ploše)</label>
+      <div id="editCustomStatusesList" style="margin-bottom:8px;"></div>
+      <div style="display:flex; gap:8px;">
+        <input type="text" id="newCustomStatusRed" placeholder="Červený stav (např. Posekat)" style="flex:1">
+        <input type="text" id="newCustomStatusGreen" placeholder="Zelený stav (např. Posekáno)" style="flex:1">
+        <button type="button" class="add-btn" onclick="addCustomStatusToEdit()" style="padding:12px 16px;">+</button>
+      </div>
+
+      <div id="linkedRoomsWrap"></div>
+
+      <div class="edit-btns">
+        <button class="btn-save" onclick="saveEdit()">Uložit</button>
+        <button class="btn-delete-room" id="delRoomBtn" onclick="deleteRoom()">Smazat</button>
+        <button class="btn-cancel" onclick="closeEdit()">Zrušit</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="edit-modal-bg" id="usersAdminBg">
+    <div class="edit-modal" style="width: min(650px, 100%)">
+      <h3>Správa přístupů</h3>
+      <p style="font-size:12px; color:var(--color-text-secondary); margin-bottom:1rem;">Přidejte e-mail zaměstnance a zvolte mu oprávnění. Bez e-mailu na tomto seznamu se nikdo nepřihlásí.</p>
+      
+      <div class="admin-form" style="display:flex; gap:8px; margin-bottom:1rem; flex-wrap:wrap; align-items:center;">
+        <input type="email" id="newUserEmail" placeholder="E-mail" style="flex:2; min-width:120px;">
+        <input type="text" id="newUserNick" placeholder="Přezdívka" style="flex:1; min-width:90px;">
+        <input type="number" id="newUserHourlyRate" placeholder="Kč/hod" style="flex:1; min-width:80px;">
+        <select id="newUserRole" style="flex:1; min-width:90px;">
+          <option value="staff">Staff</option>
+          <option value="main_staff">Main Staff</option>
+          <option value="admin">Admin</option>
+          <option value="owner">Owner</option>
+        </select>
+        <button class="add-btn" id="addBtnAdmin" onclick="addUserRole()" style="padding:12px">Přidat</button>
+      </div>
+
+      <table class="users-table">
+        <thead><tr><th>E-mail</th><th>Přezdívka</th><th>Mzda</th><th>Role</th><th></th></tr></thead><tbody id="usersTableBody"></tbody>
+      </table>
+      <div class="edit-btns" style="margin-top:1.5rem"><button class="btn-cancel" onclick="closeUsersAdmin()">Zavřít</button></div>
+    </div>
+  </div>
+</div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
