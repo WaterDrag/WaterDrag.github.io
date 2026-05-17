@@ -234,6 +234,11 @@
 </head>
 <body>
 
+<script>
+  if(localStorage.getItem('hr_theme') === 'dark') document.body.classList.add('dark-mode');
+  if(localStorage.getItem('hr_color_mode') === 'vivid') document.body.classList.add('vivid-colors');
+</script>
+
 <div id="screenLogin" class="screen active">
   <div class="login-wrap">
     <div class="login-card">
@@ -335,6 +340,34 @@
       <div class="edit-btns"><button class="btn-cancel" onclick="window.closeShiftDetails()">Zavřít</button></div>
     </div>
   </div>
+
+  <div class="edit-modal-bg" id="usersAdminBg">
+    <div class="edit-modal" style="width: min(650px, 100%)">
+      <h3>Správa přístupů</h3>
+      <p style="font-size:12px; color:var(--color-text-secondary); margin-bottom:1rem;">Přidejte e-mail zaměstnance a zvolte mu oprávnění. Bez e-mailu na tomto seznamu se nikdo nepřihlásí.</p>
+      
+      <div class="admin-form" style="display:flex; gap:8px; margin-bottom:1rem; flex-wrap:wrap; align-items:center;">
+        <input type="email" id="newUserEmail" placeholder="E-mail" style="flex:2; min-width:120px;">
+        <input type="text" id="newUserNick" placeholder="Přezdívka" style="flex:1; min-width:90px;">
+        <input type="number" id="newUserHourlyRate" placeholder="Kč/hod" style="flex:1; min-width:80px;">
+        <select id="newUserRole" style="flex:1; min-width:90px;">
+          <option value="staff">Staff</option>
+          <option value="main_staff">Main Staff</option>
+          <option value="admin">Admin</option>
+          <option value="owner">Owner</option>
+        </select>
+        <button class="add-btn" id="addBtnAdmin" onclick="window.addUserRole()" style="padding:12px">Přidat</button>
+      </div>
+
+      <table class="users-table">
+        <thead><tr><th>E-mail</th><th>Přezdívka</th><th>Mzda</th><th>Role</th><th></th></tr></thead><tbody id="usersTableBody"></tbody>
+      </table>
+      <div class="edit-btns" style="margin-top:1.5rem"><button class="btn-cancel" onclick="window.closeUsersAdmin()">Zavřít</button></div>
+    </div>
+  </div>
+</div>
+
+
   <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
   import { getDatabase, ref, onValue, set, get, child } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
@@ -377,13 +410,13 @@
   let selStart = null, selEnd = null, editBookingIdx = -1;
   let initialRoomsRender = true; 
 
-  const MONTHS=['Leden','Únor','Březen','Duben','Květen','Červen','Červenec','Srpen','Září','Říjen','Listopad','Prosinec'];
-  const DAYS=['Po','Út','St','Čt','Pá','So','Ne'];
-
   const savedTheme = localStorage.getItem('hr_theme'); 
   document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('menuThemeBtn').innerHTML = savedTheme === 'dark' ? '☀️ Vzhled: Světlý' : '🌙 Vzhled: Tmavý';
   });
+
+  const MONTHS=['Leden','Únor','Březen','Duben','Květen','Červen','Červenec','Srpen','Září','Říjen','Listopad','Prosinec'];
+  const DAYS=['Po','Út','St','Čt','Pá','So','Ne'];
 
   onAuthStateChanged(auth, async (user) => {
     const errEl = document.getElementById('loginErr');
@@ -554,6 +587,7 @@
     const currentHour = new Date().getHours();
     let changed = false;
     
+    // ZDE JE LHŮTA 14 DNÍ PRO MAZÁNÍ
     const cutoffDate = new Date(); cutoffDate.setDate(cutoffDate.getDate() - 14);
     const cutoffStr = cutoffDate.getFullYear() + '-' + String(cutoffDate.getMonth()+1).padStart(2,'0') + '-' + String(cutoffDate.getDate()).padStart(2,'0');
 
@@ -1201,12 +1235,12 @@
   window.toggleTheme = toggleTheme;
   window.autoResize = autoResize;
   
-  document.getElementById('loginPass').addEventListener('keydown', function(e) { if(e.key === 'Enter') loginWithEmail(); });
-  document.getElementById('loginEmail').addEventListener('keydown', function(e) { if(e.key === 'Enter') document.getElementById('loginPass').focus(); });
-  document.getElementById('modalBg').addEventListener('click', function(e) { if(e.target === this) closeModal(); });
-  document.getElementById('editBg').addEventListener('click', function(e) { if(e.target === this) closeEdit(); });
-  document.getElementById('usersAdminBg').addEventListener('click', function(e) { if(e.target === this) closeUsersAdmin(); });
-  document.getElementById('statsModalBg').addEventListener('click', function(e) { if(e.target === this) closeStatsModal(); });
+  if (document.getElementById('loginPass')) document.getElementById('loginPass').addEventListener('keydown', function(e) { if(e.key === 'Enter') loginWithEmail(); });
+  if (document.getElementById('loginEmail')) document.getElementById('loginEmail').addEventListener('keydown', function(e) { if(e.key === 'Enter') document.getElementById('loginPass').focus(); });
+  if (document.getElementById('modalBg')) document.getElementById('modalBg').addEventListener('click', function(e) { if(e.target === this) closeModal(); });
+  if (document.getElementById('editBg')) document.getElementById('editBg').addEventListener('click', function(e) { if(e.target === this) closeEdit(); });
+  if (document.getElementById('usersAdminBg')) document.getElementById('usersAdminBg').addEventListener('click', function(e) { if(e.target === this) closeUsersAdmin(); });
+  if (document.getElementById('statsModalBg')) document.getElementById('statsModalBg').addEventListener('click', function(e) { if(e.target === this) closeStatsModal(); });
 </script>
 </body>
 </html>
