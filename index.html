@@ -24,6 +24,7 @@
   body{font-family:'Lato',sans-serif;background:var(--color-background-secondary); transition: background-color 0.3s;}
   .screen{display:none} .screen.active{display:block}
 
+  /* --- ANIMACE --- */
   @keyframes bgFadeIn { 0% { background: rgba(0,0,0,0); } 100% { background: rgba(0,0,0,0.6); } }
   @keyframes modalPopIn { 0% { opacity: 0; transform: scale(0.9) translateY(15px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
   @keyframes cardSlideUp { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
@@ -233,11 +234,6 @@
 </head>
 <body>
 
-<script>
-  if(localStorage.getItem('hr_theme') === 'dark') document.body.classList.add('dark-mode');
-  if(localStorage.getItem('hr_color_mode') === 'vivid') document.body.classList.add('vivid-colors');
-</script>
-
 <div id="screenLogin" class="screen active">
   <div class="login-wrap">
     <div class="login-card">
@@ -339,7 +335,6 @@
       <div class="edit-btns"><button class="btn-cancel" onclick="window.closeShiftDetails()">Zavřít</button></div>
     </div>
   </div>
-
   <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
   import { getDatabase, ref, onValue, set, get, child } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
@@ -451,13 +446,31 @@
     dbListenerObj = onValue(ref(db, '/'), (snapshot) => {
       const data = snapshot.val();
       if (data) {
-        rooms = (data.rooms && data.rooms.length > 0) ? data.rooms : [...defaultRooms];
-        bookings = data.bookings || {}; notes = data.notes || {}; generalNotes = data.generalNotes || '';
-        staffTasks = data.staffTasks || []; authorizedUsers = data.authorizedUsers || {}; 
-        shiftData = data.shiftData || {}; shiftDataBackups = data.shiftDataBackups || [];
+        // NORMALIZACE: Firebase někdy vrací objekt místo pole, pokud se vymažou položky
+        let r = data.rooms || [...defaultRooms];
+        rooms = Array.isArray(r) ? r : Object.values(r);
+        
+        bookings = data.bookings || {};
+        for(let k in bookings) {
+           if(bookings[k] && !Array.isArray(bookings[k])) bookings[k] = Object.values(bookings[k]);
+        }
+        
+        notes = data.notes || {}; 
+        generalNotes = data.generalNotes || '';
+        
+        let st = data.staffTasks || [];
+        staffTasks = Array.isArray(st) ? st : Object.values(st);
+        
+        authorizedUsers = data.authorizedUsers || {}; 
+        shiftData = data.shiftData || {}; 
+        
+        let sdb = data.shiftDataBackups || [];
+        shiftDataBackups = Array.isArray(sdb) ? sdb : Object.values(sdb);
+
       } else {
         rooms = [...defaultRooms]; bookings = {}; notes = {}; generalNotes = ''; staffTasks = []; shiftData = {}; shiftDataBackups = [];
       }
+      
       if(currentUser && document.getElementById('screenApp').classList.contains('active')) {
         document.getElementById('generalNotes').value = generalNotes; autoResize(document.getElementById('generalNotes'));
         renderRooms(); renderMiniStats(); renderStaffTasks();
@@ -541,7 +554,6 @@
     const currentHour = new Date().getHours();
     let changed = false;
     
-    // TADY JE TVÉ NASTAVENÍ NA 14 DNÍ PRO AUTOMATICKÉ MAZÁNÍ REZERVACÍ
     const cutoffDate = new Date(); cutoffDate.setDate(cutoffDate.getDate() - 14);
     const cutoffStr = cutoffDate.getFullYear() + '-' + String(cutoffDate.getMonth()+1).padStart(2,'0') + '-' + String(cutoffDate.getDate()).padStart(2,'0');
 
