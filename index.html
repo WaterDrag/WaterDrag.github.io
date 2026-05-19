@@ -520,7 +520,11 @@
     measurementId: "G-Y2R5S6WJEP"
   };
 
-  const app = initializeApp(firebaseConfig); const db = getDatabase(app); const auth = getAuth(app); const messaging = getMessaging(app); const googleProvider = new GoogleAuthProvider();
+  const app = initializeApp(firebaseConfig); 
+  const db = getDatabase(app); 
+  const auth = getAuth(app); 
+  const messaging = getMessaging(app); 
+  const googleProvider = new GoogleAuthProvider();
 
   const ROLE_PERMISSIONS = {
     staff: { role:'staff', label:'Zaměstnanec', badge:'badge-staff', canEdit:false, canDelete:false, canToggle:true, canSeeStatsPanel:true, canSeeAllStats:false, canLogShift:true },
@@ -541,13 +545,13 @@
   let selStart = null, selEnd = null, editBookingIdx = -1;
   let initialRoomsRender = true; 
 
-  const MONTHS=['Leden','Únor','Březen','Duben','Květen','Červen','Červenec','Srpen','Září','Říjen','Listopad','Prosinec'];
-  const DAYS=['Po','Út','St','Čt','Pá','So','Ne'];
-
   const savedTheme = localStorage.getItem('hr_theme'); 
   document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('menuThemeBtn').innerHTML = savedTheme === 'dark' ? '☀️ Vzhled: Světlý' : '🌙 Vzhled: Tmavý';
   });
+
+  const MONTHS=['Leden','Únor','Březen','Duben','Květen','Červen','Červenec','Srpen','Září','Říjen','Listopad','Prosinec'];
+  const DAYS=['Po','Út','St','Čt','Pá','So','Ne'];
 
   onAuthStateChanged(auth, async (user) => {
     const errEl = document.getElementById('loginErr');
@@ -556,10 +560,18 @@
       try {
         errEl.textContent = 'Ověřuji oprávnění v databázi...';
         const snapshot = await get(child(ref(db), 'authorizedUsers/' + key)); let userRecord = snapshot.val();
-        if (!userRecord) { const allUsersSnap = await get(child(ref(db), 'authorizedUsers')); if (!allUsersSnap.exists()) { userRecord = { email: email, role: 'admin', lastViewedBookings: 0 }; await set(ref(db, 'authorizedUsers/' + key), userRecord); } }
+        if (!userRecord) { 
+            const allUsersSnap = await get(child(ref(db), 'authorizedUsers')); 
+            if (!allUsersSnap.exists()) { 
+                userRecord = { email: email, role: 'admin', lastViewedBookings: 0 }; 
+                await set(ref(db, 'authorizedUsers/' + key), userRecord); 
+            } 
+        }
         if (userRecord && ROLE_PERMISSIONS[userRecord.role]) {
-          currentUser = { email: email, ...ROLE_PERMISSIONS[userRecord.role], lastViewedBookings: userRecord.lastViewedBookings || 0 }; errEl.textContent = '';
-          document.getElementById('screenLogin').classList.remove('active'); document.getElementById('screenApp').classList.add('active');
+          currentUser = { email: email, ...ROLE_PERMISSIONS[userRecord.role], lastViewedBookings: userRecord.lastViewedBookings || 0 }; 
+          errEl.textContent = '';
+          document.getElementById('screenLogin').classList.remove('active'); 
+          document.getElementById('screenApp').classList.add('active');
           
           const displayName = userRecord.nickname || ROLE_PERMISSIONS[userRecord.role].label;
           const badgeClass = ROLE_PERMISSIONS[userRecord.role].badge;
@@ -602,13 +614,30 @@
     dbListenerObj = onValue(ref(db, '/'), (snapshot) => {
       const data = snapshot.val();
       if (data) {
-        rooms = (data.rooms && data.rooms.length > 0) ? data.rooms : [...defaultRooms];
-        bookings = data.bookings || {}; notes = data.notes || {}; generalNotes = data.generalNotes || '';
-        staffTasks = data.staffTasks || []; authorizedUsers = data.authorizedUsers || {}; 
-        shiftData = data.shiftData || {}; shiftDataBackups = data.shiftDataBackups || [];
+        let r = data.rooms || [...defaultRooms];
+        rooms = Array.isArray(r) ? r : Object.values(r);
+        
+        bookings = data.bookings || {};
+        for(let k in bookings) {
+           if(bookings[k] && !Array.isArray(bookings[k])) bookings[k] = Object.values(bookings[k]);
+        }
+        
+        notes = data.notes || {}; 
+        generalNotes = data.generalNotes || '';
+        
+        let st = data.staffTasks || [];
+        staffTasks = Array.isArray(st) ? st : Object.values(st);
+        
+        authorizedUsers = data.authorizedUsers || {}; 
+        shiftData = data.shiftData || {}; 
+        
+        let sdb = data.shiftDataBackups || [];
+        shiftDataBackups = Array.isArray(sdb) ? sdb : Object.values(sdb);
+
       } else {
         rooms = [...defaultRooms]; bookings = {}; notes = {}; generalNotes = ''; staffTasks = []; shiftData = {}; shiftDataBackups = [];
       }
+      
       if(currentUser && document.getElementById('screenApp').classList.contains('active')) {
         document.getElementById('generalNotes').value = generalNotes; autoResize(document.getElementById('generalNotes'));
         renderRooms(); renderMiniStats(); renderStaffTasks();
@@ -682,6 +711,7 @@
   }
 
   function saveToFirebase() { set(ref(db, '/'), { rooms, bookings, notes, generalNotes, staffTasks, authorizedUsers, shiftData, shiftDataBackups }); }
+  
   function getLocalIsoDate(daysOffset = 0) {
     const d = new Date(); d.setDate(d.getDate() + daysOffset); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
   }
@@ -690,6 +720,7 @@
     const todayStr = getLocalIsoDate(); 
     const currentHour = new Date().getHours();
     let changed = false;
+    
     const cutoffDate = new Date(); cutoffDate.setDate(cutoffDate.getDate() - 14);
     const cutoffStr = cutoffDate.getFullYear() + '-' + String(cutoffDate.getMonth()+1).padStart(2,'0') + '-' + String(cutoffDate.getDate()).padStart(2,'0');
 
@@ -755,7 +786,7 @@
     const tbody = document.getElementById('usersTableBody'); let html = '';
     for (const key in authorizedUsers) {
       const u = authorizedUsers[key]; const badge = ROLE_PERMISSIONS[u.role].badge; const rateTxt = u.hourlyRate ? `${u.hourlyRate} Kč/h` : '-';
-      html += `<tr><td>${u.email}</td><td>${u.nickname||'-'}</td><td>${rateTxt}</td><td><span class="role-badge ${badge}">${u.role}</span></td><td style="text-align:right"><button class="del-btn" style="color:var(--color-text-primary);" onclick="editUserRole('${key}')" title="Upravit">✎</button>${u.email !== currentUser.email ? `<button class="del-btn" onclick="deleteUserRole('${key}')" title="Smazat">✕</button>` : ''}</td></tr>`;
+      html += `<tr><td>${u.email}</td><td>${u.nickname||'-'}</td><td>${rateTxt}</td><td><span class="role-badge ${badge}">${u.role}</span></td><td style="text-align:right"><button class="del-btn" style="color:var(--color-text-primary);" onclick="window.editUserRole('${key}')" title="Upravit">✎</button>${u.email !== currentUser.email ? `<button class="del-btn" onclick="window.deleteUserRole('${key}')" title="Smazat">✕</button>` : ''}</td></tr>`;
     } tbody.innerHTML = html;
   }
   function addUserRole() {
@@ -799,7 +830,7 @@
         hasAny = true; html += `<div style="font-size:14px; font-weight:bold; color:var(--color-text-primary); margin-top:12px; border-bottom:1px solid var(--color-border-secondary); padding-bottom:4px;">${r.name}</div>`;
         r.paidTasks.forEach((pt, taskIdx) => {
            const taskKey = `${roomIdx}_${taskIdx}`; const count = tasks[taskKey] || 0;
-           html += `<div class="shift-counter-wrap"><div style="font-size:13px; color:var(--color-text-secondary);">${pt.name} (${pt.price} Kč)</div><div style="display:flex; align-items:center; gap:8px;"><button class="shift-counter-btn" onclick="changeShiftTask('${taskKey}', -1)">-</button><div class="shift-counter-val">${count}</div><button class="shift-counter-btn" onclick="changeShiftTask('${taskKey}', 1)">+</button></div></div>`;
+           html += `<div class="shift-counter-wrap"><div style="font-size:13px; color:var(--color-text-secondary);">${pt.name} (${pt.price} Kč)</div><div style="display:flex; align-items:center; gap:8px;"><button class="shift-counter-btn" onclick="window.changeShiftTask('${taskKey}', -1)">-</button><div class="shift-counter-val">${count}</div><button class="shift-counter-btn" onclick="window.changeShiftTask('${taskKey}', 1)">+</button></div></div>`;
         });
       }
     });
@@ -850,7 +881,6 @@
     document.getElementById('sdContent').innerHTML = `<strong>Odpracováno:</strong> ${totalHours} hod (Sazba: ${rate} Kč/h = ${hoursMoney} Kč)<br><strong>Úkony (Celkem: ${overallTasksMoney} Kč)</strong>${logsHtml}<strong style="font-size:16px; color:#16A34A; margin-top:16px; display:block; border-top:1px solid var(--color-border-secondary); padding-top:8px;">K výplatě celkem: ${hoursMoney + overallTasksMoney} Kč</strong>`;
     document.getElementById('shiftDetailsBg').classList.add('open');
   }
-  
   function closeShiftDetails() { document.getElementById('shiftDetailsBg').classList.remove('open'); }
 
   function openStatsModal() {
@@ -858,7 +888,6 @@
     renderStatsPanel('current');
     document.getElementById('statsModalBg').classList.add('open');
   }
-  
   function closeStatsModal() {
     document.getElementById('statsModalBg').classList.remove('open');
   }
@@ -873,7 +902,7 @@
          document.getElementById('statsMainTitle').style.display = 'none';
          html += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; padding-top: 10px;">
                     <h4 style="margin:0; font-family:'Playfair Display',serif; color:var(--color-text-primary); font-size:20px;">🗄️ Archiv výkazů</h4>
-                    <button class="cal-nav-btn" onclick="renderStatsPanel('current')" style="padding:6px 12px; font-size:12px;">🔙 Zpět</button>
+                    <button class="cal-nav-btn" onclick="window.renderStatsPanel('current')" style="padding:6px 12px; font-size:12px;">🔙 Zpět</button>
                   </div>`;
                   
          if (!shiftDataBackups || shiftDataBackups.length === 0) {
@@ -884,7 +913,7 @@
                 const b = shiftDataBackups[i];
                 const d = new Date(b.date);
                 const dateStr = d.getDate() + '.' + (d.getMonth()+1) + '. ' + d.getFullYear() + ' v ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
-                html += `<div class="task-item" style="cursor:pointer; transition:transform 0.1s; background:var(--color-background-primary);" onclick="renderStatsPanel('backup', ${i})" onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'">
+                html += `<div class="task-item" style="cursor:pointer; transition:transform 0.1s; background:var(--color-background-primary);" onclick="window.renderStatsPanel('backup', ${i})" onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'">
                            <div style="font-size:14px; font-weight:bold; color:var(--color-text-primary);">Záloha z: ${dateStr}</div>
                            <div style="font-size:12px; font-weight:bold; color:var(--color-text-primary);">Otevřít ➔</div>
                          </div>`;
@@ -905,12 +934,12 @@
         const dateStr = d.getDate() + '.' + (d.getMonth()+1) + '. v ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
         html += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; background:var(--color-background-secondary); padding:8px 12px; border-radius:var(--border-radius-md); border:1px solid var(--color-border-secondary); margin-top: 10px;">
                    <div style="font-size:13px; font-weight:bold; color:var(--color-text-primary);">Prohlížíte zálohu:<br><span style="font-size:12px; font-weight:normal; color:var(--color-text-secondary);">${dateStr}</span></div>
-                   <button class="cal-nav-btn" onclick="renderStatsPanel('history')" style="padding:6px 12px; font-size:12px; font-weight:bold;">🔙 Zpět na archiv</button>
+                   <button class="cal-nav-btn" onclick="window.renderStatsPanel('history')" style="padding:6px 12px; font-size:12px; font-weight:bold;">🔙 Zpět na archiv</button>
                  </div>`;
     } else {
         html += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
                    <div style="font-size:14px; font-weight:bold; color:var(--color-text-primary);">Aktuální neuzavřené období</div>
-                   <button class="cal-nav-btn" onclick="renderStatsPanel('history')" style="padding:6px 12px; font-size:12px; font-weight:bold;">🗄️ Historie záloh</button>
+                   <button class="cal-nav-btn" onclick="window.renderStatsPanel('history')" style="padding:6px 12px; font-size:12px; font-weight:bold;">🗄️ Historie záloh</button>
                  </div>`;
     }
 
@@ -937,14 +966,14 @@
       const totalOverall = hoursMoney + tasksMoney;
       if(totalHours > 0 || tasksTxt.length > 0 || hasLogs) {
         empty = false;
-        html += `<div class="stats-panel-user"><div style="display:flex; justify-content:space-between; align-items:center;"><strong>${nick}</strong><button onclick="openShiftDetails('${key}', ${isBackup ? backupIdx : -1})" style="background:var(--color-background-primary);border:1px solid var(--color-border-tertiary);border-radius:4px;padding:4px 8px;cursor:pointer;font-size:11px;font-weight:bold; color:var(--color-text-primary);">Podrobnosti</button></div>(Hodiny: ${totalHours})<br>${tasksTxt.join('<br>')}<br><strong style="color:#16A34A; margin-top:4px; display:block;">Celkem odměna: ${totalOverall} Kč</strong></div>`;
+        html += `<div class="stats-panel-user"><div style="display:flex; justify-content:space-between; align-items:center;"><strong>${nick}</strong><button onclick="window.openShiftDetails('${key}', ${isBackup ? backupIdx : -1})" style="background:var(--color-background-primary);border:1px solid var(--color-border-tertiary);border-radius:4px;padding:4px 8px;cursor:pointer;font-size:11px;font-weight:bold; color:var(--color-text-primary);">Podrobnosti</button></div>(Hodiny: ${totalHours})<br>${tasksTxt.join('<br>')}<br><strong style="color:#16A34A; margin-top:4px; display:block;">Celkem odměna: ${totalOverall} Kč</strong></div>`;
       }
     }
     
     if(empty) html += '<div style="font-size:13px; color:var(--color-text-secondary); text-align:center; padding: 20px;">Zatím nejsou k dispozici žádné výkazy.</div>';
     
     if (currentUser.canSeeAllStats && !isBackup) { 
-        html += `<button class="btn-delete-room" onclick="resetShiftData()" style="width:100%; padding:12px; margin-top: 12px;">Vynulovat vše (Uzavřít měsíc)</button><div style="font-size:11px; color:var(--color-text-secondary); text-align:center; margin-top:6px;">Automaticky vytvoří zálohu do archivu (max 20)</div>`; 
+        html += `<button class="btn-delete-room" onclick="window.resetShiftData()" style="width:100%; padding:12px; margin-top: 12px;">Vynulovat vše (Uzavřít měsíc)</button><div style="font-size:11px; color:var(--color-text-secondary); text-align:center; margin-top:6px;">Automaticky vytvoří zálohu do archivu (max 20)</div>`; 
     }
     
     panelContent.innerHTML = html;
@@ -968,7 +997,7 @@
     const wrap = document.getElementById('staffTasksWrap'); if (!currentUser || currentUser.role === 'owner') { wrap.style.display = 'none'; return; }
     wrap.style.display = 'block'; const list = document.getElementById('staffTasksList');
     if (!staffTasks.length) { list.innerHTML = '<div style="font-size:13px; color:var(--color-text-secondary); margin-bottom:12px;">Aktuálně nejsou žádné úkoly.</div>'; return; }
-    list.innerHTML = staffTasks.map((t, i) => `<div class="task-item"><label class="task-label"><input type="checkbox" class="task-checkbox" ${t.done ? 'checked' : ''} onchange="toggleStaffTask(${i})"><span style="${t.done ? 'text-decoration:line-through; color:var(--color-text-secondary);' : 'color:var(--color-text-primary);'} font-size:14px; word-break:break-word;">${t.text}</span></label><button class="del-btn" onclick="deleteStaffTask(${i})">✕</button></div>`).join('');
+    list.innerHTML = staffTasks.map((t, i) => `<div class="task-item"><label class="task-label"><input type="checkbox" class="task-checkbox" ${t.done ? 'checked' : ''} onchange="window.toggleStaffTask(${i})"><span style="${t.done ? 'text-decoration:line-through; color:var(--color-text-secondary);' : 'color:var(--color-text-primary);'} font-size:14px; word-break:break-word;">${t.text}</span></label><button class="del-btn" onclick="window.deleteStaffTask(${i})">✕</button></div>`).join('');
   }
   function addStaffTask() { const input = document.getElementById('newStaffTask'); const text = input.value.trim(); if (!text) return; staffTasks.push({ text: text, done: false }); saveToFirebase(); input.value = ''; }
   function toggleStaffTask(i) { staffTasks[i].done = !staffTasks[i].done; saveToFirebase(); }
@@ -1006,7 +1035,7 @@
       
       const animStyle = initialRoomsRender ? `animation: cardSlideUp 0.4s ease-out forwards; opacity: 0; animation-delay: ${i * 0.04}s` : `opacity: 1;`;
       
-      return `<div class="room-card ${stateClass}" onclick="openRoom(${i})" style="${animStyle}"><div class="room-img"><span class="emoji">${r.emoji}</span>${canEditRoom ? `<button class="edit-btn" onclick="event.stopPropagation();openEdit(${i})" title="Upravit/Smazat">✎</button>` : ''}<div class="room-badges-wrap">${badgesHtml}</div></div><div class="room-label"><div class="room-name">${r.name}</div><div class="room-num">${(bookings[i]||[]).length} rezervací</div></div></div>`;
+      return `<div class="room-card ${stateClass}" onclick="window.openRoom(${i})" style="${animStyle}"><div class="room-img"><span class="emoji">${r.emoji}</span>${canEditRoom ? `<button class="edit-btn" onclick="event.stopPropagation();window.openEdit(${i})" title="Upravit/Smazat">✎</button>` : ''}<div class="room-badges-wrap">${badgesHtml}</div></div><div class="room-label"><div class="room-name">${r.name}</div><div class="room-num">${(bookings[i]||[]).length} rezervací</div></div></div>`;
     }).join('');
     
     initialRoomsRender = false;
@@ -1014,7 +1043,7 @@
 
   function renderEditPaidTasks() {
     const list = document.getElementById('editPaidTasksList'); if (!tempPaidTasks || tempPaidTasks.length === 0) { list.innerHTML = ''; return; }
-    list.innerHTML = tempPaidTasks.map((pt, idx) => `<div class="edit-custom-item"><div style="flex:1; font-size:13px; color:var(--color-text-primary);"><strong>${pt.name}</strong> (${pt.price} Kč)</div><button type="button" class="del-btn" onclick="removePaidTaskFromEdit(${idx})">✕</button></div>`).join('');
+    list.innerHTML = tempPaidTasks.map((pt, idx) => `<div class="edit-custom-item"><div style="flex:1; font-size:13px; color:var(--color-text-primary);"><strong>${pt.name}</strong> (${pt.price} Kč)</div><button type="button" class="del-btn" onclick="window.removePaidTaskFromEdit(${idx})">✕</button></div>`).join('');
   }
   function addPaidTaskToEdit() {
     const name = document.getElementById('newPaidTaskName').value.trim(); const price = parseFloat(document.getElementById('newPaidTaskPrice').value) || 0;
@@ -1024,7 +1053,7 @@
 
   function renderEditCustomItems() {
     const list = document.getElementById('editCustomItemsList'); if (!tempCustomItems || tempCustomItems.length === 0) { list.innerHTML = ''; return; }
-    list.innerHTML = tempCustomItems.map((item, idx) => `<div class="edit-custom-item"><div style="flex:1; font-size:13px; color:var(--color-text-primary);"><strong>${item.text}</strong>${item.link ? `<br><a href="${item.link}" target="_blank" style="color:var(--color-text-secondary);font-size:11px;">${item.link}</a>` : ''}</div><button type="button" class="del-btn" onclick="removeCustomItemFromEdit(${idx})">✕</button></div>`).join('');
+    list.innerHTML = tempCustomItems.map((item, idx) => `<div class="edit-custom-item"><div style="flex:1; font-size:13px; color:var(--color-text-primary);"><strong>${item.text}</strong>${item.link ? `<br><a href="${item.link}" target="_blank" style="color:var(--color-text-secondary);font-size:11px;">${item.link}</a>` : ''}</div><button type="button" class="del-btn" onclick="window.removeCustomItemFromEdit(${idx})">✕</button></div>`).join('');
   }
   function addCustomItemToEdit() {
     const text = document.getElementById('newCustomText').value.trim(); const link = document.getElementById('newCustomLink').value.trim();
@@ -1034,7 +1063,7 @@
 
   function renderEditCustomStatuses() {
     const list = document.getElementById('editCustomStatusesList'); if (!tempCustomStatuses || tempCustomStatuses.length === 0) { list.innerHTML = ''; return; }
-    list.innerHTML = tempCustomStatuses.map((cs, idx) => `<div class="edit-custom-item"><div style="flex:1; font-size:13px; color:var(--color-text-primary);">🔴 ${cs.textRed || cs.label} <br> 🟢 ${cs.textGreen || (cs.label + ' (Hotovo)')}</div><button type="button" class="del-btn" onclick="removeCustomStatusFromEdit(${idx})">✕</button></div>`).join('');
+    list.innerHTML = tempCustomStatuses.map((cs, idx) => `<div class="edit-custom-item"><div style="flex:1; font-size:13px; color:var(--color-text-primary);">🔴 ${cs.textRed || cs.label} <br> 🟢 ${cs.textGreen || (cs.label + ' (Hotovo)')}</div><button type="button" class="del-btn" onclick="window.removeCustomStatusFromEdit(${idx})">✕</button></div>`).join('');
   }
   function addCustomStatusToEdit() {
     const red = document.getElementById('newCustomStatusRed').value.trim(); const green = document.getElementById('newCustomStatusGreen').value.trim();
@@ -1047,7 +1076,7 @@
     editIdx = i; const isNew = (i === -1);
     document.getElementById('editModalTitle').textContent = isNew ? 'Přidat nový pokoj' : 'Upravit pokoj'; document.getElementById('editName').value = isNew ? '' : rooms[i].name; document.getElementById('editHideDefaultStatus').checked = !isNew && rooms[i].hideDefaultStatus;
     const curEmoji = isNew ? EMOJIS[0] : rooms[i].emoji; const isCustomEmoji = !EMOJIS.includes(curEmoji);
-    document.getElementById('emojiPick').innerHTML = EMOJIS.map(e => `<span class="${(!isCustomEmoji && e===curEmoji)?'sel':''}" onclick="selEmoji(this)">${e}</span>`).join('');
+    document.getElementById('emojiPick').innerHTML = EMOJIS.map(e => `<span class="${(!isCustomEmoji && e===curEmoji)?'sel':''}" onclick="window.selEmoji(this)">${e}</span>`).join('');
     document.getElementById('customEmojiInput').value = isCustomEmoji ? curEmoji : '';
     document.getElementById('newPaidTaskName').value = ''; document.getElementById('newPaidTaskPrice').value = ''; document.getElementById('newCustomText').value = ''; document.getElementById('newCustomLink').value = ''; document.getElementById('newCustomStatusRed').value = ''; document.getElementById('newCustomStatusGreen').value = '';
     tempPaidTasks = (isNew || !rooms[i].paidTasks) ? [] : JSON.parse(JSON.stringify(rooms[i].paidTasks)); renderEditPaidTasks();
@@ -1106,7 +1135,7 @@
     wrap.innerHTML = statuses.map((cs, idx) => {
       const btnClass = cs.isDone ? 'btn-clean' : 'btn-dirty'; const rTxt = cs.textRed || cs.label; const gTxt = cs.textGreen || (cs.label + ' (Hotovo)');
       const icon = cs.isDone ? '🟢' : '🔴'; const text = cs.isDone ? gTxt : rTxt;
-      return `<button class="toggle-status-btn ${btnClass}" style="margin-top:0;" ${!canToggle ? 'disabled' : ''} onclick="toggleCustomStatus(${idx})">${icon} ${text}</button>`;
+      return `<button class="toggle-status-btn ${btnClass}" style="margin-top:0;" ${!canToggle ? 'disabled' : ''} onclick="window.toggleCustomStatus(${idx})">${icon} ${text}</button>`;
     }).join('');
   }
 
@@ -1216,7 +1245,7 @@
           else style = `background: linear-gradient(135deg, ${dayMap[ds][0]} 50%, ${dayMap[ds][1]} 50%); border-color: rgba(0,0,0,0.1);`;
       }
       if (selStart === ds || selEnd === ds) { cls += ' sel-node'; style = ''; } else if (selStart && selEnd && ds > selStart && ds < selEnd) { cls += ' sel-mid'; style = ''; }
-      html += `<div class="${cls}" style="${style}" onclick="bookingCalDayClick('${ds}')">${d}</div>`;
+      html += `<div class="${cls}" style="${style}" onclick="window.bookingCalDayClick('${ds}')">${d}</div>`;
     } g.innerHTML = html;
   }
 
@@ -1232,9 +1261,14 @@
     const list = bookings[curRoom] || []; const el = document.getElementById('bookingsList'); const canDel = currentUser && currentUser.canDelete; 
     const canBook = currentUser && currentUser.role !== 'staff';
     if(!list.length) { el.innerHTML = ''; return; }
-    el.innerHTML = list.map((b,i) => {
+    
+    // TADY SE DĚJE TO SEŘAZENÍ (chronologicky od nejstaršího po nejnovější)
+    const sortedList = list.map((b, i) => ({ b, originalIndex: i })).sort((x, y) => x.b.from.localeCompare(y.b.from));
+    
+    el.innerHTML = sortedList.map(item => {
+        const b = item.b; const i = item.originalIndex;
         const color = BOOKING_COLORS[i % BOOKING_COLORS.length];
-        return `<div class="booking-item" style="border-left: 4px solid ${color};"><div><div class="booking-dates">${fmt(b.from)} → ${fmt(b.to)}</div>${b.note ? `<div class="booking-note">${b.note}</div>` : ''}</div><div style="display:flex; gap:4px;">${canBook ? `<button class="del-btn" style="color:var(--color-text-primary); font-size:14px;" onclick="openBookingModal(${i})" title="Upravit">✎</button>` : ''} ${canDel ? `<button class="del-btn" style="font-size:14px;" onclick="delBooking(${i})" title="Smazat">✕</button>` : ''}</div></div>`;
+        return `<div class="booking-item" style="border-left: 4px solid ${color};"><div><div class="booking-dates">${fmt(b.from)} → ${fmt(b.to)}</div>${b.note ? `<div class="booking-note">${b.note}</div>` : ''}</div><div style="display:flex; gap:4px;">${canBook ? `<button class="del-btn" style="color:var(--color-text-primary); font-size:14px;" onclick="window.openBookingModal(${i})" title="Upravit">✎</button>` : ''} ${canDel ? `<button class="del-btn" style="font-size:14px;" onclick="window.delBooking(${i})" title="Smazat">✕</button>` : ''}</div></div>`;
     }).join('');
   }
   
@@ -1274,7 +1308,7 @@
   function renderPhotos() {
       const grid = document.getElementById('roomPhotosGrid'); const photos = rooms[curRoom].photos || [];
       if(photos.length === 0) { grid.innerHTML = ''; return; }
-      grid.innerHTML = photos.map((p, idx) => `<div class="photo-wrap"><img src="${p.data}" class="photo-thumb" onclick="viewPhoto('${p.data}')">${currentUser && currentUser.canToggle ? `<button class="photo-del" onclick="deletePhoto(${idx})">✕</button>` : ''}</div>`).join('');
+      grid.innerHTML = photos.map((p, idx) => `<div class="photo-wrap"><img src="${p.data}" class="photo-thumb" onclick="window.viewPhoto('${p.data}')">${currentUser && currentUser.canToggle ? `<button class="photo-del" onclick="window.deletePhoto(${idx})">✕</button>` : ''}</div>`).join('');
   }
 
   function viewPhoto(dataUrl) { document.getElementById('photoViewerImg').src = dataUrl; document.getElementById('photoViewerBg').classList.add('open'); }
@@ -1337,13 +1371,14 @@
   window.renderStatsPanel = renderStatsPanel;
   window.toggleSettingsMenu = toggleSettingsMenu;
   window.toggleTheme = toggleTheme;
+  window.autoResize = autoResize;
   
-  document.getElementById('loginPass').addEventListener('keydown', function(e) { if(e.key === 'Enter') loginWithEmail(); });
-  document.getElementById('loginEmail').addEventListener('keydown', function(e) { if(e.key === 'Enter') document.getElementById('loginPass').focus(); });
-  document.getElementById('modalBg').addEventListener('click', function(e) { if(e.target === this) closeModal(); });
-  document.getElementById('editBg').addEventListener('click', function(e) { if(e.target === this) closeEdit(); });
-  document.getElementById('usersAdminBg').addEventListener('click', function(e) { if(e.target === this) closeUsersAdmin(); });
-  document.getElementById('statsModalBg').addEventListener('click', function(e) { if(e.target === this) closeStatsModal(); });
+  if (document.getElementById('loginPass')) document.getElementById('loginPass').addEventListener('keydown', function(e) { if(e.key === 'Enter') loginWithEmail(); });
+  if (document.getElementById('loginEmail')) document.getElementById('loginEmail').addEventListener('keydown', function(e) { if(e.key === 'Enter') document.getElementById('loginPass').focus(); });
+  if (document.getElementById('modalBg')) document.getElementById('modalBg').addEventListener('click', function(e) { if(e.target === this) closeModal(); });
+  if (document.getElementById('editBg')) document.getElementById('editBg').addEventListener('click', function(e) { if(e.target === this) closeEdit(); });
+  if (document.getElementById('usersAdminBg')) document.getElementById('usersAdminBg').addEventListener('click', function(e) { if(e.target === this) closeUsersAdmin(); });
+  if (document.getElementById('statsModalBg')) document.getElementById('statsModalBg').addEventListener('click', function(e) { if(e.target === this) closeStatsModal(); });
 </script>
 </body>
 </html>
