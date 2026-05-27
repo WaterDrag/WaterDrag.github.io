@@ -819,7 +819,7 @@ function tlWeekStart() {
 
 function tlGetRoomBookings(roomIdx) {
   return (bookings[roomIdx] || [])
-    .map(b => ({ from: new Date(b.from + 'T00:00:00'), to: new Date(b.to + 'T00:00:00') }))
+    .map((b, idx) => ({ from: new Date(b.from + 'T00:00:00'), to: new Date(b.to + 'T00:00:00'), originalIndex: idx, note: b.note }))
     .sort((a, b) => a.from - b.from);
 }
 
@@ -921,7 +921,7 @@ window.renderTimeline = () => {
           cls += ' tl-free';
           cell.addEventListener('click', () => window.openTlModal(ri, room.name, cleanKey, dstr, 'claim'));
         } else if (isTakenByOther && window.hasPermission('tl_cancel_other')) {
-          cls += ' tl-mine'; // Umožní kliknout na cizí
+          cls += ' tl-mine';
           cell.addEventListener('click', () => window.openTlModal(ri, room.name, cleanKey, dstr, 'mine'));
         }
       }
@@ -940,16 +940,16 @@ window.renderTimeline = () => {
       if (si === -1) {
         leftPx = 2; 
       } else {
-        leftPx = (si * cw) + (cw / 2) + 1; // Začíná v půlce dne
+        leftPx = (si * cw) + (cw / 2) + 1; 
       }
 
       if (ei === -1) {
         rightPx = (TL_ND * cw) - 2; 
       } else {
-        rightPx = (ei * cw) + (cw / 2) - 1; // Končí v půlce dne
+        rightPx = (ei * cw) + (cw / 2) - 1; 
       }
 
-      if (si !== -1 && si === ei) { // Rezervace od/do ve stejný den
+      if (si !== -1 && si === ei) { 
         leftPx = (si * cw) + 4;
         rightPx = ((si + 1) * cw) - 4;
       }
@@ -957,10 +957,9 @@ window.renderTimeline = () => {
       const barWidth = rightPx - leftPx;
       if (barWidth <= 0) return;
 
-      const color = TL_BOOKING_COLORS[bi % TL_BOOKING_COLORS.length];
+      const color = TL_BOOKING_COLORS[b.originalIndex % TL_BOOKING_COLORS.length];
       const bar = document.createElement('div');
-      const booking = (bookings[ri] || [])[bi];
-      const noteTxt = booking && booking.note ? ' · ' + booking.note : '';
+      const noteTxt = b.note ? ' · ' + b.note : '';
       const lbl2 = (si === -1 ? '← ' : '') + window.tlFd(fromStr) + '→' + window.tlFd(toStr) + (ei === -1 ? ' →' : '') + noteTxt;
       
       bar.style.cssText = `position:absolute;top:6px;left:${leftPx}px;width:${barWidth}px;height:24px;border-radius:4px;display:flex;align-items:center;padding:0 6px;font-size:11px;font-weight:700;z-index:2;white-space:nowrap;overflow:hidden;pointer-events:none;background:${color};color:#18181b;box-shadow:0 1px 2px rgba(0,0,0,0.1);`;
