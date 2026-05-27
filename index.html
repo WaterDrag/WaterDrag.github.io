@@ -24,7 +24,6 @@
   body{font-family:'Lato',sans-serif;background:var(--color-background-secondary); transition: background-color 0.3s;}
   .screen{display:none} .screen.active{display:block}
 
-  /* --- ANIMACE --- */
   @keyframes bgFadeIn { 0% { background: rgba(0,0,0,0); } 100% { background: rgba(0,0,0,0.6); } }
   @keyframes modalPopIn { 0% { opacity: 0; transform: scale(0.9) translateY(15px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
   @keyframes cardSlideUp { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
@@ -99,6 +98,50 @@
   body.dark-mode .edit-btn { background: rgba(0,0,0,0.8); color: #fff; }
   .room-card:hover .edit-btn{opacity:1}
 
+  /* TIMELINE CSS */
+  .timeline-wrap { max-width: 1200px; margin: 0 auto 2rem; padding: 0 24px; }
+  .timeline-section-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--color-text-secondary); margin-bottom: 12px; }
+  .tl-wrap { background: var(--color-background-primary); border: 1px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; position: relative; }
+  .tl-topbar { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 1px solid var(--color-border-tertiary); background: var(--color-background-secondary); }
+  .tl-navbtn { background: var(--color-background-primary); border: 1px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--color-text-primary); font-size: 16px; transition: background 0.15s; }
+  .tl-navbtn:hover { background: var(--color-background-secondary); }
+  .tl-wlabel { font-size: 14px; font-weight: 700; color: var(--color-text-primary); }
+  .tl-thead { display: flex; border-bottom: 1px solid var(--color-border-tertiary); }
+  .tl-rcol { width: 120px; flex-shrink: 0; font-size: 11px; font-weight: 700; color: var(--color-text-secondary); letter-spacing: .06em; text-transform: uppercase; padding: 7px 10px; border-right: 1px solid var(--color-border-tertiary); background: var(--color-background-secondary); }
+  .tl-dhdr { flex: 1; text-align: center; font-size: 11px; color: var(--color-text-secondary); padding: 5px 1px; border-right: 1px solid var(--color-border-tertiary); line-height: 1.3; }
+  .tl-dhdr:last-child { border-right: none; }
+  .tl-dhdr.today { background: var(--color-background-secondary); font-weight: 700; color: var(--color-text-primary); }
+  .tl-trow { display: flex; border-bottom: 1px solid var(--color-border-tertiary); min-height: 52px; }
+  .tl-trow:last-child { border-bottom: none; }
+  .tl-rlbl { width: 120px; flex-shrink: 0; padding: 7px 10px; border-right: 1px solid var(--color-border-tertiary); background: var(--color-background-secondary); display: flex; align-items: center; gap: 6px; }
+  .tl-rname { font-size: 12px; font-weight: 700; color: var(--color-text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tl-tcells { flex: 1; position: relative; display: flex; }
+  .tl-tcell { flex: 1; border-right: 1px solid var(--color-border-tertiary); min-height: 52px; cursor: default; transition: background .12s; }
+  .tl-tcell:last-child { border-right: none; }
+  .tl-tcell.today-col { background: rgba(0,0,0,.025); }
+  body.dark-mode .tl-tcell.today-col { background: rgba(255,255,255,.03); }
+  .tl-tcell.tl-free:hover { background: rgba(250,238,218,.5); cursor: pointer; }
+  body.dark-mode .tl-tcell.tl-free:hover { background: rgba(120,80,20,.2); }
+  .tl-tcell.tl-mine:hover { background: rgba(192,221,151,.3); cursor: pointer; }
+  body.dark-mode .tl-tcell.tl-mine:hover { background: rgba(192,221,151,.15); }
+  .tl-legend { display: flex; gap: 12px; flex-wrap: wrap; padding: 8px 14px; border-top: 1px solid var(--color-border-tertiary); background: var(--color-background-secondary); }
+  .tl-li { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--color-text-secondary); }
+  .tl-ld { width: 11px; height: 11px; border-radius: 3px; flex-shrink: 0; }
+  .tl-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 100000; align-items: center; justify-content: center; padding: 1rem; }
+  .tl-overlay.open { display: flex; animation: bgFadeIn 0.2s ease-out forwards; }
+  .tl-modal { background: var(--color-background-primary); border-radius: var(--border-radius-xl); padding: 24px; width: min(320px, 100%); border: 1px solid var(--color-border-tertiary); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); opacity: 0; }
+  .tl-overlay.open .tl-modal { animation: modalPopIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.15) forwards; }
+  .tl-mtitle { font-size: 18px; font-weight: 700; color: var(--color-text-primary); margin-bottom: 4px; font-family: 'Playfair Display', serif; }
+  .tl-msub { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 18px; }
+  .tl-mbtn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; border-radius: var(--border-radius-md); padding: 12px; font-size: 14px; font-weight: 700; cursor: pointer; margin-bottom: 8px; font-family: 'Lato', sans-serif; transition: transform 0.1s, background 0.2s; }
+  .tl-mbtn:active { transform: scale(0.96); }
+  .tl-mbtn.confirm { background: #DCFCE7; border: 1px solid #166534; color: #14532D; }
+  body.dark-mode .tl-mbtn.confirm { background: #064e3b; border-color: #34d399; color: #34d399; }
+  .tl-mbtn.remove { background: var(--color-background-secondary); border: 1px solid var(--color-text-danger); color: var(--color-text-danger); }
+  .tl-cbtn { width: 100%; background: var(--color-background-primary); border: 1px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 10px; font-size: 13px; font-weight: 700; color: var(--color-text-primary); cursor: pointer; font-family: 'Lato', sans-serif; transition: background 0.15s; }
+  .tl-cbtn:hover { background: var(--color-background-secondary); }
+
+  /* Zbytek aplikací */
   .general-notes-wrap{max-width:1200px;margin:0 auto 1.5rem;padding:0 24px}
 
   .modal-bg{display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0);align-items:center;justify-content:center;padding:1rem;z-index:9999}
@@ -213,6 +256,12 @@
   .shift-counter-btn:hover { background:var(--color-border-tertiary); }
   .shift-counter-val { font-size:16px; font-weight:bold; color:var(--color-text-primary); width:40px; text-align:center;}
 
+  /* Nové CSS pro panel oprávnění rolí */
+  .perm-group { margin-bottom: 16px; border: 1px solid var(--color-border-secondary); border-radius: var(--border-radius-md); overflow: hidden; }
+  .perm-group-title { background: var(--color-background-secondary); padding: 10px 14px; font-size: 13px; font-weight: 700; color: var(--color-text-primary); border-bottom: 1px solid var(--color-border-secondary); }
+  .perm-items { padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; background: var(--color-background-primary); }
+  .perm-item { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--color-text-primary); cursor: pointer; text-transform: none; font-weight: 400; margin: 0; }
+
   @media (max-width: 640px) {
     .hotel-header { padding-top: 3.5rem; padding-bottom: 1.25rem; }
     .user-info { top: 1.25rem; left: 1rem; transform: none; font-size: 13px; }
@@ -229,6 +278,9 @@
     .modal-bg.open .modal, .edit-modal-bg.open .edit-modal { animation: modalSlideUpPhone 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     .cal-day { font-size: 12px; padding: 8px 0; }
     .add-btn, .btn-save, .btn-cancel, .btn-delete-room { padding: 14px 10px; } .general-notes-wrap { padding: 0 16px; margin-bottom: 2.5rem;}
+    .timeline-wrap { padding: 0 16px; }
+    .tl-rcol, .tl-rlbl { width: 72px; font-size: 10px; }
+    .tl-rname { font-size: 10px; }
   }
   </style>
 </head>
@@ -244,7 +296,7 @@
     <div class="login-card">
       <div class="login-title">Penzion management</div>
       <div class="login-sub">Ověření přístupu</div>
-      <button class="google-btn" onclick="loginWithGoogle()">
+      <button class="google-btn" onclick="window.loginWithGoogle()">
         <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
         Přihlásit přes Google
       </button>
@@ -253,7 +305,7 @@
       <input type="email" id="loginEmail" placeholder="vas@email.cz" autocomplete="email">
       <label class="login-label">Heslo</label>
       <input type="password" id="loginPass" placeholder="zadejte heslo" autocomplete="current-password">
-      <button class="login-btn" onclick="loginWithEmail()">Přihlásit se</button>
+      <button class="login-btn" onclick="window.loginWithEmail()">Přihlásit se</button>
       <div class="login-err" id="loginErr"></div>
     </div>
   </div>
@@ -265,35 +317,59 @@
     <div class="hotel-title">Penzion management</div>
     <div class="hotel-sub">správa pokojů</div>
     
-    <button id="myShiftBtn" class="add-btn" style="display:none; margin: 12px auto 0;" onclick="openMyShift()">💼 Moje směna</button>
+    <button id="myShiftBtn" class="add-btn" style="display:none; margin: 12px auto 0;" onclick="window.openMyShift()">💼 Moje směna</button>
     
     <div class="settings-menu-wrap" id="menuActionsWrap" style="display:none;">
-      <button id="topStatsBtn" class="gear-btn" onclick="openStatsModal()" style="display:none; font-size:16px; padding:6px 10px;" title="Výkazy směn">📊</button>
+      <button id="topStatsBtn" class="gear-btn" onclick="window.openStatsModal()" style="display:none; font-size:16px; padding:6px 10px;" title="Výkazy směn">📊</button>
       <div style="position:relative;">
-        <button class="gear-btn" onclick="toggleSettingsMenu(event)">⚙️</button>
+        <button class="gear-btn" onclick="window.toggleSettingsMenu(event)">⚙️</button>
         <div class="settings-dropdown" id="settingsDropdown">
-          <button onclick="toggleColorMode()">🎨 Sytost barev</button>
-          <button onclick="toggleTheme()" id="menuThemeBtn">🌙 Vzhled</button>
+          <button onclick="window.toggleColorMode()">🎨 Sytost barev</button>
+          <button onclick="window.toggleTheme()" id="menuThemeBtn">🌙 Vzhled</button>
           <div class="menu-divider"></div>
-          <button onclick="doLogout()" style="color: var(--color-text-danger);">🚪 Odhlásit</button>
+          <button onclick="window.doLogout()" style="color: var(--color-text-danger);">🚪 Odhlásit</button>
         </div>
       </div>
     </div>
   </div>
   
   <div id="adminActionsWrap" class="admin-actions-wrap" style="display:none;">
-    <button class="add-btn" onclick="openEdit(-1)">+ Přidat nový pokoj</button>
-    <button class="save-note-btn" onclick="openUsersAdmin()">👥 Správa přístupů</button>
+    <button id="btnAddRoom" class="add-btn" style="display:none;" onclick="window.openEdit(-1)">+ Přidat nový pokoj</button>
+    <button id="btnManageUsers" class="save-note-btn" style="display:none;" onclick="window.openUsersAdmin()">👥 Správa uživatelů</button>
+    <button id="btnManageRoles" class="save-note-btn" style="display:none;" onclick="window.openRolesAdmin()">🔑 Správa oprávnění</button>
   </div>
 
   <div id="miniStats" class="mini-stats-wrap"></div>
   <div class="rooms-grid" id="roomsGrid"></div>
 
+  <!-- TIMELINE WIDGET -->
+  <div class="timeline-wrap" id="timelineWrap" style="display:none;">
+    <div class="timeline-section-label">Přehled obsazenosti — Timeline</div>
+    <div class="tl-wrap" id="tlMainWrap">
+      <div class="tl-topbar">
+        <button class="tl-navbtn" id="tlPw" onclick="window.tlChangeWeek(-1)">‹</button>
+        <span class="tl-wlabel" id="tlWl"></span>
+        <button class="tl-navbtn" id="tlNw" onclick="window.tlChangeWeek(1)">›</button>
+      </div>
+      <div class="tl-thead"><div class="tl-rcol">Pokoj</div><div id="tlDh" style="flex:1;display:flex;"></div></div>
+      <div id="tlTb"></div>
+      <div class="tl-legend" id="tlLeg"></div>
+      <div class="tl-overlay" id="tlOv">
+        <div class="tl-modal">
+          <div class="tl-mtitle" id="tlMt"></div>
+          <div class="tl-msub" id="tlMs"></div>
+          <div id="tlMst"></div>
+          <button class="tl-cbtn" id="tlMc" onclick="window.closeTlModal()">Zrušit</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="general-notes-wrap">
     <div class="section-label">Poznámky</div>
-    <textarea class="notes-area" id="generalNotes" oninput="autoResize(this)" placeholder="Co chybí, co se rozbilo na recepci..."></textarea>
+    <textarea class="notes-area" id="generalNotes" oninput="window.autoResize(this)" placeholder="Co chybí, co se rozbilo na recepci..."></textarea>
     <div style="display:flex;align-items:center">
-      <button class="save-note-btn" onclick="saveGeneralNote()">Uložit vzkaz</button>
+      <button class="save-note-btn" id="saveGenNoteBtn" onclick="window.saveGeneralNote()">Uložit vzkaz</button>
       <span class="note-saved" id="genNoteSaved">✓ Uloženo</span>
     </div>
   </div>
@@ -301,17 +377,18 @@
   <div class="general-notes-wrap" id="staffTasksWrap" style="display:none;">
     <div class="section-label">Úkoly pro personál</div>
     <div id="staffTasksList"></div>
-    <div style="display:flex; gap:8px; margin-top:12px;">
+    <div id="addTaskForm" style="display:flex; gap:8px; margin-top:12px;">
       <input type="text" id="newStaffTask" placeholder="Nový úkol..." style="flex:1; padding:12px 14px; border-radius:var(--border-radius-md); border:1px solid var(--color-border-secondary); background:var(--color-background-primary); color:var(--color-text-primary); font-family:'Lato',sans-serif; outline:none;">
-      <button class="add-btn" onclick="addStaffTask()">Přidat úkol</button>
+      <button class="add-btn" onclick="window.addStaffTask()">Přidat úkol</button>
     </div>
   </div>
 
+  <!-- MODALS -->
   <div class="edit-modal-bg" id="shiftBg">
     <div class="edit-modal" style="width: min(450px, 100%)">
       <h3>💼 Moje směna</h3>
       <label>Vyberte den:</label>
-      <input type="date" id="shiftDateSelect" onchange="changeShiftDate()" style="margin-bottom:16px;">
+      <input type="date" id="shiftDateSelect" onchange="window.changeShiftDate()" style="margin-bottom:16px;">
       <label>Placené úkony:</label>
       <div id="myShiftRoomsList" style="margin-bottom:16px; border-top:1px solid var(--color-border-secondary); padding-top:8px;"></div>
       <label>Odpracované hodiny:</label>
@@ -319,8 +396,8 @@
       <label>Poznámka:</label>
       <textarea id="myShiftNote" style="width:100%; min-height:60px; padding:12px; border-radius:var(--border-radius-md); border:1px solid var(--color-border-secondary); background:var(--color-background-primary); color:var(--color-text-primary); font-family:'Lato',sans-serif; resize:vertical; outline:none; margin-bottom:16px;"></textarea>
       <div class="edit-btns">
-        <button class="btn-save" onclick="saveMyShift()">Uložit</button>
-        <button class="btn-cancel" onclick="closeMyShift()">Zavřít</button>
+        <button class="btn-save" onclick="window.saveMyShift()">Uložit</button>
+        <button class="btn-cancel" onclick="window.closeMyShift()">Zavřít</button>
       </div>
     </div>
   </div>
@@ -329,7 +406,7 @@
     <div class="edit-modal" style="width: min(600px, 100%); max-height:85vh; display:flex; flex-direction:column;">
       <h3 id="statsMainTitle">📊 Výkazy směn</h3>
       <div id="statsPanelContent" style="margin-bottom: 1.5rem; overflow-y:auto; flex:1;"></div>
-      <div class="edit-btns"><button class="btn-cancel" onclick="closeStatsModal()">Zavřít</button></div>
+      <div class="edit-btns"><button class="btn-cancel" onclick="window.closeStatsModal()">Zavřít</button></div>
     </div>
   </div>
 
@@ -337,16 +414,17 @@
     <div class="edit-modal" style="width: min(500px, 100%)">
       <h3 id="sdName">Detaily výkazu</h3>
       <div id="sdContent" style="font-size:14px; color:var(--color-text-primary); margin-bottom:1.5rem; line-height:1.5;"></div>
-      <div class="edit-btns"><button class="btn-cancel" onclick="closeShiftDetails()">Zavřít</button></div>
+      <div class="edit-btns"><button class="btn-cancel" onclick="window.closeShiftDetails()">Zavřít</button></div>
     </div>
   </div>
+
   <div class="edit-modal-bg" id="newBookingsModalBg" style="z-index: 99999;">
     <div class="edit-modal" style="width: min(500px, 100%)">
       <h3>🔔 Nové rezervace</h3>
       <p style="font-size:13px; color:var(--color-text-secondary); margin-bottom:16px;">Od vašeho posledního přihlášení byly přidány tyto nové termíny:</p>
       <div id="newBookingsList" style="max-height: 400px; overflow-y: auto; margin-bottom: 16px; padding: 8px;"></div>
       <div class="edit-btns">
-        <button class="btn-save" onclick="closeNewBookingsModal()">Rozumím, zavřít</button>
+        <button class="btn-save" onclick="window.closeNewBookingsModal()">Rozumím, zavřít</button>
       </div>
     </div>
   </div>
@@ -362,39 +440,32 @@
         <div class="modal-room-sub" id="modalSub"></div>
         <div id="roomCustomItemsWrap" class="custom-items-wrap"></div>
         <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;">
-          <button id="toggleStatusBtn" class="toggle-status-btn" style="margin-top:0;" onclick="toggleDirty()"></button>
+          <button id="toggleStatusBtn" class="toggle-status-btn" style="margin-top:0;" onclick="window.toggleDirty()"></button>
           <span id="customStatusesWrap" style="display:flex; gap:8px; flex-wrap:wrap;"></span>
         </div>
-        <button class="close-btn" onclick="closeModal()">✕</button>
+        <button class="close-btn" onclick="window.closeModal()">✕</button>
       </div>
       <div class="modal-body">
-        
         <div class="section-label" style="margin-top:0; display:flex; justify-content:space-between; align-items:center;">
           Kalendář a Rezervace
         </div>
-        
-        <button class="add-btn" id="openBookingBtn" onclick="openBookingModal(-1)" style="width:100%; margin-bottom:1rem; display:none;">+ Nová rezervace</button>
-        
+        <button class="add-btn" id="openBookingBtn" onclick="window.openBookingModal(-1)" style="width:100%; margin-bottom:1rem; display:none;">+ Nová rezervace</button>
         <div class="cal-nav">
-          <button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button>
+          <button class="cal-nav-btn" onclick="window.changeMonth(-1)">‹</button>
           <span class="cal-month" id="calMonth"></span>
-          <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
+          <button class="cal-nav-btn" onclick="window.changeMonth(1)">›</button>
         </div>
         <div class="calendar-grid" id="calGrid" style="pointer-events:none;"></div>
-        
         <div id="bookingsList" class="bookings-list" style="margin-top:1.25rem"></div>
-        
         <div class="section-label">Poznámky k pokoji</div>
-        <textarea class="notes-area" id="roomNotes" oninput="autoResize(this)" placeholder="Stav pokoje, vybavení, opravy..."></textarea>
-        
-        <label class="photo-upload-label">
+        <textarea class="notes-area" id="roomNotes" oninput="window.autoResize(this)" placeholder="Stav pokoje, vybavení, opravy..."></textarea>
+        <label class="photo-upload-label" id="photoUploadLabel">
             📸 Přidat fotku (Fotoaparát / Galerie)
-            <input type="file" accept="image/*" style="display:none;" onchange="handlePhotoUpload(this)">
+            <input type="file" accept="image/*" style="display:none;" onchange="window.handlePhotoUpload(this)">
         </label>
         <div class="photo-grid" id="roomPhotosGrid"></div>
-
         <div style="display:flex;align-items:center; margin-top:12px;">
-          <button class="save-note-btn" id="saveNoteBtn" onclick="saveNote()" style="margin-top:0;">Uložit poznámky</button>
+          <button class="save-note-btn" id="saveNoteBtn" onclick="window.saveNote()" style="margin-top:0;">Uložit poznámky</button>
           <span class="note-saved" id="noteSaved">✓ Uloženo</span>
         </div>
       </div>
@@ -405,24 +476,20 @@
     <div class="edit-modal" style="width: min(450px, 100%)">
       <h3 id="bookingModalTitle">Nová rezervace</h3>
       <p style="font-size:12px; color:var(--color-text-secondary); margin-bottom:12px;" id="bookingHelpText">💡 Klikněte 2x do kalendáře pro výběr data (Příjezd a Odjezd).</p>
-      
       <div class="cal-nav">
-        <button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button>
+        <button class="cal-nav-btn" onclick="window.changeMonth(-1)">‹</button>
         <span class="cal-month" id="bookingCalMonth"></span>
-        <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
+        <button class="cal-nav-btn" onclick="window.changeMonth(1)">›</button>
       </div>
       <div class="calendar-grid" id="bookingCalGrid" style="margin-bottom:16px;"></div>
-      
       <div style="display:flex; gap:12px; margin-bottom:12px;">
-        <input type="text" id="bDateFrom" placeholder="Příjezd" readonly style="flex:1; padding:12px; font-size:14px; border:1px solid var(--color-border-secondary); border-radius:var(--border-radius-md); background:var(--color-background-secondary); text-align:center; color:var(--color-text-primary); cursor:pointer;" onclick="resetBookingSelection()">
-        <input type="text" id="bDateTo" placeholder="Odjezd" readonly style="flex:1; padding:12px; font-size:14px; border:1px solid var(--color-border-secondary); border-radius:var(--border-radius-md); background:var(--color-background-secondary); text-align:center; color:var(--color-text-primary); cursor:pointer;" onclick="resetBookingSelection()">
+        <input type="text" id="bDateFrom" placeholder="Příjezd" readonly style="flex:1; padding:12px; font-size:14px; border:1px solid var(--color-border-secondary); border-radius:var(--border-radius-md); background:var(--color-background-secondary); text-align:center; color:var(--color-text-primary); cursor:pointer;" onclick="window.resetBookingSelection()">
+        <input type="text" id="bDateTo" placeholder="Odjezd" readonly style="flex:1; padding:12px; font-size:14px; border:1px solid var(--color-border-secondary); border-radius:var(--border-radius-md); background:var(--color-background-secondary); text-align:center; color:var(--color-text-primary); cursor:pointer;" onclick="window.resetBookingSelection()">
       </div>
-      
-      <textarea id="bBookingNote" oninput="autoResize(this)" placeholder="Speciální poznámky k rezervaci (VIP, atd.)" style="width:100%; min-height:60px; padding:12px; border-radius:var(--border-radius-md); border:1px solid var(--color-border-secondary); background:var(--color-background-primary); color:var(--color-text-primary); font-family:'Lato',sans-serif; resize:vertical; outline:none; margin-bottom:16px;"></textarea>
-
+      <textarea id="bBookingNote" oninput="window.autoResize(this)" placeholder="Speciální poznámky k rezervaci (VIP, atd.)" style="width:100%; min-height:60px; padding:12px; border-radius:var(--border-radius-md); border:1px solid var(--color-border-secondary); background:var(--color-background-primary); color:var(--color-text-primary); font-family:'Lato',sans-serif; resize:vertical; outline:none; margin-bottom:16px;"></textarea>
       <div class="edit-btns">
-        <button class="btn-save" id="saveBookingBtn" onclick="saveBooking()">Uložit rezervaci</button>
-        <button class="btn-cancel" onclick="closeBookingModal()">Zrušit</button>
+        <button class="btn-save" id="saveBookingBtn" onclick="window.saveBooking()">Uložit rezervaci</button>
+        <button class="btn-cancel" onclick="window.closeBookingModal()">Zrušit</button>
       </div>
     </div>
   </div>
@@ -432,47 +499,43 @@
       <h3 id="editModalTitle">Upravit pokoj</h3>
       <label>Název pokoje</label>
       <input type="text" id="editName" maxlength="22">
-      
       <label>Ikona (vyberte nebo vložte vlastní)</label>
       <div style="display:flex; gap:8px; align-items:flex-start;">
         <div class="emoji-pick" id="emojiPick" style="margin-top:0; flex:1;"></div>
-        <input type="text" id="customEmojiInput" placeholder="Jiná?" maxlength="5" title="Vložte z klávesnice libovolné emoji" oninput="clearEmojiSelection()" style="width: 70px !important; flex:none; height:46px; font-size:24px; text-align:center; padding:0; border:2px solid var(--color-border-secondary); border-radius:var(--border-radius-md); background:var(--color-background-primary);">
+        <input type="text" id="customEmojiInput" placeholder="Jiná?" maxlength="5" title="Vložte z klávesnice libovolné emoji" oninput="window.clearEmojiSelection()" style="width: 70px !important; flex:none; height:46px; font-size:24px; text-align:center; padding:0; border:2px solid var(--color-border-secondary); border-radius:var(--border-radius-md); background:var(--color-background-primary);">
       </div>
-
       <label style="margin-top:20px;">Placené úkony (Odměny pro personál)</label>
       <div id="editPaidTasksList" style="margin-bottom:8px;"></div>
       <div style="display:flex; gap:8px;">
         <input type="text" id="newPaidTaskName" placeholder="Název úkonu (např. Basic úklid)" style="flex:2">
         <input type="number" id="newPaidTaskPrice" placeholder="Cena (Kč)" style="flex:1">
-        <button type="button" class="add-btn" onclick="addPaidTaskToEdit()" style="padding:12px 16px;">+</button>
+        <button type="button" class="add-btn" onclick="window.addPaidTaskToEdit()" style="padding:12px 16px;">+</button>
       </div>
-
       <label style="margin-top:20px; display:flex; align-items:center; gap:8px; cursor:pointer; color:var(--color-text-primary); text-transform:none;">
         <input type="checkbox" id="editHideDefaultStatus"> Skrýt výchozí tlačítko (Uklizeno/Špinavé)
       </label>
-
+      <label style="margin-top:12px; display:flex; align-items:center; gap:8px; cursor:pointer; color:var(--color-text-primary); text-transform:none; font-weight:400;">
+        <input type="checkbox" id="editShowInTimeline"> Zobrazit ve společném kalendáři (Timeline)
+      </label>
       <label style="margin-top:20px;">Vlastní štítky a odkazy (PINy, návody...)</label>
       <div id="editCustomItemsList" style="margin-bottom:8px;"></div>
       <div style="display:flex; gap:8px;">
         <input type="text" id="newCustomText" placeholder="Nápis (např. PIN 1234)" style="flex:1">
         <input type="text" id="newCustomLink" placeholder="Odkaz (http...)" style="flex:1">
-        <button type="button" class="add-btn" onclick="addCustomItemToEdit()" style="padding:12px 16px;">+</button>
+        <button type="button" class="add-btn" onclick="window.addCustomItemToEdit()" style="padding:12px 16px;">+</button>
       </div>
-
       <label style="margin-top:20px;">Vlastní stavová tlačítka (zobrazí se na hlavní ploše)</label>
       <div id="editCustomStatusesList" style="margin-bottom:8px;"></div>
       <div style="display:flex; gap:8px;">
         <input type="text" id="newCustomStatusRed" placeholder="Červený stav (např. Posekat)" style="flex:1">
         <input type="text" id="newCustomStatusGreen" placeholder="Zelený stav (např. Posekáno)" style="flex:1">
-        <button type="button" class="add-btn" onclick="addCustomStatusToEdit()" style="padding:12px 16px;">+</button>
+        <button type="button" class="add-btn" onclick="window.addCustomStatusToEdit()" style="padding:12px 16px;">+</button>
       </div>
-
       <div id="linkedRoomsWrap"></div>
-
       <div class="edit-btns">
-        <button class="btn-save" onclick="saveEdit()">Uložit</button>
-        <button class="btn-delete-room" id="delRoomBtn" onclick="deleteRoom()">Smazat</button>
-        <button class="btn-cancel" onclick="closeEdit()">Zrušit</button>
+        <button class="btn-save" onclick="window.saveEdit()">Uložit</button>
+        <button class="btn-delete-room" id="delRoomBtn" onclick="window.deleteRoom()">Smazat</button>
+        <button class="btn-cancel" onclick="window.closeEdit()">Zrušit</button>
       </div>
     </div>
   </div>
@@ -481,7 +544,6 @@
     <div class="edit-modal" style="width: min(650px, 100%)">
       <h3>Správa přístupů</h3>
       <p style="font-size:12px; color:var(--color-text-secondary); margin-bottom:1rem;">Přidejte e-mail zaměstnance a zvolte mu oprávnění. Bez e-mailu na tomto seznamu se nikdo nepřihlásí.</p>
-      
       <div class="admin-form" style="display:flex; gap:8px; margin-bottom:1rem; flex-wrap:wrap; align-items:center;">
         <input type="email" id="newUserEmail" placeholder="E-mail" style="flex:2; min-width:120px;">
         <input type="text" id="newUserNick" placeholder="Přezdívka" style="flex:1; min-width:90px;">
@@ -492,893 +554,1043 @@
           <option value="admin">Admin</option>
           <option value="owner">Owner</option>
         </select>
-        <button class="add-btn" id="addBtnAdmin" onclick="addUserRole()" style="padding:12px">Přidat</button>
+        <button class="add-btn" id="addBtnAdmin" onclick="window.addUserRole()" style="padding:12px">Přidat</button>
       </div>
-
       <table class="users-table">
         <thead><tr><th>E-mail</th><th>Přezdívka</th><th>Mzda</th><th>Role</th><th></th></tr></thead><tbody id="usersTableBody"></tbody>
       </table>
-      <div class="edit-btns" style="margin-top:1.5rem"><button class="btn-cancel" onclick="closeUsersAdmin()">Zavřít</button></div>
+      <div class="edit-btns" style="margin-top:1.5rem"><button class="btn-cancel" onclick="window.closeUsersAdmin()">Zavřít</button></div>
     </div>
   </div>
+
+  <!-- OKNO: SPRÁVA OPRÁVNĚNÍ ROLÍ -->
+  <div class="edit-modal-bg" id="rolesAdminBg" style="z-index: 100005;">
+    <div class="edit-modal" style="width: min(650px, 100%); max-height: 90vh; display: flex; flex-direction: column; padding: 1.5rem;">
+      <h3>🔑 Správa oprávnění rolí</h3>
+      <p style="font-size:12px; color:var(--color-text-secondary); margin-bottom:1rem;">Vyberte roli a nastavte jí detailní práva. Změny se projeví ihned u všech funkcí.</p>
+      
+      <select id="roleEditSelect" onchange="window.renderRolePermissions()" style="width: 100%; padding: 12px; margin-bottom: 16px; border-radius: var(--border-radius-md); border: 1px solid var(--color-border-secondary); font-size: 14px; font-weight: bold; background: var(--color-background-secondary); color: var(--color-text-primary); outline: none;">
+        <option value="staff">Zaměstnanec (Staff)</option>
+        <option value="main_staff">Hlavní Staff (Main Staff)</option>
+        <option value="admin">Admin</option>
+        <option value="owner">Majitelka (Owner)</option>
+      </select>
+
+      <div id="permissionsListWrap" style="overflow-y: auto; flex: 1; margin-bottom: 16px; padding-right: 4px;"></div>
+      
+      <div class="edit-btns" style="margin-top: 0;">
+        <button class="btn-save" onclick="window.saveRolePermissions()">Uložit oprávnění</button>
+        <button class="btn-cancel" onclick="window.closeRolesAdmin()">Zavřít</button>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-  import { getDatabase, ref, onValue, set, get, child } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
-  import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
-  import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-messaging.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+import { getDatabase, ref, onValue, set, get, child } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
+import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-messaging.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyADuzLjk-9pp56rDCphkG20GGghNI2ZOCY",
-    authDomain: "penzionmanagement.firebaseapp.com",
-    databaseURL: "https://penzionmanagement-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "penzionmanagement",
-    storageBucket: "penzionmanagement.firebasestorage.app",
-    messagingSenderId: "1018503993863",
-    appId: "1:1018503993863:web:158eff0909b699b27d28a2",
-    measurementId: "G-Y2R5S6WJEP"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyADuzLjk-9pp56rDCphkG20GGghNI2ZOCY",
+  authDomain: "penzionmanagement.firebaseapp.com",
+  databaseURL: "https://penzionmanagement-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "penzionmanagement",
+  storageBucket: "penzionmanagement.firebasestorage.app",
+  messagingSenderId: "1018503993863",
+  appId: "1:1018503993863:web:158eff0909b699b27d28a2",
+  measurementId: "G-Y2R5S6WJEP"
+};
 
-  const app = initializeApp(firebaseConfig); 
-  const db = getDatabase(app); 
-  const auth = getAuth(app); 
-  const messaging = getMessaging(app); 
-  const googleProvider = new GoogleAuthProvider();
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const auth = getAuth(app);
+const messaging = getMessaging(app);
+const googleProvider = new GoogleAuthProvider();
 
-  const ROLE_PERMISSIONS = {
-    staff: { role:'staff', label:'Zaměstnanec', badge:'badge-staff', canEdit:false, canDelete:false, canToggle:true, canSeeStatsPanel:true, canSeeAllStats:false, canLogShift:true },
-    main_staff: { role:'main_staff', label:'Hlavní Staff', badge:'badge-admin', canEdit:false, canDelete:false, canToggle:true, canSeeStatsPanel:true, canSeeAllStats:true, canLogShift:true },
-    admin: { role:'admin', label:'Admin', badge:'badge-admin', canEdit:true, canDelete:true, canToggle:true, canSeeStatsPanel:true, canSeeAllStats:false, canLogShift:true },
-    owner: { role:'owner', label:'Majitelka', badge:'badge-owner', canEdit:false, canDelete:true, canToggle:true, canSeeStatsPanel:false, canSeeAllStats:false, canLogShift:false }
-  };
-  const EMOJIS=['🛏️','🏨','🍳','🍽️','☕','🚗','🚲','⛺','🌊','🌿','🔑','🛁','🍾','🌅','🌙','🏔️','🌸','🎋','🦋','🕯️','🍷','🐶','🚿','🔥'];
-  const BOOKING_COLORS = ['#60A5FA', '#FB923C', '#84CC16', '#F472B6', '#FBBF24', '#C084FC', '#2DD4BF', '#F87171'];
-  const defaultRooms=[{name:'Pokoj 101',emoji:'🛏️', isDirty: false}, {name:'Deluxe Suite',emoji:'🏨', isDirty: false}];
+const ROLE_DEF = {
+  staff: { role:'staff', label:'Zaměstnanec', badge:'badge-staff' },
+  main_staff: { role:'main_staff', label:'Hlavní Staff', badge:'badge-admin' },
+  admin: { role:'admin', label:'Admin', badge:'badge-admin' },
+  owner: { role:'owner', label:'Majitelka', badge:'badge-owner' }
+};
 
-  let rooms = []; let bookings = {}; let notes = {}; let generalNotes = ''; let staffTasks = []; let authorizedUsers = {}; 
-  let shiftData = {}; let shiftDataBackups = []; let tempMyShift = {dailyLogs:{}}; let currentShiftDate = '';
-  let tempCustomItems = []; let tempCustomStatuses = []; let tempPaidTasks = [];
-  let currentUser=null; let dbListenerObj = null; let editIdx=-1,curRoom=-1; let editingUserKey=null; let autoRefreshInterval=null;
-  let calYear=new Date().getFullYear(),calMon=new Date().getMonth();
-  let hasShownNewBookingsModal = false;
-  let selStart = null, selEnd = null, editBookingIdx = -1;
-  let initialRoomsRender = true; 
+const PERM_DEFS = {
+  timeline: { title: "1. Společný kalendář (Timeline)", items: [
+    { key: 'tl_view', label: 'Zobrazit widget společného kalendáře' },
+    { key: 'tl_see_names', label: 'Vidět konkrétní jména u úklidů (ostatní vidí jen "✓")' },
+    { key: 'tl_claim', label: 'Přihlásit se k volnému úklidu' },
+    { key: 'tl_cancel_own', label: 'Zrušit svůj vlastní úklid' },
+    { key: 'tl_cancel_other', label: 'Zrušit úklid někoho jiného' }
+  ]},
+  rooms: { title: "2. Správa pokojů a úkolů", items: [
+    { key: 'room_toggle_status', label: 'Měnit stav pokojů (Uklizeno/Špinavé a Vlastní stavy)' },
+    { key: 'room_edit', label: 'Upravovat, přidávat a mazat pokoje' },
+    { key: 'task_view', label: 'Zobrazit sekci "Úkoly pro personál"' },
+    { key: 'task_edit', label: 'Přidávat a mazat úkoly pro personál' }
+  ]},
+  bookings: { title: "3. Rezervace a detaily pokoje", items: [
+    { key: 'book_add', label: 'Přidávat nové rezervace' },
+    { key: 'book_edit_del', label: 'Upravovat a mazat existující rezervace' },
+    { key: 'note_edit', label: 'Upravovat poznámky k pokoji a nástěnce' },
+    { key: 'photo_edit', label: 'Přidávat a mazat fotografie pokoje' }
+  ]},
+  stats: { title: "4. Výkazy a peníze", items: [
+    { key: 'shift_log', label: 'Zadávat vlastní odpracované hodiny (tlačítko Moje směna)' },
+    { key: 'stat_view_panel', label: 'Zobrazit panel výkazů a statistik' },
+    { key: 'stat_view_all', label: 'Vidět výkazy a peníze ostatních uživatelů' },
+    { key: 'stat_reset', label: 'Uzavřít měsíc a vynulovat statistiky' }
+  ]},
+  admin: { title: "5. Administrace systému", items: [
+    { key: 'admin_users', label: 'Spravovat uživatele (přidávání, e-maily, sazby)' },
+    { key: 'admin_roles', label: 'Spravovat přístupová práva rolí (tato sekce)' }
+  ]}
+};
 
-  const savedTheme = localStorage.getItem('hr_theme'); 
-  document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('menuThemeBtn').innerHTML = savedTheme === 'dark' ? '☀️ Vzhled: Světlý' : '🌙 Vzhled: Tmavý';
-  });
+let rolePermissions = {}; 
 
-  const MONTHS=['Leden','Únor','Březen','Duben','Květen','Červen','Červenec','Srpen','Září','Říjen','Listopad','Prosinec'];
-  const DAYS=['Po','Út','St','Čt','Pá','So','Ne'];
+window.hasPermission = function(key) {
+  if (!currentUser) return false;
+  if (!rolePermissions || !rolePermissions[currentUser.role]) return false;
+  return !!rolePermissions[currentUser.role][key];
+};
 
-  onAuthStateChanged(auth, async (user) => {
-    const errEl = document.getElementById('loginErr');
-    if (user) {
-      const email = user.email.toLowerCase(); const key = email.replace(/\./g, '_');
-      try {
-        errEl.textContent = 'Ověřuji oprávnění v databázi...';
-        const snapshot = await get(child(ref(db), 'authorizedUsers/' + key)); let userRecord = snapshot.val();
-        if (!userRecord) { 
-            const allUsersSnap = await get(child(ref(db), 'authorizedUsers')); 
-            if (!allUsersSnap.exists()) { 
-                userRecord = { email: email, role: 'admin', lastViewedBookings: 0 }; 
-                await set(ref(db, 'authorizedUsers/' + key), userRecord); 
-            } 
-        }
-        if (userRecord && ROLE_PERMISSIONS[userRecord.role]) {
-          currentUser = { email: email, ...ROLE_PERMISSIONS[userRecord.role], lastViewedBookings: userRecord.lastViewedBookings || 0 }; 
-          errEl.textContent = '';
-          document.getElementById('screenLogin').classList.remove('active'); 
-          document.getElementById('screenApp').classList.add('active');
-          
-          const displayName = userRecord.nickname || ROLE_PERMISSIONS[userRecord.role].label;
-          const badgeClass = ROLE_PERMISSIONS[userRecord.role].badge;
-          const roleName = ROLE_PERMISSIONS[userRecord.role].role;
-          
-          document.getElementById('userInfo').innerHTML = `<span style="font-weight:700; color:var(--color-text-primary); font-size:14px;">${displayName}</span> <span class="role-badge ${badgeClass}">${roleName}</span>`;
-          document.getElementById('myShiftBtn').style.display = currentUser.canLogShift ? 'inline-block' : 'none';
-          document.getElementById('menuActionsWrap').style.display = 'flex';
-          
-          const statsBtn = document.getElementById('topStatsBtn');
-          statsBtn.style.display = currentUser.canSeeStatsPanel ? 'flex' : 'none';
+const EMOJIS=['🛏️','🏨','🍳','🍽️','☕','🚗','🚲','⛺','🌊','🌿','🔑','🛁','🍾','🌅','🌙','🏔️','🌸','🎋','🦋','🕯️','🍷','🐶','🚿','🔥'];
+const BOOKING_COLORS = ['#60A5FA', '#FB923C', '#84CC16', '#F472B6', '#FBBF24', '#C084FC', '#2DD4BF', '#F87171'];
+const defaultRooms=[{name:'Pokoj 101',emoji:'🛏️', isDirty: false}, {name:'Deluxe Suite',emoji:'🏨', isDirty: false}];
 
-          requestNotificationPermission(key); 
-          startDatabaseListener();
+let rooms = []; let bookings = {}; let notes = {}; let generalNotes = ''; let staffTasks = []; let authorizedUsers = {};
+let shiftData = {}; let shiftDataBackups = []; let tempMyShift = {dailyLogs:{}}; let currentShiftDate = '';
+let tempCustomItems = []; let tempCustomStatuses = []; let tempPaidTasks = [];
+let currentUser=null; let dbListenerObj = null; let editIdx=-1,curRoom=-1; let editingUserKey=null; let autoRefreshInterval=null;
+let calYear=new Date().getFullYear(),calMon=new Date().getMonth();
+let hasShownNewBookingsModal = false;
+let selStart = null, selEnd = null, editBookingIdx = -1;
+let initialRoomsRender = true;
 
-          if(autoRefreshInterval) clearInterval(autoRefreshInterval);
-          autoRefreshInterval = setInterval(() => {
-              autoDirtyCheck();
-              if (document.getElementById('screenApp').classList.contains('active')) {
-                  renderRooms();
-                  if(document.getElementById('modalBg').classList.contains('open') && curRoom !== -1) {
-                      updateStatusBtn();
-                  }
-              }
-          }, 60000);
+const savedTheme = localStorage.getItem('hr_theme');
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('menuThemeBtn').innerHTML = savedTheme === 'dark' ? '☀️ Vzhled: Světlý' : '🌙 Vzhled: Tmavý';
+});
 
-        } else { errEl.textContent = 'Váš e-mail nemá oprávnění k přístupu.'; signOut(auth); }
-      } catch(e) { errEl.textContent = 'Chyba při čtení oprávnění ze serveru.'; signOut(auth); }
-    } else {
-      currentUser = null; hasShownNewBookingsModal = false; initialRoomsRender = true;
-      if(dbListenerObj) { dbListenerObj(); dbListenerObj = null; }
-      if(autoRefreshInterval) { clearInterval(autoRefreshInterval); autoRefreshInterval = null; }
-      document.getElementById('screenApp').classList.remove('active'); document.getElementById('screenLogin').classList.add('active');
-      document.getElementById('loginEmail').value = ''; document.getElementById('loginPass').value = ''; closeModal();
-    }
-  });
+const MONTHS=['Leden','Únor','Březen','Duben','Květen','Červen','Červenec','Srpen','Září','Říjen','Listopad','Prosinec'];
+const DAYS=['Po','Út','St','Čt','Pá','So','Ne'];
 
-  function startDatabaseListener() {
-    if (dbListenerObj) return; 
-    dbListenerObj = onValue(ref(db, '/'), (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        let r = data.rooms || [...defaultRooms];
-        rooms = Array.isArray(r) ? r : Object.values(r);
-        
-        bookings = data.bookings || {};
-        for(let k in bookings) {
-           if(bookings[k] && !Array.isArray(bookings[k])) bookings[k] = Object.values(bookings[k]);
-        }
-        
-        notes = data.notes || {}; 
-        generalNotes = data.generalNotes || '';
-        
-        let st = data.staffTasks || [];
-        staffTasks = Array.isArray(st) ? st : Object.values(st);
-        
-        authorizedUsers = data.authorizedUsers || {}; 
-        shiftData = data.shiftData || {}; 
-        
-        let sdb = data.shiftDataBackups || [];
-        shiftDataBackups = Array.isArray(sdb) ? sdb : Object.values(sdb);
-
-      } else {
-        rooms = [...defaultRooms]; bookings = {}; notes = {}; generalNotes = ''; staffTasks = []; shiftData = {}; shiftDataBackups = [];
-      }
-      
-      if(currentUser && document.getElementById('screenApp').classList.contains('active')) {
-        document.getElementById('generalNotes').value = generalNotes; autoResize(document.getElementById('generalNotes'));
-        renderRooms(); renderMiniStats(); renderStaffTasks();
-        checkAndShowNewBookings();
-        if(document.getElementById('usersAdminBg').classList.contains('open')) { renderUsersAdmin(); }
-        if(document.getElementById('modalBg').classList.contains('open') && curRoom !== -1) {
-          const isFocused = document.activeElement === document.getElementById('roomNotes');
-          if (!isFocused) document.getElementById('roomNotes').value = notes[curRoom] || '';
-          renderRoomCalendar(); renderBookings(); renderPhotos(); updateStatusBtn(); renderRoomCustomStatuses();
-        }
-      }
-    });
-  }
-
-  function toggleSettingsMenu(event) {
-    event.stopPropagation();
-    document.getElementById('settingsDropdown').classList.toggle('show');
-  }
-
-  window.addEventListener('click', function(e) {
-    const dropdown = document.getElementById('settingsDropdown');
-    if (dropdown && dropdown.classList.contains('show') && !e.target.closest('.settings-menu-wrap')) {
-      dropdown.classList.remove('show');
-    }
-  });
-
-  function toggleTheme() { 
-      const isDark = document.body.classList.toggle('dark-mode'); 
-      localStorage.setItem('hr_theme', isDark ? 'dark' : 'light'); 
-      document.getElementById('menuThemeBtn').innerHTML = isDark ? '☀️ Vzhled: Světlý' : '🌙 Vzhled: Tmavý'; 
-  }
-
-  function toggleColorMode() {
-    const isVivid = document.body.classList.toggle('vivid-colors');
-    localStorage.setItem('hr_color_mode', isVivid ? 'vivid' : 'pastel');
-  }
-
-  function checkAndShowNewBookings() {
-    if (hasShownNewBookingsModal || !currentUser || currentUser.role === 'owner') return;
-    let newBks = []; const lastViewed = currentUser.lastViewedBookings || 0;
-    for (const rIdx in bookings) {
-      (bookings[rIdx] || []).forEach(b => {
-        if (b.addedAt && b.addedAt > lastViewed) { newBks.push({ roomName: rooms[rIdx].name, from: b.from, to: b.to, note: b.note }); }
-      });
-    }
-    if (newBks.length > 0) {
-      const html = newBks.map(b => `<div style="background:var(--color-background-secondary); padding:8px 12px; border-radius:var(--border-radius-md); margin-bottom:8px; border:1px solid var(--color-border-secondary);"><strong style="color:var(--color-text-primary); font-size:15px;">${b.roomName}</strong><br><span style="font-size:14px; color:var(--color-text-secondary);">${fmt(b.from)} &rarr; ${fmt(b.to)}</span>${b.note ? `<br><span style="font-size:13px; color:var(--color-text-secondary); display:block; margin-top:4px;">Poznámka: ${b.note}</span>` : ''}</div>`).join('');
-      document.getElementById('newBookingsList').innerHTML = html; document.getElementById('newBookingsModalBg').classList.add('open');
-    }
-    hasShownNewBookingsModal = true;
-  }
-
-  function closeNewBookingsModal() {
-    document.getElementById('newBookingsModalBg').classList.remove('open'); const myKey = currentUser.email.replace(/\./g, '_');
-    if (authorizedUsers[myKey]) { authorizedUsers[myKey].lastViewedBookings = Date.now(); currentUser.lastViewedBookings = authorizedUsers[myKey].lastViewedBookings; saveToFirebase(); }
-  }
-
-  function renderMiniStats() {
-    let arrivals = 0; let departures = 0; let cleanings = 0;
-    const todayStr = getLocalIsoDate(0);
-    
-    rooms.forEach((r, i) => { if (r.isDirty && !r.hideDefaultStatus) cleanings++; });
-    for (const roomIdx in bookings) { 
-        (bookings[roomIdx] || []).forEach(b => { 
-            if (b.from === todayStr) arrivals++; 
-            if (b.to === todayStr) departures++; 
-        }); 
-    }
-    const el = document.getElementById('miniStats'); if (!el) return;
-    el.innerHTML = `<div class="stat-item">Příjezdy: <span class="stat-val">${arrivals}</span></div><div class="stat-item">Odjezdy: <span class="stat-val">${departures}</span></div><div class="stat-item">Úklidy: <span class="stat-val">${cleanings}</span></div>`;
-  }
-
-  function saveToFirebase() { set(ref(db, '/'), { rooms, bookings, notes, generalNotes, staffTasks, authorizedUsers, shiftData, shiftDataBackups }); }
-  
-  function getLocalIsoDate(daysOffset = 0) {
-    const d = new Date(); d.setDate(d.getDate() + daysOffset); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-  }
-
-  function autoDirtyCheck() {
-    const todayStr = getLocalIsoDate(); 
-    const currentHour = new Date().getHours();
-    let changed = false;
-    
-    const cutoffDate = new Date(); cutoffDate.setDate(cutoffDate.getDate() - 14);
-    const cutoffStr = cutoffDate.getFullYear() + '-' + String(cutoffDate.getMonth()+1).padStart(2,'0') + '-' + String(cutoffDate.getDate()).padStart(2,'0');
-
-    for (const roomIdx in bookings) {
-      if(bookings[roomIdx]) {
-        const originalLen = bookings[roomIdx].length; bookings[roomIdx] = bookings[roomIdx].filter(b => b.to >= cutoffStr); if (bookings[roomIdx].length !== originalLen) changed = true;
-      }
-    }
-
-    rooms.forEach((r, i) => {
-      if(r.isDirty === undefined) { r.isDirty = false; changed = true; }
-      (bookings[i]||[]).forEach(b => {
-        if ((b.to < todayStr || (b.to === todayStr && currentHour >= 10)) && !b.dirtyTriggered) {
-          r.isDirty = true; b.dirtyTriggered = true; changed = true;
-          if (r.customStatuses) { r.customStatuses.forEach(cs => cs.isDone = false); }
-          rooms.forEach((linkedRoom) => {
-            if (linkedRoom.linkedRooms && linkedRoom.linkedRooms.includes(i)) {
-              if(!linkedRoom.isDirty) { linkedRoom.isDirty = true; changed = true; if (linkedRoom.customStatuses) { linkedRoom.customStatuses.forEach(cs => cs.isDone = false); } }
-            }
-          });
-        }
-      });
-    });
-    if(changed) saveToFirebase();
-  }
-
-  function isRoomOccupied(roomIdx) {
-    const todayStr = getLocalIsoDate();
-    const currentHour = new Date().getHours();
-    const bks = bookings[roomIdx] || [];
-    for (const b of bks) {
-      if (b.from <= todayStr && b.to >= todayStr) {
-        if (b.from === todayStr && b.to === todayStr) {
-            if (currentHour >= 15 && currentHour < 10) return true;
-        }
-        if (b.from === todayStr && currentHour < 15) continue;
-        if (b.to === todayStr && currentHour >= 10) continue;
-        return true;
-      }
-    }
-    return false;
-  }
-
-  function getRoomStateClass(roomIdx) {
-    if (isRoomOccupied(roomIdx)) return 'bg-state-active';
-    const todayStr = getLocalIsoDate(0); const plus3Str = getLocalIsoDate(3);
-    const bks = bookings[roomIdx] || [];
-    for (const b of bks) { 
-        if (b.from > todayStr && b.from <= plus3Str) return 'bg-state-soon'; 
-    } 
-    return 'bg-state-free';
-  }
-
-  function loginWithEmail() { const e = document.getElementById('loginEmail').value.trim(); const p = document.getElementById('loginPass').value; const err = document.getElementById('loginErr'); err.textContent = 'Přihlašování...'; signInWithEmailAndPassword(auth, e, p).catch(() => { err.textContent = 'Špatný e-mail nebo heslo.'; }); }
-  function loginWithGoogle() { const err = document.getElementById('loginErr'); err.textContent = 'Otevírám Google...'; signInWithPopup(auth, googleProvider).catch(() => { err.textContent = 'Přihlášení zrušeno nebo selhalo.'; }); }
-  function doLogout() { signOut(auth); }
-  function autoResize(el) { if(!el) return; el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; }
-
-  function openUsersAdmin() { editingUserKey = null; document.getElementById('addBtnAdmin').textContent = 'Přidat'; renderUsersAdmin(); document.getElementById('usersAdminBg').classList.add('open'); }
-  function closeUsersAdmin() { document.getElementById('usersAdminBg').classList.remove('open'); }
-  function editUserRole(key) { const u = authorizedUsers[key]; document.getElementById('newUserEmail').value = u.email; document.getElementById('newUserNick').value = u.nickname || ''; document.getElementById('newUserRole').value = u.role; document.getElementById('newUserHourlyRate').value = u.hourlyRate || ''; editingUserKey = key; document.getElementById('addBtnAdmin').textContent = 'Uložit úpravy'; }
-  function renderUsersAdmin() {
-    const tbody = document.getElementById('usersTableBody'); let html = '';
-    for (const key in authorizedUsers) {
-      const u = authorizedUsers[key]; const badge = ROLE_PERMISSIONS[u.role].badge; const rateTxt = u.hourlyRate ? `${u.hourlyRate} Kč/h` : '-';
-      html += `<tr><td>${u.email}</td><td>${u.nickname||'-'}</td><td>${rateTxt}</td><td><span class="role-badge ${badge}">${u.role}</span></td><td style="text-align:right"><button class="del-btn" style="color:var(--color-text-primary);" onclick="window.editUserRole('${key}')" title="Upravit">✎</button>${u.email !== currentUser.email ? `<button class="del-btn" onclick="window.deleteUserRole('${key}')" title="Smazat">✕</button>` : ''}</td></tr>`;
-    } tbody.innerHTML = html;
-  }
-  function addUserRole() {
-    const email = document.getElementById('newUserEmail').value.trim().toLowerCase(); const role = document.getElementById('newUserRole').value; const nick = document.getElementById('newUserNick').value.trim(); const hr = parseFloat(document.getElementById('newUserHourlyRate').value) || 0;
-    if(!email) return; const key = email.replace(/\./g, '_'); if(editingUserKey && editingUserKey !== key) { delete authorizedUsers[editingUserKey]; }
-    const curLastViewed = authorizedUsers[key] ? authorizedUsers[key].lastViewedBookings : 0;
-    authorizedUsers[key] = { email: email, role: role, nickname: nick, hourlyRate: hr, lastViewedBookings: curLastViewed || 0 }; 
-    editingUserKey = null; document.getElementById('addBtnAdmin').textContent = 'Přidat'; saveToFirebase();
-    document.getElementById('newUserEmail').value = ''; document.getElementById('newUserNick').value = ''; document.getElementById('newUserHourlyRate').value = ''; renderUsersAdmin();
-  }
-  function deleteUserRole(key) { if(confirm('Odebrat přístup?')) { delete authorizedUsers[key]; saveToFirebase(); renderUsersAdmin(); } }
-
-  function openMyShift() {
-    currentShiftDate = getLocalIsoDate(); document.getElementById('shiftDateSelect').value = currentShiftDate;
-    const myKey = currentUser.email.replace(/\./g, '_'); const data = shiftData[myKey] || {}; tempMyShift = JSON.parse(JSON.stringify(data)); if (!tempMyShift.dailyLogs) tempMyShift.dailyLogs = {};
-    if (tempMyShift.hours !== undefined || tempMyShift.tasks) {
-        let legacyNote = ''; if(tempMyShift.notes && tempMyShift.notes.length > 0) { legacyNote = tempMyShift.notes.map(n => n.text).join(' | '); }
-        if (!tempMyShift.dailyLogs[currentShiftDate]) tempMyShift.dailyLogs[currentShiftDate] = { hours: 0, note: '', tasks: {} };
-        if (tempMyShift.hours !== undefined) tempMyShift.dailyLogs[currentShiftDate].hours = tempMyShift.hours;
-        if (legacyNote) tempMyShift.dailyLogs[currentShiftDate].note = legacyNote;
-        if (tempMyShift.tasks) tempMyShift.dailyLogs[currentShiftDate].tasks = tempMyShift.tasks;
-        delete tempMyShift.hours; delete tempMyShift.notes; delete tempMyShift.tasks;
-    }
-    renderShiftFormForDate(); document.getElementById('shiftBg').classList.add('open');
-  }
-  function saveShiftFormToTemp() {
-    const h = parseFloat(document.getElementById('myShiftHours').value) || 0; const n = document.getElementById('myShiftNote').value.trim();
-    if (!tempMyShift.dailyLogs[currentShiftDate]) tempMyShift.dailyLogs[currentShiftDate] = { hours: 0, note: '', tasks: {} };
-    tempMyShift.dailyLogs[currentShiftDate].hours = h; tempMyShift.dailyLogs[currentShiftDate].note = n;
-  }
-  function changeShiftDate() { saveShiftFormToTemp(); currentShiftDate = document.getElementById('shiftDateSelect').value || getLocalIsoDate(); renderShiftFormForDate(); }
-  function renderShiftFormForDate() {
-    const log = tempMyShift.dailyLogs[currentShiftDate] || { hours: 0, note: '', tasks: {} };
-    document.getElementById('myShiftHours').value = log.hours || ''; document.getElementById('myShiftNote').value = log.note || ''; renderMyShiftRooms(); 
-  }
-  function closeMyShift() { document.getElementById('shiftBg').classList.remove('open'); }
-  function renderMyShiftRooms() {
-    const list = document.getElementById('myShiftRoomsList'); let html = ''; let hasAny = false; const log = tempMyShift.dailyLogs[currentShiftDate] || { tasks: {} }; const tasks = log.tasks || {};
-    rooms.forEach((r, roomIdx) => {
-      if(r.paidTasks && r.paidTasks.length > 0) {
-        hasAny = true; html += `<div style="font-size:14px; font-weight:bold; color:var(--color-text-primary); margin-top:12px; border-bottom:1px solid var(--color-border-secondary); padding-bottom:4px;">${r.name}</div>`;
-        r.paidTasks.forEach((pt, taskIdx) => {
-           const taskKey = `${roomIdx}_${taskIdx}`; const count = tasks[taskKey] || 0;
-           html += `<div class="shift-counter-wrap"><div style="font-size:13px; color:var(--color-text-secondary);">${pt.name} (${pt.price} Kč)</div><div style="display:flex; align-items:center; gap:8px;"><button class="shift-counter-btn" onclick="window.changeShiftTask('${taskKey}', -1)">-</button><div class="shift-counter-val">${count}</div><button class="shift-counter-btn" onclick="window.changeShiftTask('${taskKey}', 1)">+</button></div></div>`;
-        });
-      }
-    });
-    if(!hasAny) html = '<div style="font-size:13px; color:var(--color-text-secondary);">Nejsou nastaveny žádné placené úkony.</div>'; list.innerHTML = html;
-  }
-  function changeShiftTask(taskKey, delta) {
-    if (!tempMyShift.dailyLogs[currentShiftDate]) tempMyShift.dailyLogs[currentShiftDate] = { hours: 0, note: '', tasks: {} };
-    if (!tempMyShift.dailyLogs[currentShiftDate].tasks) tempMyShift.dailyLogs[currentShiftDate].tasks = {};
-    let t = tempMyShift.dailyLogs[currentShiftDate].tasks; if (!t[taskKey]) t[taskKey] = 0; t[taskKey] += delta; if (t[taskKey] < 0) t[taskKey] = 0; renderMyShiftRooms();
-  }
-  function saveMyShift() {
-    saveShiftFormToTemp(); const myKey = currentUser.email.replace(/\./g, '_');
-    for (const d in tempMyShift.dailyLogs) {
-        const log = tempMyShift.dailyLogs[d]; const hasTasks = log.tasks && Object.values(log.tasks).some(v => v > 0);
-        if ((!log.hours || log.hours === 0) && !log.note && !hasTasks) { delete tempMyShift.dailyLogs[d]; }
-    }
-    shiftData[myKey] = tempMyShift; saveToFirebase(); closeMyShift();
-  }
-
-  function openShiftDetails(key, backupIdx = -1) {
-    const sourceData = backupIdx === -1 ? shiftData : shiftDataBackups[backupIdx].data;
-    const d = sourceData[key]; 
-    if (!d) return;
-    const user = authorizedUsers[key]; const nick = user ? (user.nickname || user.email) : key; const rate = parseFloat(user?.hourlyRate) || 0;
-    let totalHours = 0; let logsHtml = ''; let overallTasksMoney = 0;
-    
-    if (d.dailyLogs && Object.keys(d.dailyLogs).length > 0) {
-        const dates = Object.keys(d.dailyLogs).sort(); logsHtml = '<strong style="margin-top:12px; display:block;">Výkaz podle dní:</strong>';
-        dates.forEach(date => {
-            const log = d.dailyLogs[date]; let dayHours = log.hours || 0; totalHours += dayHours; let dayTasksHtml = '';
-            if (log.tasks) {
-                for(const tk in log.tasks) {
-                    if (log.tasks[tk] > 0) {
-                        const parts = tk.split('_'); const rIdx = parseInt(parts[0]); const tIdx = parseInt(parts[1]);
-                        if (rooms[rIdx] && rooms[rIdx].paidTasks && rooms[rIdx].paidTasks[tIdx]) {
-                            const pt = rooms[rIdx].paidTasks[tIdx]; const cnt = log.tasks[tk]; const price = parseFloat(pt.price) || 0; const sum = cnt * price; overallTasksMoney += sum;
-                            dayTasksHtml += `<br>&nbsp;&nbsp;&nbsp;↳ ${pt.name}: ${cnt}x (${sum} Kč)`;
-                        }
-                    }
-                }
-            }
-            const noteTxt = log.note ? `<br>&nbsp;&nbsp;&nbsp;<em>Pozn.: ${log.note}</em>` : '';
-            logsHtml += `<div style="background:var(--color-background-secondary); padding:8px; border-radius:6px; margin-top:4px; font-size:13px;"><strong>${fmt(date)}:</strong> ${dayHours} hod${dayTasksHtml}${noteTxt}</div>`;
-        });
-    } else { logsHtml = '<div style="font-size:13px; color:var(--color-text-secondary); margin-top:12px;">Zatím nejsou zadány žádné směny.</div>'; }
-
-    const hoursMoney = totalHours * rate; document.getElementById('sdName').textContent = `Výkaz: ${nick}`;
-    document.getElementById('sdContent').innerHTML = `<strong>Odpracováno:</strong> ${totalHours} hod (Sazba: ${rate} Kč/h = ${hoursMoney} Kč)<br><strong>Úkony (Celkem: ${overallTasksMoney} Kč)</strong>${logsHtml}<strong style="font-size:16px; color:#16A34A; margin-top:16px; display:block; border-top:1px solid var(--color-border-secondary); padding-top:8px;">K výplatě celkem: ${hoursMoney + overallTasksMoney} Kč</strong>`;
-    document.getElementById('shiftDetailsBg').classList.add('open');
-  }
-  function closeShiftDetails() { document.getElementById('shiftDetailsBg').classList.remove('open'); }
-
-  function openStatsModal() {
-    document.getElementById('statsMainTitle').style.display = 'block';
-    renderStatsPanel('current');
-    document.getElementById('statsModalBg').classList.add('open');
-  }
-  function closeStatsModal() {
-    document.getElementById('statsModalBg').classList.remove('open');
-  }
-
-  function renderStatsPanel(mode = 'current', backupIdx = -1) {
-    if (!currentUser || !currentUser.canSeeStatsPanel) return;
-    const myKey = currentUser.email.replace(/\./g, '_'); 
-    const panelContent = document.getElementById('statsPanelContent'); 
-    let html = '';
-    
-    if (mode === 'history') {
-         document.getElementById('statsMainTitle').style.display = 'none';
-         html += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; padding-top: 10px;">
-                    <h4 style="margin:0; font-family:'Playfair Display',serif; color:var(--color-text-primary); font-size:20px;">🗄️ Archiv výkazů</h4>
-                    <button class="cal-nav-btn" onclick="window.renderStatsPanel('current')" style="padding:6px 12px; font-size:12px;">🔙 Zpět</button>
-                  </div>`;
-                  
-         if (!shiftDataBackups || shiftDataBackups.length === 0) {
-            html += `<div style="font-size:13px; color:var(--color-text-secondary); text-align:center; padding: 20px;">Zatím nejsou k dispozici žádné uzavřené měsíce.</div>`;
-         } else {
-            html += `<div style="display:flex; flex-direction:column; gap:8px;">`;
-            for (let i = shiftDataBackups.length - 1; i >= 0; i--) {
-                const b = shiftDataBackups[i];
-                const d = new Date(b.date);
-                const dateStr = d.getDate() + '.' + (d.getMonth()+1) + '. ' + d.getFullYear() + ' v ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
-                html += `<div class="task-item" style="cursor:pointer; transition:transform 0.1s; background:var(--color-background-primary);" onclick="window.renderStatsPanel('backup', ${i})" onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'">
-                           <div style="font-size:14px; font-weight:bold; color:var(--color-text-primary);">Záloha z: ${dateStr}</div>
-                           <div style="font-size:12px; font-weight:bold; color:var(--color-text-primary);">Otevřít ➔</div>
-                         </div>`;
-            }
-            html += `</div>`;
-         }
-         panelContent.innerHTML = html;
-         return;
-    }
-
-    document.getElementById('statsMainTitle').style.display = 'block';
-    const isBackup = (mode === 'backup');
-    const sourceData = isBackup ? shiftDataBackups[backupIdx].data : shiftData;
-
-    if (isBackup) {
-        document.getElementById('statsMainTitle').style.display = 'none';
-        const d = new Date(shiftDataBackups[backupIdx].date);
-        const dateStr = d.getDate() + '.' + (d.getMonth()+1) + '. v ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
-        html += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; background:var(--color-background-secondary); padding:8px 12px; border-radius:var(--border-radius-md); border:1px solid var(--color-border-secondary); margin-top: 10px;">
-                   <div style="font-size:13px; font-weight:bold; color:var(--color-text-primary);">Prohlížíte zálohu:<br><span style="font-size:12px; font-weight:normal; color:var(--color-text-secondary);">${dateStr}</span></div>
-                   <button class="cal-nav-btn" onclick="window.renderStatsPanel('history')" style="padding:6px 12px; font-size:12px; font-weight:bold;">🔙 Zpět na archiv</button>
-                 </div>`;
-    } else {
-        html += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-                   <div style="font-size:14px; font-weight:bold; color:var(--color-text-primary);">Aktuální neuzavřené období</div>
-                   <button class="cal-nav-btn" onclick="window.renderStatsPanel('history')" style="padding:6px 12px; font-size:12px; font-weight:bold;">🗄️ Historie záloh</button>
-                 </div>`;
-    }
-
-    let empty = true;
-    for(const key in sourceData) {
-      if (!currentUser.canSeeAllStats && key !== myKey) continue;
-      const d = sourceData[key]; const user = authorizedUsers[key]; const nick = user ? (user.nickname || user.email) : key; const rate = parseFloat(user?.hourlyRate) || 0;
-      let totalHours = 0; let hasLogs = false; let tasksTxtMap = {};
-      if (d.dailyLogs && Object.keys(d.dailyLogs).length > 0) { 
-          hasLogs = true;
-          for(const date in d.dailyLogs) {
-             const log = d.dailyLogs[date]; totalHours += (log.hours || 0);
-             if (log.tasks) { for(const tk in log.tasks) { if(log.tasks[tk] > 0) { if (!tasksTxtMap[tk]) tasksTxtMap[tk] = 0; tasksTxtMap[tk] += log.tasks[tk]; } } }
-          } 
-      }
-      const hoursMoney = totalHours * rate; let tasksMoney = 0; let tasksTxt = [];
-      for(const tk in tasksTxtMap) {
-         const parts = tk.split('_'); const rIdx = parseInt(parts[0]); const tIdx = parseInt(parts[1]);
-         if (rooms[rIdx] && rooms[rIdx].paidTasks && rooms[rIdx].paidTasks[tIdx]) {
-             const pt = rooms[rIdx].paidTasks[tIdx]; const cnt = tasksTxtMap[tk]; const price = parseFloat(pt.price) || 0; tasksMoney += (cnt * price); 
-             tasksTxt.push(`• ${pt.name}: ${cnt}x`);
-         }
-      }
-      const totalOverall = hoursMoney + tasksMoney;
-      if(totalHours > 0 || tasksTxt.length > 0 || hasLogs) {
-        empty = false;
-        html += `<div class="stats-panel-user"><div style="display:flex; justify-content:space-between; align-items:center;"><strong>${nick}</strong><button onclick="window.openShiftDetails('${key}', ${isBackup ? backupIdx : -1})" style="background:var(--color-background-primary);border:1px solid var(--color-border-tertiary);border-radius:4px;padding:4px 8px;cursor:pointer;font-size:11px;font-weight:bold; color:var(--color-text-primary);">Podrobnosti</button></div>(Hodiny: ${totalHours})<br>${tasksTxt.join('<br>')}<br><strong style="color:#16A34A; margin-top:4px; display:block;">Celkem odměna: ${totalOverall} Kč</strong></div>`;
-      }
-    }
-    
-    if(empty) html += '<div style="font-size:13px; color:var(--color-text-secondary); text-align:center; padding: 20px;">Zatím nejsou k dispozici žádné výkazy.</div>';
-    
-    if (currentUser.canSeeAllStats && !isBackup) { 
-        html += `<button class="btn-delete-room" onclick="window.resetShiftData()" style="width:100%; padding:12px; margin-top: 12px;">Vynulovat vše (Uzavřít měsíc)</button><div style="font-size:11px; color:var(--color-text-secondary); text-align:center; margin-top:6px;">Automaticky vytvoří zálohu do archivu (max 20)</div>`; 
-    }
-    
-    panelContent.innerHTML = html;
-  }
-
-  function resetShiftData() {
-    if(confirm('Chcete UZAVŘÍT a VYNULOVAT aktuální statistiky?\nAplikace vytvoří automatickou zálohu. (1/2)')) { 
-      if(confirm('OPRAVDU to chcete udělat? Údaje budou vynulovány! (2/2)')) { 
-        if (Object.keys(shiftData).length > 0) {
-            shiftDataBackups.push({ date: Date.now(), data: JSON.parse(JSON.stringify(shiftData)) });
-            if (shiftDataBackups.length > 20) { shiftDataBackups.shift(); }
-        }
-        shiftData = {}; 
-        saveToFirebase(); 
-        closeStatsModal(); 
-      } 
-    }
-  }
-
-  function renderStaffTasks() {
-    const wrap = document.getElementById('staffTasksWrap'); if (!currentUser || currentUser.role === 'owner') { wrap.style.display = 'none'; return; }
-    wrap.style.display = 'block'; const list = document.getElementById('staffTasksList');
-    if (!staffTasks.length) { list.innerHTML = '<div style="font-size:13px; color:var(--color-text-secondary); margin-bottom:12px;">Aktuálně nejsou žádné úkoly.</div>'; return; }
-    list.innerHTML = staffTasks.map((t, i) => `<div class="task-item"><label class="task-label"><input type="checkbox" class="task-checkbox" ${t.done ? 'checked' : ''} onchange="window.toggleStaffTask(${i})"><span style="${t.done ? 'text-decoration:line-through; color:var(--color-text-secondary);' : 'color:var(--color-text-primary);'} font-size:14px; word-break:break-word;">${t.text}</span></label><button class="del-btn" onclick="window.deleteStaffTask(${i})">✕</button></div>`).join('');
-  }
-  function addStaffTask() { const input = document.getElementById('newStaffTask'); const text = input.value.trim(); if (!text) return; staffTasks.push({ text: text, done: false }); saveToFirebase(); input.value = ''; }
-  function toggleStaffTask(i) { staffTasks[i].done = !staffTasks[i].done; saveToFirebase(); }
-  function deleteStaffTask(i) { staffTasks.splice(i, 1); saveToFirebase(); }
-
-  async function requestNotificationPermission(userEmailKey) {
+onAuthStateChanged(auth, async (user) => {
+  const errEl = document.getElementById('loginErr');
+  if (user) {
+    const email = user.email.toLowerCase(); const key = email.replace(/\./g, '_');
     try {
-      const permission = await Notification.requestPermission();
-      if (permission === 'granted') {
-        const currentToken = await getToken(messaging, { vapidKey: 'BIoCmJ-hEN_QLVC2sVdcBtHc-n92Ojf7No6T2GYPX90oydHJQLkGFvnBR7N2JLVzPgisDn_ZzFXvmCmVIVHW7BU' });
-        if (currentToken) { await set(ref(db, `authorizedUsers/${userEmailKey}/notificationToken`), currentToken); }
+      errEl.textContent = 'Ověřuji oprávnění v databázi...';
+      const snapshot = await get(child(ref(db), 'authorizedUsers/' + key)); let userRecord = snapshot.val();
+      if (!userRecord) {
+        const allUsersSnap = await get(child(ref(db), 'authorizedUsers'));
+        if (!allUsersSnap.exists()) {
+          userRecord = { email: email, role: 'admin', lastViewedBookings: 0 };
+          await set(ref(db, 'authorizedUsers/' + key), userRecord);
+        }
       }
-    } catch (error) { console.error('Chyba notifikací:', error); }
-  }
+      if (userRecord && ROLE_DEF[userRecord.role]) {
+        currentUser = { email: email, ...ROLE_DEF[userRecord.role], lastViewedBookings: userRecord.lastViewedBookings || 0 };
+        errEl.textContent = '';
+        document.getElementById('screenLogin').classList.remove('active');
+        document.getElementById('screenApp').classList.add('active');
 
-  function renderRooms() {
-    autoDirtyCheck(); document.getElementById('adminActionsWrap').style.display = (currentUser && currentUser.role === 'admin') ? 'flex' : 'none';
-    const g = document.getElementById('roomsGrid'); const canEditRoom = currentUser && currentUser.canEdit;
-    
-    g.innerHTML = rooms.map((r, i) => {
-      const occupied = isRoomOccupied(i);
-      const stateClass = getRoomStateClass(i); let badgesHtml = '';
-      
-      if (!r.hideDefaultStatus && !occupied) { 
-          badgesHtml += `<div class="room-status-badge ${r.isDirty ? 'status-dirty' : 'status-clean'}">${r.isDirty ? '🔴 Špinavý' : '🟢 Uklizený'}</div>`; 
+        const displayName = userRecord.nickname || ROLE_DEF[userRecord.role].label;
+        const badgeClass = ROLE_DEF[userRecord.role].badge;
+        const roleName = ROLE_DEF[userRecord.role].role;
+
+        document.getElementById('userInfo').innerHTML = `<span style="font-weight:700; color:var(--color-text-primary); font-size:14px;">${displayName}</span> <span class="role-badge ${badgeClass}">${roleName}</span>`;
+        
+        requestNotificationPermission(key);
+        startDatabaseListener();
+
+        if(autoRefreshInterval) clearInterval(autoRefreshInterval);
+        autoRefreshInterval = setInterval(() => {
+          autoDirtyCheck();
+          if (document.getElementById('screenApp').classList.contains('active')) {
+            window.renderRooms();
+            window.renderTimeline();
+            if(document.getElementById('modalBg').classList.contains('open') && curRoom !== -1) {
+              window.updateStatusBtn();
+            }
+          }
+        }, 60000);
+
+      } else { errEl.textContent = 'Váš e-mail nemá oprávnění k přístupu.'; signOut(auth); }
+    } catch(e) { errEl.textContent = 'Chyba při čtení oprávnění ze serveru.'; signOut(auth); }
+  } else {
+    currentUser = null; hasShownNewBookingsModal = false; initialRoomsRender = true;
+    if(dbListenerObj) { dbListenerObj(); dbListenerObj = null; }
+    if(autoRefreshInterval) { clearInterval(autoRefreshInterval); autoRefreshInterval = null; }
+    document.getElementById('screenApp').classList.remove('active'); document.getElementById('screenLogin').classList.add('active');
+    document.getElementById('loginEmail').value = ''; document.getElementById('loginPass').value = ''; window.closeModal();
+  }
+});
+
+function applyUIPermissions() {
+  if(!currentUser) return;
+  document.getElementById('myShiftBtn').style.display = window.hasPermission('shift_log') ? 'inline-block' : 'none';
+  document.getElementById('topStatsBtn').style.display = window.hasPermission('stat_view_panel') ? 'flex' : 'none';
+  document.getElementById('menuActionsWrap').style.display = 'flex';
+  
+  const canRoomEdit = window.hasPermission('room_edit');
+  const canAdminUsers = window.hasPermission('admin_users');
+  const canAdminRoles = window.hasPermission('admin_roles');
+  
+  document.getElementById('adminActionsWrap').style.display = (canRoomEdit || canAdminUsers || canAdminRoles) ? 'flex' : 'none';
+  document.getElementById('btnAddRoom').style.display = canRoomEdit ? 'inline-block' : 'none';
+  document.getElementById('btnManageUsers').style.display = canAdminUsers ? 'inline-block' : 'none';
+  document.getElementById('btnManageRoles').style.display = canAdminRoles ? 'inline-block' : 'none';
+  
+  document.getElementById('staffTasksWrap').style.display = window.hasPermission('task_view') ? 'block' : 'none';
+  document.getElementById('addTaskForm').style.display = window.hasPermission('task_edit') ? 'flex' : 'none';
+
+  document.getElementById('generalNotes').disabled = !window.hasPermission('note_edit');
+  document.getElementById('saveGenNoteBtn').style.display = window.hasPermission('note_edit') ? 'inline-block' : 'none';
+}
+
+function startDatabaseListener() {
+  if (dbListenerObj) return;
+  dbListenerObj = onValue(ref(db, '/'), (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+      let r = data.rooms || [...defaultRooms];
+      rooms = Array.isArray(r) ? r : Object.values(r);
+      bookings = data.bookings || {};
+      for(let k in bookings) {
+        if(bookings[k] && !Array.isArray(bookings[k])) bookings[k] = Object.values(bookings[k]);
       }
-      
-      if (r.customStatuses) {
-         r.customStatuses.forEach(cs => {
-           const rTxt = cs.textRed || cs.label; const gTxt = cs.textGreen || (cs.label + ' (Hotovo)');
-           const txt = cs.isDone ? `🟢 ${gTxt}` : `🔴 ${rTxt}`; const cls = cs.isDone ? 'status-clean' : 'status-dirty';
-           badgesHtml += `<div class="room-status-badge ${cls}">${txt}</div>`;
-         });
-      }
-      
-      const animStyle = initialRoomsRender ? `animation: cardSlideUp 0.4s ease-out forwards; opacity: 0; animation-delay: ${i * 0.04}s` : `opacity: 1;`;
-      
-      return `<div class="room-card ${stateClass}" onclick="window.openRoom(${i})" style="${animStyle}"><div class="room-img"><span class="emoji">${r.emoji}</span>${canEditRoom ? `<button class="edit-btn" onclick="event.stopPropagation();window.openEdit(${i})" title="Upravit/Smazat">✎</button>` : ''}<div class="room-badges-wrap">${badgesHtml}</div></div><div class="room-label"><div class="room-name">${r.name}</div><div class="room-num">${(bookings[i]||[]).length} rezervací</div></div></div>`;
-    }).join('');
-    
-    initialRoomsRender = false;
-  }
-
-  function renderEditPaidTasks() {
-    const list = document.getElementById('editPaidTasksList'); if (!tempPaidTasks || tempPaidTasks.length === 0) { list.innerHTML = ''; return; }
-    list.innerHTML = tempPaidTasks.map((pt, idx) => `<div class="edit-custom-item"><div style="flex:1; font-size:13px; color:var(--color-text-primary);"><strong>${pt.name}</strong> (${pt.price} Kč)</div><button type="button" class="del-btn" onclick="window.removePaidTaskFromEdit(${idx})">✕</button></div>`).join('');
-  }
-  function addPaidTaskToEdit() {
-    const name = document.getElementById('newPaidTaskName').value.trim(); const price = parseFloat(document.getElementById('newPaidTaskPrice').value) || 0;
-    if (!name) return; tempPaidTasks.push({ name, price }); document.getElementById('newPaidTaskName').value = ''; document.getElementById('newPaidTaskPrice').value = ''; renderEditPaidTasks();
-  }
-  function removePaidTaskFromEdit(idx) { tempPaidTasks.splice(idx, 1); renderEditPaidTasks(); }
-
-  function renderEditCustomItems() {
-    const list = document.getElementById('editCustomItemsList'); if (!tempCustomItems || tempCustomItems.length === 0) { list.innerHTML = ''; return; }
-    list.innerHTML = tempCustomItems.map((item, idx) => `<div class="edit-custom-item"><div style="flex:1; font-size:13px; color:var(--color-text-primary);"><strong>${item.text}</strong>${item.link ? `<br><a href="${item.link}" target="_blank" style="color:var(--color-text-secondary);font-size:11px;">${item.link}</a>` : ''}</div><button type="button" class="del-btn" onclick="window.removeCustomItemFromEdit(${idx})">✕</button></div>`).join('');
-  }
-  function addCustomItemToEdit() {
-    const text = document.getElementById('newCustomText').value.trim(); const link = document.getElementById('newCustomLink').value.trim();
-    if (!text) return; tempCustomItems.push({ text, link }); document.getElementById('newCustomText').value = ''; document.getElementById('newCustomLink').value = ''; renderEditCustomItems();
-  }
-  function removeCustomItemFromEdit(idx) { tempCustomItems.splice(idx, 1); renderEditCustomItems(); }
-
-  function renderEditCustomStatuses() {
-    const list = document.getElementById('editCustomStatusesList'); if (!tempCustomStatuses || tempCustomStatuses.length === 0) { list.innerHTML = ''; return; }
-    list.innerHTML = tempCustomStatuses.map((cs, idx) => `<div class="edit-custom-item"><div style="flex:1; font-size:13px; color:var(--color-text-primary);">🔴 ${cs.textRed || cs.label} <br> 🟢 ${cs.textGreen || (cs.label + ' (Hotovo)')}</div><button type="button" class="del-btn" onclick="window.removeCustomStatusFromEdit(${idx})">✕</button></div>`).join('');
-  }
-  function addCustomStatusToEdit() {
-    const red = document.getElementById('newCustomStatusRed').value.trim(); const green = document.getElementById('newCustomStatusGreen').value.trim();
-    if (!red) return; tempCustomStatuses.push({ textRed: red, textGreen: green || (red + ' (Hotovo)'), isDone: false });
-    document.getElementById('newCustomStatusRed').value = ''; document.getElementById('newCustomStatusGreen').value = ''; renderEditCustomStatuses();
-  }
-  function removeCustomStatusFromEdit(idx) { tempCustomStatuses.splice(idx, 1); renderEditCustomStatuses(); }
-
-  function openEdit(i) {
-    editIdx = i; const isNew = (i === -1);
-    document.getElementById('editModalTitle').textContent = isNew ? 'Přidat nový pokoj' : 'Upravit pokoj'; document.getElementById('editName').value = isNew ? '' : rooms[i].name; document.getElementById('editHideDefaultStatus').checked = !isNew && rooms[i].hideDefaultStatus;
-    const curEmoji = isNew ? EMOJIS[0] : rooms[i].emoji; const isCustomEmoji = !EMOJIS.includes(curEmoji);
-    document.getElementById('emojiPick').innerHTML = EMOJIS.map(e => `<span class="${(!isCustomEmoji && e===curEmoji)?'sel':''}" onclick="window.selEmoji(this)">${e}</span>`).join('');
-    document.getElementById('customEmojiInput').value = isCustomEmoji ? curEmoji : '';
-    document.getElementById('newPaidTaskName').value = ''; document.getElementById('newPaidTaskPrice').value = ''; document.getElementById('newCustomText').value = ''; document.getElementById('newCustomLink').value = ''; document.getElementById('newCustomStatusRed').value = ''; document.getElementById('newCustomStatusGreen').value = '';
-    tempPaidTasks = (isNew || !rooms[i].paidTasks) ? [] : JSON.parse(JSON.stringify(rooms[i].paidTasks)); renderEditPaidTasks();
-    tempCustomItems = (isNew || !rooms[i].customItems) ? [] : JSON.parse(JSON.stringify(rooms[i].customItems)); renderEditCustomItems();
-    tempCustomStatuses = (isNew || !rooms[i].customStatuses) ? [] : JSON.parse(JSON.stringify(rooms[i].customStatuses)); renderEditCustomStatuses();
-    let lrHtml = '<label style="margin-top:20px;">Propojit s pokoji (zašpiní se, když z nich někdo odjede):</label><div class="linked-rooms-list">';
-    const curLinked = (!isNew && rooms[i].linkedRooms) ? rooms[i].linkedRooms : []; let hasOthers = false;
-    rooms.forEach((r, idx) => { if (idx !== i) { hasOthers = true; const isChecked = curLinked.includes(idx); lrHtml += `<label><input type="checkbox" value="${idx}" class="link-cb" ${isChecked ? 'checked' : ''}> ${r.name}</label>`; } });
-    lrHtml += '</div>'; document.getElementById('linkedRoomsWrap').innerHTML = hasOthers ? lrHtml : ''; document.getElementById('delRoomBtn').style.display = isNew ? 'none' : 'block'; document.getElementById('editBg').classList.add('open');
-  }
-
-  function selEmoji(el) { document.querySelectorAll('.emoji-pick span').forEach(s => s.classList.remove('sel')); el.classList.add('sel'); document.getElementById('customEmojiInput').value = ''; }
-  function clearEmojiSelection() { document.querySelectorAll('.emoji-pick span').forEach(s => s.classList.remove('sel')); }
-
-  function saveEdit() {
-    const name = document.getElementById('editName').value.trim(); let finalEmoji = document.getElementById('customEmojiInput').value.trim();
-    if(!finalEmoji) { const sel = document.querySelector('.emoji-pick span.sel'); finalEmoji = sel ? sel.textContent : '🛏️'; }
-    const pendingPaidName = document.getElementById('newPaidTaskName').value.trim(); if (pendingPaidName) { const pendingPaidPrice = parseFloat(document.getElementById('newPaidTaskPrice').value) || 0; tempPaidTasks.push({ name: pendingPaidName, price: pendingPaidPrice }); }
-    const pendingCustomText = document.getElementById('newCustomText').value.trim(); if (pendingCustomText) { const pendingCustomLink = document.getElementById('newCustomLink').value.trim(); tempCustomItems.push({ text: pendingCustomText, link: pendingCustomLink }); }
-    const pendingRed = document.getElementById('newCustomStatusRed').value.trim(); if (pendingRed) { const pendingGreen = document.getElementById('newCustomStatusGreen').value.trim(); tempCustomStatuses.push({ textRed: pendingRed, textGreen: pendingGreen || (pendingRed + ' (Hotovo)'), isDone: false }); }
-    const hideDefault = document.getElementById('editHideDefaultStatus').checked; const linkedRooms = Array.from(document.querySelectorAll('.link-cb:checked')).map(cb => parseInt(cb.value));
-    const existingPhotos = (editIdx !== -1 && rooms[editIdx].photos) ? rooms[editIdx].photos : [];
-    if(name && finalEmoji) {
-      const pt = JSON.parse(JSON.stringify(tempPaidTasks)); const ci = JSON.parse(JSON.stringify(tempCustomItems)); const cs = JSON.parse(JSON.stringify(tempCustomStatuses));
-      if(editIdx === -1) { rooms.push({name, emoji: finalEmoji, isDirty: false, linkedRooms, paidTasks: pt, customItems: ci, customStatuses: cs, hideDefaultStatus: hideDefault, photos: existingPhotos});
-      } else { rooms[editIdx] = {name, emoji: finalEmoji, isDirty: rooms[editIdx].isDirty, linkedRooms, paidTasks: pt, customItems: ci, customStatuses: cs, hideDefaultStatus: hideDefault, photos: existingPhotos}; } saveToFirebase();
-    } closeEdit();
-  }
-
-  function deleteRoom() {
-    if(!confirm('Opravdu smazat?')) return;
-    rooms.forEach(r => { if (r.linkedRooms) { r.linkedRooms = r.linkedRooms.filter(idx => idx !== editIdx).map(idx => idx > editIdx ? idx - 1 : idx); } }); rooms.splice(editIdx, 1);
-    let newBookings = {}; let newNotes = {}; const oldLen = rooms.length + 1;
-    for(let j=0; j < oldLen; j++) { if (j < editIdx) { if (bookings[j]) newBookings[j] = bookings[j]; if (notes[j]) newNotes[j] = notes[j]; } else if (j > editIdx) { if (bookings[j]) newBookings[j-1] = bookings[j]; if (notes[j]) newNotes[j-1] = notes[j]; } } bookings = newBookings; notes = newNotes; saveToFirebase(); closeEdit();
-  }
-  function closeEdit() { document.getElementById('editBg').classList.remove('open'); }
-
-  function toggleDirty() { if(!currentUser || !currentUser.canToggle) return; rooms[curRoom].isDirty = !rooms[curRoom].isDirty; if (rooms[curRoom].isDirty && rooms[curRoom].customStatuses) { rooms[curRoom].customStatuses.forEach(cs => cs.isDone = false); } saveToFirebase(); }
-  function toggleCustomStatus(idx) { if(!currentUser || !currentUser.canToggle) return; rooms[curRoom].customStatuses[idx].isDone = !rooms[curRoom].customStatuses[idx].isDone; saveToFirebase(); }
-
-  function updateStatusBtn() {
-    const btn = document.getElementById('toggleStatusBtn'); const canToggle = currentUser && currentUser.canToggle;
-    const occupied = isRoomOccupied(curRoom);
-    
-    if (rooms[curRoom].hideDefaultStatus || occupied) { 
-        btn.style.display = 'none'; 
+      notes = data.notes || {};
+      generalNotes = data.generalNotes || '';
+      let st = data.staffTasks || [];
+      staffTasks = Array.isArray(st) ? st : Object.values(st);
+      authorizedUsers = data.authorizedUsers || {};
+      shiftData = data.shiftData || {};
+      let sdb = data.shiftDataBackups || [];
+      shiftDataBackups = Array.isArray(sdb) ? sdb : Object.values(sdb);
+      tlCleanings = data.tlCleanings || {};
+      rolePermissions = data.rolePermissions || {};
     } else {
-      btn.style.display = 'inline-block';
-      if (rooms[curRoom].isDirty) { btn.textContent = canToggle ? '🧹 Označit jako Uklizený' : '🔴 Pokoj: Špinavý'; btn.className = 'toggle-status-btn btn-dirty'; } 
-      else { btn.textContent = canToggle ? '🔴 Označit jako Špinavý' : '🟢 Pokoj: Uklizený'; btn.className = 'toggle-status-btn btn-clean'; } btn.disabled = !canToggle;
+      rooms = [...defaultRooms]; bookings = {}; notes = {}; generalNotes = ''; staffTasks = []; shiftData = {}; shiftDataBackups = {}; tlCleanings = {}; rolePermissions = {};
+    }
+
+    if(currentUser && document.getElementById('screenApp').classList.contains('active')) {
+      applyUIPermissions();
+      const isGenNoteFocused = document.activeElement === document.getElementById('generalNotes');
+      if (!isGenNoteFocused) document.getElementById('generalNotes').value = generalNotes; 
+      window.autoResize(document.getElementById('generalNotes'));
+      
+      window.renderRooms(); window.renderMiniStats(); window.renderStaffTasks(); window.renderTimeline();
+      window.checkAndShowNewBookings();
+      if(document.getElementById('usersAdminBg').classList.contains('open')) { window.renderUsersAdmin(); }
+      if(document.getElementById('rolesAdminBg').classList.contains('open')) { window.renderRolePermissions(); }
+      if(document.getElementById('modalBg').classList.contains('open') && curRoom !== -1) {
+        const isFocused = document.activeElement === document.getElementById('roomNotes');
+        if (!isFocused) document.getElementById('roomNotes').value = notes[curRoom] || '';
+        window.renderRoomCalendar(); window.renderBookings(); window.renderPhotos(); window.updateStatusBtn(); window.renderRoomCustomStatuses();
+      }
+    }
+  });
+}
+
+/* =========================================================================
+ * TIMELINE WIDGET
+ * ========================================================================= */
+const TL_BOOKING_COLORS = ['#60A5FA','#FB923C','#84CC16','#F472B6','#FBBF24','#C084FC','#2DD4BF','#F87171'];
+const TL_DAYS_CS = ['Ne','Po','Út','St','Čt','Pá','So'];
+const TL_ND = 14;
+let tlWo = 0;
+let tlPend = null;
+let tlCleanings = {};
+
+window.tlAddDate = (d, n) => { const r = new Date(d); r.setDate(r.getDate() + n); return r; };
+window.tlTs = (d) => { return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); };
+window.tlFd = (s) => { const p = s.split('-'); return p[2] + '.' + p[1] + '.'; };
+
+function tlWeekStart() {
+  const T = new Date(); T.setHours(0,0,0,0);
+  const d = window.tlAddDate(T, tlWo * 7);
+  const dow = (d.getDay() + 6) % 7;
+  return window.tlAddDate(d, -dow);
+}
+
+function tlGetRoomBookings(roomIdx) {
+  return (bookings[roomIdx] || [])
+    .map(b => ({ from: new Date(b.from + 'T00:00:00'), to: new Date(b.to + 'T00:00:00') }))
+    .sort((a, b) => a.from - b.from);
+}
+
+function tlIsBusy(dstr, roomIdx) { return (bookings[roomIdx] || []).some(b => b.from <= dstr && b.to >= dstr); }
+function tlGetCleaning(key) { return tlCleanings[key] || null; }
+window.tlSetCleaning = (key, staffKey, day) => { tlCleanings[key] = { staffKey, day }; window.saveToFirebase(); };
+window.tlClearCleaning = (key) => { delete tlCleanings[key]; window.saveToFirebase(); };
+
+const TL_STAFF_COLORS = [
+  { bg: '#B5D4F4', fg: '#0C447C' }, { bg: '#C0DD97', fg: '#27500A' }, { bg: '#F4C0D1', fg: '#72243E' },
+  { bg: '#FDE68A', fg: '#78350F' }, { bg: '#D8B4FE', fg: '#5B21B6' }
+];
+
+function tlStaffColor(idx) { return TL_STAFF_COLORS[idx % TL_STAFF_COLORS.length]; }
+window.tlMyKey = () => { return currentUser ? currentUser.email.replace(/\./g, '_') : null; };
+function tlStaffColorForKey(key) {
+  const keys = Object.keys(authorizedUsers).filter(k => ROLE_DEF[authorizedUsers[k].role] && authorizedUsers[k].role !== 'owner');
+  const idx = keys.indexOf(key);
+  return tlStaffColor(idx >= 0 ? idx : 0);
+}
+function tlGetInitials(key) {
+  const user = authorizedUsers[key]; const nick = user ? (user.nickname || user.email) : key;
+  return nick.split(/[\s@._]+/).filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('');
+}
+
+window.renderTimeline = () => {
+  if (!currentUser) return;
+  if (!window.hasPermission('tl_view')) {
+      document.getElementById('timelineWrap').style.display = 'none';
+      return;
+  }
+  document.getElementById('timelineWrap').style.display = 'block';
+
+  const T = new Date(); T.setHours(0,0,0,0);
+  const todStr = window.tlTs(T);
+  const start = tlWeekStart();
+  const days = Array.from({ length: TL_ND }, (_, i) => window.tlAddDate(start, i));
+  const dSt = days.map(window.tlTs);
+
+  document.getElementById('tlWl').textContent =
+    days[0].getDate() + '.' + (days[0].getMonth()+1) + '. – ' + days[TL_ND-1].getDate() + '.' + (days[TL_ND-1].getMonth()+1) + '. ' + days[TL_ND-1].getFullYear();
+
+  const dh = document.getElementById('tlDh'); dh.innerHTML = '';
+  days.forEach(d => {
+    const el = document.createElement('div');
+    el.className = 'tl-dhdr' + (window.tlTs(d) === todStr ? ' today' : '');
+    el.textContent = TL_DAYS_CS[d.getDay()] + ' ' + d.getDate();
+    dh.appendChild(el);
+  });
+
+  const myKey = window.tlMyKey();
+  const myColor = myKey ? tlStaffColorForKey(myKey) : TL_STAFF_COLORS[0];
+  const canSeeNames = window.hasPermission('tl_see_names');
+  const canClaim = window.hasPermission('tl_claim');
+
+  const leg = document.getElementById('tlLeg');
+  if (!canSeeNames && !canClaim) {
+    leg.innerHTML = `<div class="tl-li"><div class="tl-ld" style="background:#B5D4F4;"></div>Rezervace</div><div class="tl-li"><div class="tl-ld" style="background:#C0DD97;border:1px solid #3B6D11; border-radius:50%;"></div>Úklid naplánován</div>`;
+  } else {
+    leg.innerHTML = `<div class="tl-li"><div class="tl-ld" style="background:#B5D4F4;"></div>Rezervace</div>
+      <div class="tl-li"><div class="tl-ld" style="background:${myColor.bg};border:1px solid ${myColor.fg}; border-radius:50%;"></div>Můj úklid</div>
+      <div class="tl-li"><div class="tl-ld" style="background:#C0DD97;border:1px solid #3B6D11; border-radius:50%;"></div>Obsazeno ${canSeeNames ? 'kolegou' : 'jiným'}</div>
+      ${canClaim ? `<div class="tl-li"><div class="tl-ld" style="background:rgba(0,0,0,0); border:1px dashed var(--color-border-tertiary);"></div>Volný termín (klikněte)</div>` : ''}`;
+  }
+
+  const tb = document.getElementById('tlTb'); tb.innerHTML = '';
+  const wrapEl = document.getElementById('tlMainWrap');
+  const totalW = (wrapEl.offsetWidth || 700) - 120;
+  const cw = totalW / TL_ND;
+
+  rooms.forEach((room, ri) => {
+    if (room.showInTimeline === false) return;
+    const row = document.createElement('div'); row.className = 'tl-trow';
+    const lbl = document.createElement('div'); lbl.className = 'tl-rlbl';
+    lbl.innerHTML = `<span style="font-size:15px;">${room.emoji}</span><span class="tl-rname">${room.name}</span>`;
+    row.appendChild(lbl);
+
+    const cells = document.createElement('div'); cells.className = 'tl-tcells';
+    const rbks = tlGetRoomBookings(ri);
+
+    days.forEach((d, ci) => {
+      const dstr = dSt[ci];
+      const isMidStay  = rbks.some(b => window.tlTs(b.from) < dstr && window.tlTs(b.to) > dstr);
+
+      const cell = document.createElement('div');
+      let cls = 'tl-tcell' + (dstr === todStr ? ' today-col' : '');
+
+      const cleanKey = ri + '_' + dstr;
+      const cleaning = tlGetCleaning(cleanKey);
+
+      if (!isMidStay) {
+        const isMyCleaning = cleaning && cleaning.staffKey === myKey;
+        const isTakenByOther = cleaning && !isMyCleaning;
+
+        if (isMyCleaning) {
+          cls += ' tl-mine';
+          cell.addEventListener('click', () => window.openTlModal(ri, room.name, cleanKey, dstr, 'mine'));
+        } else if (!isTakenByOther && canClaim) {
+          cls += ' tl-free';
+          cell.addEventListener('click', () => window.openTlModal(ri, room.name, cleanKey, dstr, 'claim'));
+        } else if (isTakenByOther && window.hasPermission('tl_cancel_other')) {
+          cls += ' tl-mine'; // Umožní kliknout na cizí
+          cell.addEventListener('click', () => window.openTlModal(ri, room.name, cleanKey, dstr, 'mine'));
+        }
+      }
+      
+      cell.className = cls;
+      cells.appendChild(cell);
+    });
+
+    rbks.forEach((b, bi) => {
+      const fromStr = window.tlTs(b.from); const toStr = window.tlTs(b.to);
+      const si = dSt.indexOf(fromStr); const ei = dSt.indexOf(toStr);
+      if (si === -1 && ei === -1 && (fromStr > dSt[TL_ND-1] || toStr < dSt[0])) return;
+      
+      let leftPx, rightPx;
+
+      if (si === -1) {
+        leftPx = 2; 
+      } else {
+        leftPx = (si * cw) + (cw / 2) + 1; // Začíná v půlce dne
+      }
+
+      if (ei === -1) {
+        rightPx = (TL_ND * cw) - 2; 
+      } else {
+        rightPx = (ei * cw) + (cw / 2) - 1; // Končí v půlce dne
+      }
+
+      if (si !== -1 && si === ei) { // Rezervace od/do ve stejný den
+        leftPx = (si * cw) + 4;
+        rightPx = ((si + 1) * cw) - 4;
+      }
+
+      const barWidth = rightPx - leftPx;
+      if (barWidth <= 0) return;
+
+      const color = TL_BOOKING_COLORS[bi % TL_BOOKING_COLORS.length];
+      const bar = document.createElement('div');
+      const booking = (bookings[ri] || [])[bi];
+      const noteTxt = booking && booking.note ? ' · ' + booking.note : '';
+      const lbl2 = (si === -1 ? '← ' : '') + window.tlFd(fromStr) + '→' + window.tlFd(toStr) + (ei === -1 ? ' →' : '') + noteTxt;
+      
+      bar.style.cssText = `position:absolute;top:6px;left:${leftPx}px;width:${barWidth}px;height:24px;border-radius:4px;display:flex;align-items:center;padding:0 6px;font-size:11px;font-weight:700;z-index:2;white-space:nowrap;overflow:hidden;pointer-events:none;background:${color};color:#18181b;box-shadow:0 1px 2px rgba(0,0,0,0.1);`;
+      bar.textContent = lbl2;
+      bar.title = lbl2;
+      cells.appendChild(bar);
+    });
+
+    const allKeys = Object.keys(tlCleanings).filter(k => k.startsWith(ri + '_'));
+    allKeys.forEach(fullKey => {
+      const cleaning = tlCleanings[fullKey]; if (!cleaning) return;
+      const dstr = fullKey.split('_')[1];
+      const ci = dSt.indexOf(dstr); if (ci === -1) return;
+      
+      const isMine = cleaning.staffKey === myKey;
+      let bg, fg, label;
+
+      if (!canSeeNames && !isMine) {
+        bg = '#C0DD97'; fg = '#27500A'; label = '✓';
+      } else if (isMine) {
+        const col = tlStaffColorForKey(myKey); bg = col.bg; fg = col.fg; label = 'Já';
+      } else {
+        label = tlGetInitials(cleaning.staffKey);
+        const col = tlStaffColorForKey(cleaning.staffKey); bg = col.bg; fg = col.fg; 
+      }
+      
+      const badge = document.createElement('div');
+      badge.style.cssText = `position:absolute;bottom:4px;left:${ci*cw + cw/2}px;transform:translateX(-50%);width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;z-index:4;pointer-events:none;background:${bg};color:${fg};border:1px solid ${fg};box-shadow:0 1px 3px rgba(0,0,0,0.2);`;
+      badge.textContent = label;
+      cells.appendChild(badge);
+    });
+    row.appendChild(cells); tb.appendChild(row);
+  });
+};
+
+window.openTlModal = (ri, roomName, cleanKey, dstr, type) => {
+  tlPend = { ri, roomName, cleanKey, dstr, type };
+  document.getElementById('tlMt').textContent = roomName;
+
+  const rbks = tlGetRoomBookings(ri);
+  const isCheckout = rbks.some(b => window.tlTs(b.to) === dstr);
+  const isCheckin  = rbks.some(b => window.tlTs(b.from) === dstr);
+
+  let dayDesc = window.tlFd(dstr) + dstr.split('-')[0];
+  if (isCheckout && isCheckin) dayDesc += ' 🚪 Odjezd i 🔑 Příjezd';
+  else if (isCheckout) dayDesc += ' 🚪 Odjezd';
+  else if (isCheckin) dayDesc += ' 🔑 Příjezd';
+  else dayDesc += ' 🧹 Prázdný den';
+
+  document.getElementById('tlMs').textContent = dayDesc + (type === 'claim' ? ' — Přihlásit k úklidu' : ' — Odhlásit se');
+
+  const mst = document.getElementById('tlMst'); mst.innerHTML = '';
+
+  if (type === 'claim' && window.hasPermission('tl_claim')) {
+    const btn = document.createElement('button'); btn.className = 'tl-mbtn confirm'; btn.textContent = '✓ Přihlásit se k úklidu';
+    btn.addEventListener('click', () => { window.tlSetCleaning(tlPend.cleanKey, window.tlMyKey(), tlPend.dstr); window.closeTlModal(); window.renderTimeline(); });
+    mst.appendChild(btn);
+  } else if (type === 'mine') {
+    const cleaning = tlGetCleaning(cleanKey);
+    const isMine = cleaning && cleaning.staffKey === window.tlMyKey();
+    if ((isMine && window.hasPermission('tl_cancel_own')) || (!isMine && window.hasPermission('tl_cancel_other'))) {
+        const btn = document.createElement('button'); btn.className = 'tl-mbtn remove'; btn.textContent = '✕ Odhlásit z úklidu';
+        btn.addEventListener('click', () => { window.tlClearCleaning(tlPend.cleanKey); window.closeTlModal(); window.renderTimeline(); });
+        mst.appendChild(btn);
+    } else {
+        mst.innerHTML = '<div style="font-size:13px; color:var(--color-text-danger); text-align:center; padding:10px;">Nemáte oprávnění mazat tento úklid.</div>';
     }
   }
+  document.getElementById('tlOv').classList.add('open');
+};
 
-  function renderRoomCustomStatuses() {
-    const wrap = document.getElementById('customStatusesWrap'); const statuses = rooms[curRoom].customStatuses || []; const canToggle = currentUser && currentUser.canToggle;
-    wrap.innerHTML = statuses.map((cs, idx) => {
-      const btnClass = cs.isDone ? 'btn-clean' : 'btn-dirty'; const rTxt = cs.textRed || cs.label; const gTxt = cs.textGreen || (cs.label + ' (Hotovo)');
-      const icon = cs.isDone ? '🟢' : '🔴'; const text = cs.isDone ? gTxt : rTxt;
-      return `<button class="toggle-status-btn ${btnClass}" style="margin-top:0;" ${!canToggle ? 'disabled' : ''} onclick="window.toggleCustomStatus(${idx})">${icon} ${text}</button>`;
-    }).join('');
+window.closeTlModal = () => { document.getElementById('tlOv').classList.remove('open'); tlPend = null; };
+window.tlChangeWeek = (d) => { tlWo += d; window.renderTimeline(); };
+window.addEventListener('resize', () => { if (currentUser) window.renderTimeline(); });
+
+/* =========================================================================
+ * SPRÁVA OPRÁVNĚNÍ ROLÍ
+ * ========================================================================= */
+window.openRolesAdmin = () => {
+  document.getElementById('rolesAdminBg').classList.add('open');
+  window.renderRolePermissions();
+};
+
+window.closeRolesAdmin = () => {
+  document.getElementById('rolesAdminBg').classList.remove('open');
+};
+
+window.renderRolePermissions = () => {
+  const roleKey = document.getElementById('roleEditSelect').value;
+  const currentRolePerms = rolePermissions[roleKey] || {};
+  const wrap = document.getElementById('permissionsListWrap');
+  let html = '';
+
+  for (const groupKey in PERM_DEFS) {
+    const group = PERM_DEFS[groupKey];
+    html += `<div class="perm-group"><div class="perm-group-title">${group.title}</div><div class="perm-items">`;
+    group.items.forEach(item => {
+      const isChecked = currentRolePerms[item.key] === true ? 'checked' : '';
+      html += `<label class="perm-item"><input type="checkbox" id="perm_${item.key}" ${isChecked}> ${item.label}</label>`;
+    });
+    html += `</div></div>`;
   }
+  wrap.innerHTML = html;
+};
 
-  function openRoom(i) {
-    curRoom = i; resetBookingSelection();
-    document.getElementById('modalTitle').textContent = rooms[i].name; document.getElementById('modalSub').textContent = 'Pokoj '+(i+1)+' · sdílený kalendář';
-    document.getElementById('roomNotes').value = notes[i]||'';
-    const customItemsWrap = document.getElementById('roomCustomItemsWrap'); const cItems = rooms[i].customItems || [];
-    customItemsWrap.innerHTML = cItems.map(item => { if(item.link) { return `<a href="${item.link}" target="_blank" class="custom-btn">${item.text}</a>`; } else { return `<span class="custom-badge">${item.text}</span>`; } }).join('');
-    updateStatusBtn(); renderRoomCustomStatuses(); renderPhotos();
-    
-    const canBook = currentUser && currentUser.role !== 'staff'; 
-    document.getElementById('openBookingBtn').style.display = canBook ? 'block' : 'none';
-    
-    document.getElementById('roomNotes').disabled = false; document.getElementById('saveNoteBtn').style.display = '';
-    renderRoomCalendar(); renderBookings(); document.getElementById('modalBg').classList.add('open');
-    setTimeout(() => { autoResize(document.getElementById('roomNotes')); }, 10);
-  }
-
-  function closeModal() { document.getElementById('modalBg').classList.remove('open'); }
+window.saveRolePermissions = () => {
+  const roleKey = document.getElementById('roleEditSelect').value;
+  if (!rolePermissions[roleKey]) rolePermissions[roleKey] = {};
   
-  function changeMonth(d) { 
-      calMon += d; if(calMon > 11) { calMon = 0; calYear++; } if(calMon < 0) { calMon = 11; calYear--; } 
-      renderRoomCalendar(); 
-      if(document.getElementById('bookingModalBg').classList.contains('open')) { renderBookingCalendar(); }
+  for (const groupKey in PERM_DEFS) {
+    PERM_DEFS[groupKey].items.forEach(item => {
+      const cb = document.getElementById('perm_' + item.key);
+      if (cb) rolePermissions[roleKey][item.key] = cb.checked;
+    });
   }
+  
+  window.saveToFirebase();
+  applyUIPermissions(); // Okamžitá aplikace na UI
+  const btn = document.querySelector('#rolesAdminBg .btn-save');
+  const origText = btn.textContent; btn.textContent = '✓ Uloženo'; setTimeout(() => btn.textContent = origText, 1500);
+};
 
-  function getBookedDaysMap(ignoreIdx = -1) {
-    const map = {};
-    (bookings[curRoom]||[]).forEach((b, i) => {
-      if (i === ignoreIdx) return; 
-      const color = BOOKING_COLORS[i % BOOKING_COLORS.length];
-      let d = new Date(b.from + 'T00:00:00'); const end = new Date(b.to + 'T00:00:00');
-      while(d <= end) {
-        const ds = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-        if(!map[ds]) map[ds] = [];
-        if(!map[ds].includes(color)) map[ds].push(color);
-        d.setDate(d.getDate() + 1);
+/* =========================================================================
+ * PŮVODNÍ FUNKCE
+ * ========================================================================= */
+window.toggleSettingsMenu = (event) => { event.stopPropagation(); document.getElementById('settingsDropdown').classList.toggle('show'); };
+window.addEventListener('click', function(e) { const dropdown = document.getElementById('settingsDropdown'); if (dropdown && dropdown.classList.contains('show') && !e.target.closest('.settings-menu-wrap')) { dropdown.classList.remove('show'); } });
+window.toggleTheme = () => { const isDark = document.body.classList.toggle('dark-mode'); localStorage.setItem('hr_theme', isDark ? 'dark' : 'light'); document.getElementById('menuThemeBtn').innerHTML = isDark ? '☀️ Vzhled: Světlý' : '🌙 Vzhled: Tmavý'; };
+window.toggleColorMode = () => { const isVivid = document.body.classList.toggle('vivid-colors'); localStorage.setItem('hr_color_mode', isVivid ? 'vivid' : 'pastel'); };
+
+window.checkAndShowNewBookings = () => {
+  if (hasShownNewBookingsModal || !currentUser || currentUser.role === 'owner') return;
+  let newBks = []; const lastViewed = currentUser.lastViewedBookings || 0;
+  for (const rIdx in bookings) { (bookings[rIdx] || []).forEach(b => { if (b.addedAt && b.addedAt > lastViewed) { newBks.push({ roomName: rooms[rIdx].name, from: b.from, to: b.to, note: b.note }); } }); }
+  if (newBks.length > 0) {
+    const html = newBks.map(b => `<div style="background:var(--color-background-secondary); padding:8px 12px; border-radius:var(--border-radius-md); margin-bottom:8px; border:1px solid var(--color-border-secondary);"><strong style="color:var(--color-text-primary); font-size:15px;">${b.roomName}</strong><br><span style="font-size:14px; color:var(--color-text-secondary);">${fmt(b.from)} &rarr; ${fmt(b.to)}</span>${b.note ? `<br><span style="font-size:13px; color:var(--color-text-secondary); display:block; margin-top:4px;">Poznámka: ${b.note}</span>` : ''}</div>`).join('');
+    document.getElementById('newBookingsList').innerHTML = html; document.getElementById('newBookingsModalBg').classList.add('open');
+  }
+  hasShownNewBookingsModal = true;
+};
+
+window.closeNewBookingsModal = () => { document.getElementById('newBookingsModalBg').classList.remove('open'); const myKey = currentUser.email.replace(/\./g, '_'); if (authorizedUsers[myKey]) { authorizedUsers[myKey].lastViewedBookings = Date.now(); currentUser.lastViewedBookings = authorizedUsers[myKey].lastViewedBookings; window.saveToFirebase(); } };
+window.renderMiniStats = () => {
+  let arrivals = 0; let departures = 0; let cleanings = 0; const todayStr = getLocalIsoDate(0);
+  rooms.forEach((r, i) => { if (r.isDirty && !r.hideDefaultStatus) cleanings++; });
+  for (const roomIdx in bookings) { (bookings[roomIdx] || []).forEach(b => { if (b.from === todayStr) arrivals++; if (b.to === todayStr) departures++; }); }
+  const el = document.getElementById('miniStats'); if (!el) return;
+  el.innerHTML = `<div class="stat-item">Příjezdy: <span class="stat-val">${arrivals}</span></div><div class="stat-item">Odjezdy: <span class="stat-val">${departures}</span></div><div class="stat-item">Úklidy: <span class="stat-val">${cleanings}</span></div>`;
+};
+window.saveToFirebase = () => { set(ref(db, '/'), { rooms, bookings, notes, generalNotes, staffTasks, authorizedUsers, shiftData, shiftDataBackups, tlCleanings, rolePermissions }); };
+function getLocalIsoDate(daysOffset = 0) { const d = new Date(); d.setDate(d.getDate() + daysOffset); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
+function autoDirtyCheck() {
+  const todayStr = getLocalIsoDate(); const currentHour = new Date().getHours(); let changed = false;
+  const cutoffDate = new Date(); cutoffDate.setDate(cutoffDate.getDate() - 14);
+  const cutoffStr = cutoffDate.getFullYear() + '-' + String(cutoffDate.getMonth()+1).padStart(2,'0') + '-' + String(cutoffDate.getDate()).padStart(2,'0');
+  for (const roomIdx in bookings) { if(bookings[roomIdx]) { const originalLen = bookings[roomIdx].length; bookings[roomIdx] = bookings[roomIdx].filter(b => b.to >= cutoffStr); if (bookings[roomIdx].length !== originalLen) changed = true; } }
+  rooms.forEach((r, i) => {
+    if(r.isDirty === undefined) { r.isDirty = false; changed = true; }
+    (bookings[i]||[]).forEach(b => {
+      if ((b.to < todayStr || (b.to === todayStr && currentHour >= 10)) && !b.dirtyTriggered) {
+        r.isDirty = true; b.dirtyTriggered = true; changed = true;
+        if (r.customStatuses) { r.customStatuses.forEach(cs => cs.isDone = false); }
+        rooms.forEach((linkedRoom) => { if (linkedRoom.linkedRooms && linkedRoom.linkedRooms.includes(i)) { if(!linkedRoom.isDirty) { linkedRoom.isDirty = true; changed = true; if (linkedRoom.customStatuses) { linkedRoom.customStatuses.forEach(cs => cs.isDone = false); } } } });
       }
     });
-    return map;
-  }
+  });
+  if(changed) window.saveToFirebase();
+}
+function isRoomOccupied(roomIdx) {
+  const todayStr = getLocalIsoDate(); const currentHour = new Date().getHours(); const bks = bookings[roomIdx] || [];
+  for (const b of bks) { if (b.from <= todayStr && b.to >= todayStr) { if (b.from === todayStr && b.to === todayStr) { if (currentHour >= 15 && currentHour < 10) return true; } if (b.from === todayStr && currentHour < 15) continue; if (b.to === todayStr && currentHour >= 10) continue; return true; } } return false;
+}
+function getRoomStateClass(roomIdx) {
+  if (isRoomOccupied(roomIdx)) return 'bg-state-active';
+  const todayStr = getLocalIsoDate(0); const plus3Str = getLocalIsoDate(3); const bks = bookings[roomIdx] || [];
+  for (const b of bks) { if (b.from > todayStr && b.from <= plus3Str) return 'bg-state-soon'; } return 'bg-state-free';
+}
 
-  function renderRoomCalendar() {
-    document.getElementById('calMonth').textContent = MONTHS[calMon] + ' ' + calYear; const g = document.getElementById('calGrid'); 
-    const dayMap = getBookedDaysMap(-1); const today = new Date();
-    let html = DAYS.map(d => `<div class="cal-header">${d}</div>`).join(''); 
-    const first = new Date(calYear, calMon, 1); let startDay = (first.getDay() + 6) % 7;
-    for(let i=0; i<startDay; i++) { html += `<div class="cal-day empty"></div>`; }
-    const days = new Date(calYear, calMon+1, 0).getDate();
-    for(let d=1; d<=days; d++) {
-      const ds = `${calYear}-${String(calMon+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; 
-      const isT = today.getFullYear()===calYear && today.getMonth()===calMon && today.getDate()===d;
-      let cls = 'cal-day' + (isT ? ' today' : ''); let style = '';
-      if(dayMap[ds]) {
-          cls += ' booked';
-          if(dayMap[ds].length === 1) style = `background: ${dayMap[ds][0]}; border-color: rgba(0,0,0,0.1);`;
-          else style = `background: linear-gradient(135deg, ${dayMap[ds][0]} 50%, ${dayMap[ds][1]} 50%); border-color: rgba(0,0,0,0.1);`;
-      }
-      html += `<div class="${cls}" style="${style}">${d}</div>`;
-    } g.innerHTML = html;
-  }
+window.loginWithEmail = () => { const e = document.getElementById('loginEmail').value.trim(); const p = document.getElementById('loginPass').value; const err = document.getElementById('loginErr'); err.textContent = 'Přihlašování...'; signInWithEmailAndPassword(auth, e, p).catch(() => { err.textContent = 'Špatný e-mail nebo heslo.'; }); };
+window.loginWithGoogle = () => { const err = document.getElementById('loginErr'); err.textContent = 'Otevírám Google...'; signInWithPopup(auth, googleProvider).catch(() => { err.textContent = 'Přihlášení zrušeno nebo selhalo.'; }); };
+window.doLogout = () => { signOut(auth); };
+window.autoResize = (el) => { if(!el) return; el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; };
 
-  function openBookingModal(idx = -1) {
-      editBookingIdx = idx;
-      if (idx > -1) {
-          const b = bookings[curRoom][idx]; selStart = b.from; selEnd = b.to;
-          document.getElementById('bBookingNote').value = b.note || ''; document.getElementById('bookingModalTitle').textContent = 'Upravit rezervaci';
-          document.getElementById('saveBookingBtn').textContent = '💾 Uložit úpravy'; document.getElementById('saveBookingBtn').style.background = '#16A34A';
-          const sd = new Date(selStart + 'T00:00:00'); calYear = sd.getFullYear(); calMon = sd.getMonth();
-      } else {
-          selStart = null; selEnd = null; document.getElementById('bBookingNote').value = '';
-          document.getElementById('bookingModalTitle').textContent = 'Nová rezervace';
-          document.getElementById('saveBookingBtn').textContent = '+ Přidat rezervaci'; document.getElementById('saveBookingBtn').style.background = '';
-      }
-      document.getElementById('bDateFrom').value = selStart ? fmt(selStart) : ''; document.getElementById('bDateTo').value = selEnd ? fmt(selEnd) : (selStart ? fmt(selStart) : '');
-      renderBookingCalendar(); document.getElementById('bookingModalBg').classList.add('open');
-      setTimeout(() => { autoResize(document.getElementById('bBookingNote')); }, 10);
-  }
+window.openUsersAdmin = () => { editingUserKey = null; document.getElementById('addBtnAdmin').textContent = 'Přidat'; window.renderUsersAdmin(); document.getElementById('usersAdminBg').classList.add('open'); };
+window.closeUsersAdmin = () => { document.getElementById('usersAdminBg').classList.remove('open'); };
+window.editUserRole = (key) => { const u = authorizedUsers[key]; document.getElementById('newUserEmail').value = u.email; document.getElementById('newUserNick').value = u.nickname || ''; document.getElementById('newUserRole').value = u.role; document.getElementById('newUserHourlyRate').value = u.hourlyRate || ''; editingUserKey = key; document.getElementById('addBtnAdmin').textContent = 'Uložit úpravy'; };
+window.renderUsersAdmin = () => {
+  const tbody = document.getElementById('usersTableBody'); let html = '';
+  for (const key in authorizedUsers) {
+    const u = authorizedUsers[key]; const badge = ROLE_DEF[u.role] ? ROLE_DEF[u.role].badge : 'badge-staff'; const rateTxt = u.hourlyRate ? `${u.hourlyRate} Kč/h` : '-';
+    html += `<tr><td>${u.email}</td><td>${u.nickname||'-'}</td><td>${rateTxt}</td><td><span class="role-badge ${badge}">${u.role}</span></td><td style="text-align:right"><button class="del-btn" style="color:var(--color-text-primary);" onclick="window.editUserRole('${key}')" title="Upravit">✎</button>${u.email !== currentUser.email ? `<button class="del-btn" onclick="window.deleteUserRole('${key}')" title="Smazat">✕</button>` : ''}</td></tr>`;
+  } tbody.innerHTML = html;
+};
+window.addUserRole = () => {
+  const email = document.getElementById('newUserEmail').value.trim().toLowerCase(); const role = document.getElementById('newUserRole').value; const nick = document.getElementById('newUserNick').value.trim(); const hr = parseFloat(document.getElementById('newUserHourlyRate').value) || 0;
+  if(!email) return; const key = email.replace(/\./g, '_'); if(editingUserKey && editingUserKey !== key) { delete authorizedUsers[editingUserKey]; }
+  const curLastViewed = authorizedUsers[key] ? authorizedUsers[key].lastViewedBookings : 0;
+  authorizedUsers[key] = { email: email, role: role, nickname: nick, hourlyRate: hr, lastViewedBookings: curLastViewed || 0 };
+  editingUserKey = null; document.getElementById('addBtnAdmin').textContent = 'Přidat'; window.saveToFirebase();
+  document.getElementById('newUserEmail').value = ''; document.getElementById('newUserNick').value = ''; document.getElementById('newUserHourlyRate').value = ''; window.renderUsersAdmin();
+};
+window.deleteUserRole = (key) => { if(confirm('Odebrat přístup?')) { delete authorizedUsers[key]; window.saveToFirebase(); window.renderUsersAdmin(); } };
 
-  function closeBookingModal() { document.getElementById('bookingModalBg').classList.remove('open'); renderRoomCalendar(); }
-
-  function bookingCalDayClick(ds) {
-    if (!currentUser || currentUser.role === 'staff') return; 
-    if (!selStart || (selStart && selEnd)) { selStart = ds; selEnd = null; } 
-    else { if (ds < selStart) { selEnd = selStart; selStart = ds; } else { selEnd = ds; } }
-    document.getElementById('bDateFrom').value = selStart ? fmt(selStart) : ''; document.getElementById('bDateTo').value = selEnd ? fmt(selEnd) : (selStart ? fmt(selStart) : '');
-    renderBookingCalendar();
+window.openMyShift = () => {
+  currentShiftDate = getLocalIsoDate(); document.getElementById('shiftDateSelect').value = currentShiftDate;
+  const myKey = currentUser.email.replace(/\./g, '_'); const data = shiftData[myKey] || {}; tempMyShift = JSON.parse(JSON.stringify(data)); if (!tempMyShift.dailyLogs) tempMyShift.dailyLogs = {};
+  if (tempMyShift.hours !== undefined || tempMyShift.tasks) {
+    let legacyNote = ''; if(tempMyShift.notes && tempMyShift.notes.length > 0) { legacyNote = tempMyShift.notes.map(n => n.text).join(' | '); }
+    if (!tempMyShift.dailyLogs[currentShiftDate]) tempMyShift.dailyLogs[currentShiftDate] = { hours: 0, note: '', tasks: {} };
+    if (tempMyShift.hours !== undefined) tempMyShift.dailyLogs[currentShiftDate].hours = tempMyShift.hours;
+    if (legacyNote) tempMyShift.dailyLogs[currentShiftDate].note = legacyNote;
+    if (tempMyShift.tasks) tempMyShift.dailyLogs[currentShiftDate].tasks = tempMyShift.tasks;
+    delete tempMyShift.hours; delete tempMyShift.notes; delete tempMyShift.tasks;
   }
-
-  function resetBookingSelection() { selStart = null; selEnd = null; document.getElementById('bDateFrom').value = ''; document.getElementById('bDateTo').value = ''; renderBookingCalendar(); }
-
-  function renderBookingCalendar() {
-    document.getElementById('bookingCalMonth').textContent = MONTHS[calMon] + ' ' + calYear; const g = document.getElementById('bookingCalGrid'); 
-    const dayMap = getBookedDaysMap(editBookingIdx); const today = new Date();
-    let html = DAYS.map(d => `<div class="cal-header">${d}</div>`).join(''); 
-    const first = new Date(calYear, calMon, 1); let startDay = (first.getDay() + 6) % 7;
-    for(let i=0; i<startDay; i++) { html += `<div class="cal-day empty"></div>`; }
-    const days = new Date(calYear, calMon+1, 0).getDate();
-    for(let d=1; d<=days; d++) {
-      const ds = `${calYear}-${String(calMon+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; 
-      const isT = today.getFullYear()===calYear && today.getMonth()===calMon && today.getDate()===d;
-      let cls = 'cal-day' + (isT ? ' today' : ''); let style = '';
-      if(dayMap[ds]) {
-          cls += ' booked';
-          if(dayMap[ds].length === 1) style = `background: ${dayMap[ds][0]}; border-color: rgba(0,0,0,0.1);`;
-          else style = `background: linear-gradient(135deg, ${dayMap[ds][0]} 50%, ${dayMap[ds][1]} 50%); border-color: rgba(0,0,0,0.1);`;
-      }
-      if (selStart === ds || selEnd === ds) { cls += ' sel-node'; style = ''; } else if (selStart && selEnd && ds > selStart && ds < selEnd) { cls += ' sel-mid'; style = ''; }
-      html += `<div class="${cls}" style="${style}" onclick="window.bookingCalDayClick('${ds}')">${d}</div>`;
-    } g.innerHTML = html;
+  window.renderShiftFormForDate(); document.getElementById('shiftBg').classList.add('open');
+};
+window.saveShiftFormToTemp = () => {
+  const h = parseFloat(document.getElementById('myShiftHours').value) || 0; const n = document.getElementById('myShiftNote').value.trim();
+  if (!tempMyShift.dailyLogs[currentShiftDate]) tempMyShift.dailyLogs[currentShiftDate] = { hours: 0, note: '', tasks: {} };
+  tempMyShift.dailyLogs[currentShiftDate].hours = h; tempMyShift.dailyLogs[currentShiftDate].note = n;
+};
+window.changeShiftDate = () => { window.saveShiftFormToTemp(); currentShiftDate = document.getElementById('shiftDateSelect').value || getLocalIsoDate(); window.renderShiftFormForDate(); };
+window.renderShiftFormForDate = () => {
+  const log = tempMyShift.dailyLogs[currentShiftDate] || { hours: 0, note: '', tasks: {} };
+  document.getElementById('myShiftHours').value = log.hours || ''; document.getElementById('myShiftNote').value = log.note || ''; window.renderMyShiftRooms();
+};
+window.closeMyShift = () => { document.getElementById('shiftBg').classList.remove('open'); };
+window.renderMyShiftRooms = () => {
+  const list = document.getElementById('myShiftRoomsList'); let html = ''; let hasAny = false; const log = tempMyShift.dailyLogs[currentShiftDate] || { tasks: {} }; const tasks = log.tasks || {};
+  rooms.forEach((r, roomIdx) => {
+    if(r.paidTasks && r.paidTasks.length > 0) {
+      hasAny = true; html += `<div style="font-size:14px; font-weight:bold; color:var(--color-text-primary); margin-top:12px; border-bottom:1px solid var(--color-border-secondary); padding-bottom:4px;">${r.name}</div>`;
+      r.paidTasks.forEach((pt, taskIdx) => {
+        const taskKey = `${roomIdx}_${taskIdx}`; const count = tasks[taskKey] || 0;
+        html += `<div class="shift-counter-wrap"><div style="font-size:13px; color:var(--color-text-secondary);">${pt.name} (${pt.price} Kč)</div><div style="display:flex; align-items:center; gap:8px;"><button class="shift-counter-btn" onclick="window.changeShiftTask('${taskKey}', -1)">-</button><div class="shift-counter-val">${count}</div><button class="shift-counter-btn" onclick="window.changeShiftTask('${taskKey}', 1)">+</button></div></div>`;
+      });
+    }
+  });
+  if(!hasAny) html = '<div style="font-size:13px; color:var(--color-text-secondary);">Nejsou nastaveny žádné placené úkony.</div>'; list.innerHTML = html;
+};
+window.changeShiftTask = (taskKey, delta) => {
+  if (!tempMyShift.dailyLogs[currentShiftDate]) tempMyShift.dailyLogs[currentShiftDate] = { hours: 0, note: '', tasks: {} };
+  if (!tempMyShift.dailyLogs[currentShiftDate].tasks) tempMyShift.dailyLogs[currentShiftDate].tasks = {};
+  let t = tempMyShift.dailyLogs[currentShiftDate].tasks; if (!t[taskKey]) t[taskKey] = 0; t[taskKey] += delta; if (t[taskKey] < 0) t[taskKey] = 0; window.renderMyShiftRooms();
+};
+window.saveMyShift = () => {
+  window.saveShiftFormToTemp(); const myKey = currentUser.email.replace(/\./g, '_');
+  for (const d in tempMyShift.dailyLogs) {
+    const log = tempMyShift.dailyLogs[d]; const hasTasks = log.tasks && Object.values(log.tasks).some(v => v > 0);
+    if ((!log.hours || log.hours === 0) && !log.note && !hasTasks) { delete tempMyShift.dailyLogs[d]; }
   }
-
-  function saveBooking() {
-    if (!selStart || !selEnd) { alert('Prosím, vyberte termín kliknutím do kalendáře (Příjezd a Odjezd).'); return; }
-    if(!bookings[curRoom]) bookings[curRoom] = []; const note = document.getElementById('bBookingNote').value.trim();
-    if (editBookingIdx > -1) { bookings[curRoom][editBookingIdx].from = selStart; bookings[curRoom][editBookingIdx].to = selEnd; bookings[curRoom][editBookingIdx].note = note;
-    } else { bookings[curRoom].push({ from: selStart, to: selEnd, note: note, dirtyTriggered: false, addedAt: Date.now() }); }
-    saveToFirebase(); closeBookingModal(); renderRoomCalendar(); renderBookings();
-  }
-
-  function renderBookings() {
-    const list = bookings[curRoom] || []; const el = document.getElementById('bookingsList'); const canDel = currentUser && currentUser.canDelete; 
-    const canBook = currentUser && currentUser.role !== 'staff';
-    if(!list.length) { el.innerHTML = ''; return; }
-    
-    // TADY SE DĚJE TO SEŘAZENÍ (chronologicky od nejstaršího po nejnovější)
-    const sortedList = list.map((b, i) => ({ b, originalIndex: i })).sort((x, y) => x.b.from.localeCompare(y.b.from));
-    
-    el.innerHTML = sortedList.map(item => {
-        const b = item.b; const i = item.originalIndex;
-        const color = BOOKING_COLORS[i % BOOKING_COLORS.length];
-        return `<div class="booking-item" style="border-left: 4px solid ${color};"><div><div class="booking-dates">${fmt(b.from)} → ${fmt(b.to)}</div>${b.note ? `<div class="booking-note">${b.note}</div>` : ''}</div><div style="display:flex; gap:4px;">${canBook ? `<button class="del-btn" style="color:var(--color-text-primary); font-size:14px;" onclick="window.openBookingModal(${i})" title="Upravit">✎</button>` : ''} ${canDel ? `<button class="del-btn" style="font-size:14px;" onclick="window.delBooking(${i})" title="Smazat">✕</button>` : ''}</div></div>`;
-    }).join('');
-  }
-  
-  function fmt(d) { const p = d.split('-'); return p[2] + '.' + p[1] + '.' + p[0]; }
-  
-  function delBooking(i) { 
-      if(!confirm('Opravdu smazat tuto rezervaci?')) return;
-      bookings[curRoom].splice(i, 1); saveToFirebase(); renderRoomCalendar(); renderBookings();
-  }
-  
-  function saveNote() { 
-      notes[curRoom] = document.getElementById('roomNotes').value; saveToFirebase(); 
-      const s = document.getElementById('noteSaved'); s.classList.add('show'); setTimeout(() => s.classList.remove('show'), 1800); 
-  }
-  function saveGeneralNote() { 
-      generalNotes = document.getElementById('generalNotes').value; saveToFirebase(); 
-      const s = document.getElementById('genNoteSaved'); s.classList.add('show'); setTimeout(() => s.classList.remove('show'), 1800); 
-  }
-
-  function handlePhotoUpload(input) {
-      const file = input.files[0]; if(!file) return; const reader = new FileReader();
-      reader.onload = function(e) {
-          const img = new Image();
-          img.onload = function() {
-              const canvas = document.createElement('canvas'); let w = img.width; let h = img.height; const MAX = 800;
-              if(w > MAX || h > MAX) { if(w > h) { h = Math.round((h * MAX) / w); w = MAX; } else { w = Math.round((w * MAX) / h); h = MAX; } }
-              canvas.width = w; canvas.height = h; const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, w, h);
-              const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
-              if(!rooms[curRoom].photos) rooms[curRoom].photos = [];
-              rooms[curRoom].photos.push({ data: dataUrl, addedAt: Date.now() }); saveToFirebase(); renderPhotos();
+  shiftData[myKey] = tempMyShift; window.saveToFirebase(); window.closeMyShift();
+};
+window.openShiftDetails = (key, backupIdx = -1) => {
+  const sourceData = backupIdx === -1 ? shiftData : shiftDataBackups[backupIdx].data;
+  const d = sourceData[key]; if (!d) return;
+  const user = authorizedUsers[key]; const nick = user ? (user.nickname || user.email) : key; const rate = parseFloat(user?.hourlyRate) || 0;
+  let totalHours = 0; let logsHtml = ''; let overallTasksMoney = 0;
+  if (d.dailyLogs && Object.keys(d.dailyLogs).length > 0) {
+    const dates = Object.keys(d.dailyLogs).sort(); logsHtml = '<strong style="margin-top:12px; display:block;">Výkaz podle dní:</strong>';
+    dates.forEach(date => {
+      const log = d.dailyLogs[date]; let dayHours = log.hours || 0; totalHours += dayHours; let dayTasksHtml = '';
+      if (log.tasks) {
+        for(const tk in log.tasks) {
+          if (log.tasks[tk] > 0) {
+            const parts = tk.split('_'); const rIdx = parseInt(parts[0]); const tIdx = parseInt(parts[1]);
+            if (rooms[rIdx] && rooms[rIdx].paidTasks && rooms[rIdx].paidTasks[tIdx]) {
+              const pt = rooms[rIdx].paidTasks[tIdx]; const cnt = log.tasks[tk]; const price = parseFloat(pt.price) || 0; const sum = cnt * price; overallTasksMoney += sum;
+              dayTasksHtml += `<br>&nbsp;&nbsp;&nbsp;↳ ${pt.name}: ${cnt}x (${sum} Kč)`;
+            }
           }
-          img.src = e.target.result;
+        }
       }
-      reader.readAsDataURL(file); input.value = '';
+      const noteTxt = log.note ? `<br>&nbsp;&nbsp;&nbsp;<em>Pozn.: ${log.note}</em>` : '';
+      logsHtml += `<div style="background:var(--color-background-secondary); padding:8px; border-radius:6px; margin-top:4px; font-size:13px;"><strong>${fmt(date)}:</strong> ${dayHours} hod${dayTasksHtml}${noteTxt}</div>`;
+    });
+  } else { logsHtml = '<div style="font-size:13px; color:var(--color-text-secondary); margin-top:12px;">Zatím nejsou zadány žádné směny.</div>'; }
+  const hoursMoney = totalHours * rate; document.getElementById('sdName').textContent = `Výkaz: ${nick}`;
+  document.getElementById('sdContent').innerHTML = `<strong>Odpracováno:</strong> ${totalHours} hod (Sazba: ${rate} Kč/h = ${hoursMoney} Kč)<br><strong>Úkony (Celkem: ${overallTasksMoney} Kč)</strong>${logsHtml}<strong style="font-size:16px; color:#16A34A; margin-top:16px; display:block; border-top:1px solid var(--color-border-secondary); padding-top:8px;">K výplatě celkem: ${hoursMoney + overallTasksMoney} Kč</strong>`;
+  document.getElementById('shiftDetailsBg').classList.add('open');
+};
+window.closeShiftDetails = () => { document.getElementById('shiftDetailsBg').classList.remove('open'); };
+window.openStatsModal = () => { document.getElementById('statsMainTitle').style.display = 'block'; window.renderStatsPanel('current'); document.getElementById('statsModalBg').classList.add('open'); };
+window.closeStatsModal = () => { document.getElementById('statsModalBg').classList.remove('open'); };
+window.renderStatsPanel = (mode = 'current', backupIdx = -1) => {
+  const myKey = currentUser.email.replace(/\./g, '_'); const panelContent = document.getElementById('statsPanelContent'); let html = '';
+  if (mode === 'history') {
+    document.getElementById('statsMainTitle').style.display = 'none';
+    html += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; padding-top: 10px;"><h4 style="margin:0; font-family:'Playfair Display',serif; color:var(--color-text-primary); font-size:20px;">🗄️ Archiv výkazů</h4><button class="cal-nav-btn" onclick="window.renderStatsPanel('current')" style="padding:6px 12px; font-size:12px;">🔙 Zpět</button></div>`;
+    if (!shiftDataBackups || shiftDataBackups.length === 0) { html += `<div style="font-size:13px; color:var(--color-text-secondary); text-align:center; padding: 20px;">Zatím nejsou k dispozici žádné uzavřené měsíce.</div>`;
+    } else {
+      html += `<div style="display:flex; flex-direction:column; gap:8px;">`;
+      for (let i = shiftDataBackups.length - 1; i >= 0; i--) {
+        const b = shiftDataBackups[i]; const d = new Date(b.date);
+        const dateStr = d.getDate() + '.' + (d.getMonth()+1) + '. ' + d.getFullYear() + ' v ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+        html += `<div class="task-item" style="cursor:pointer; transition:transform 0.1s; background:var(--color-background-primary);" onclick="window.renderStatsPanel('backup', ${i})" onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'"><div style="font-size:14px; font-weight:bold; color:var(--color-text-primary);">Záloha z: ${dateStr}</div><div style="font-size:12px; font-weight:bold; color:var(--color-text-primary);">Otevřít ➔</div></div>`;
+      }
+      html += `</div>`;
+    }
+    panelContent.innerHTML = html; return;
   }
-
-  function renderPhotos() {
-      const grid = document.getElementById('roomPhotosGrid'); const photos = rooms[curRoom].photos || [];
-      if(photos.length === 0) { grid.innerHTML = ''; return; }
-      grid.innerHTML = photos.map((p, idx) => `<div class="photo-wrap"><img src="${p.data}" class="photo-thumb" onclick="window.viewPhoto('${p.data}')">${currentUser && currentUser.canToggle ? `<button class="photo-del" onclick="window.deletePhoto(${idx})">✕</button>` : ''}</div>`).join('');
+  document.getElementById('statsMainTitle').style.display = 'block';
+  const isBackup = (mode === 'backup'); const sourceData = isBackup ? shiftDataBackups[backupIdx].data : shiftData;
+  if (isBackup) {
+    document.getElementById('statsMainTitle').style.display = 'none';
+    const d = new Date(shiftDataBackups[backupIdx].date);
+    const dateStr = d.getDate() + '.' + (d.getMonth()+1) + '. v ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+    html += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; background:var(--color-background-secondary); padding:8px 12px; border-radius:var(--border-radius-md); border:1px solid var(--color-border-secondary); margin-top: 10px;"><div style="font-size:13px; font-weight:bold; color:var(--color-text-primary);">Prohlížíte zálohu:<br><span style="font-size:12px; font-weight:normal; color:var(--color-text-secondary);">${dateStr}</span></div><button class="cal-nav-btn" onclick="window.renderStatsPanel('history')" style="padding:6px 12px; font-size:12px; font-weight:bold;">🔙 Zpět na archiv</button></div>`;
+  } else {
+    html += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;"><div style="font-size:14px; font-weight:bold; color:var(--color-text-primary);">Aktuální neuzavřené období</div><button class="cal-nav-btn" onclick="window.renderStatsPanel('history')" style="padding:6px 12px; font-size:12px; font-weight:bold;">🗄️ Historie záloh</button></div>`;
   }
-
-  function viewPhoto(dataUrl) { document.getElementById('photoViewerImg').src = dataUrl; document.getElementById('photoViewerBg').classList.add('open'); }
-  function deletePhoto(idx) { if(confirm("Opravdu smazat tuto fotku?")) { rooms[curRoom].photos.splice(idx, 1); saveToFirebase(); renderPhotos(); } }
-
-  /* =========================================================================
-   * EXPORT FUNKCÍ PRO HTML (PEVNĚ SEŘAZENO PROTI USEKNUTÍ)
-   * ========================================================================= */
-  window.loginWithEmail = loginWithEmail;
-  window.loginWithGoogle = loginWithGoogle;
-  window.doLogout = doLogout;
-  window.openRoom = openRoom;
-  window.closeModal = closeModal;
-  window.changeMonth = changeMonth;
-  window.delBooking = delBooking;
-  window.saveNote = saveNote;
-  window.saveGeneralNote = saveGeneralNote;
-  window.openEdit = openEdit;
-  window.closeEdit = closeEdit;
-  window.saveEdit = saveEdit;
-  window.deleteRoom = deleteRoom;
-  window.selEmoji = selEmoji;
-  window.clearEmojiSelection = clearEmojiSelection;
-  window.toggleDirty = toggleDirty;
-  window.toggleCustomStatus = toggleCustomStatus;
-  window.toggleColorMode = toggleColorMode;
-  window.openUsersAdmin = openUsersAdmin;
-  window.closeUsersAdmin = closeUsersAdmin;
-  window.addUserRole = addUserRole;
-  window.deleteUserRole = deleteUserRole;
-  window.editUserRole = editUserRole;
-  window.addStaffTask = addStaffTask;
-  window.toggleStaffTask = toggleStaffTask;
-  window.deleteStaffTask = deleteStaffTask;
-  window.addCustomItemToEdit = addCustomItemToEdit;
-  window.removeCustomItemFromEdit = removeCustomItemFromEdit;
-  window.addCustomStatusToEdit = addCustomStatusToEdit;
-  window.removeCustomStatusFromEdit = removeCustomStatusFromEdit;
-  window.addPaidTaskToEdit = addPaidTaskToEdit;
-  window.removePaidTaskFromEdit = removePaidTaskFromEdit;
-  window.openMyShift = openMyShift;
-  window.closeMyShift = closeMyShift;
-  window.changeShiftDate = changeShiftDate;
-  window.changeShiftTask = changeShiftTask;
-  window.saveMyShift = saveMyShift;
-  window.resetShiftData = resetShiftData;
-  window.openShiftDetails = openShiftDetails;
-  window.closeShiftDetails = closeShiftDetails;
-  window.closeNewBookingsModal = closeNewBookingsModal;
-  window.handlePhotoUpload = handlePhotoUpload;
-  window.viewPhoto = viewPhoto;
-  window.deletePhoto = deletePhoto;
-  window.openBookingModal = openBookingModal;
-  window.closeBookingModal = closeBookingModal;
-  window.bookingCalDayClick = bookingCalDayClick;
-  window.resetBookingSelection = resetBookingSelection;
-  window.saveBooking = saveBooking;
-  window.openStatsModal = openStatsModal;
-  window.closeStatsModal = closeStatsModal;
-  window.renderStatsPanel = renderStatsPanel;
-  window.toggleSettingsMenu = toggleSettingsMenu;
-  window.toggleTheme = toggleTheme;
-  window.autoResize = autoResize;
+  let empty = true;
+  const canSeeAll = window.hasPermission('stat_view_all');
+  for(const key in sourceData) {
+    if (!canSeeAll && key !== myKey) continue;
+    const d = sourceData[key]; const user = authorizedUsers[key]; const nick = user ? (user.nickname || user.email) : key; const rate = parseFloat(user?.hourlyRate) || 0;
+    let totalHours = 0; let hasLogs = false; let tasksTxtMap = {};
+    if (d.dailyLogs && Object.keys(d.dailyLogs).length > 0) {
+      hasLogs = true;
+      for(const date in d.dailyLogs) { const log = d.dailyLogs[date]; totalHours += (log.hours || 0); if (log.tasks) { for(const tk in log.tasks) { if(log.tasks[tk] > 0) { if (!tasksTxtMap[tk]) tasksTxtMap[tk] = 0; tasksTxtMap[tk] += log.tasks[tk]; } } } }
+    }
+    const hoursMoney = totalHours * rate; let tasksMoney = 0; let tasksTxt = [];
+    for(const tk in tasksTxtMap) {
+      const parts = tk.split('_'); const rIdx = parseInt(parts[0]); const tIdx = parseInt(parts[1]);
+      if (rooms[rIdx] && rooms[rIdx].paidTasks && rooms[rIdx].paidTasks[tIdx]) {
+        const pt = rooms[rIdx].paidTasks[tIdx]; const cnt = tasksTxtMap[tk]; const price = parseFloat(pt.price) || 0; tasksMoney += (cnt * price); tasksTxt.push(`• ${pt.name}: ${cnt}x`);
+      }
+    }
+    const totalOverall = hoursMoney + tasksMoney;
+    if(totalHours > 0 || tasksTxt.length > 0 || hasLogs) {
+      empty = false;
+      html += `<div class="stats-panel-user"><div style="display:flex; justify-content:space-between; align-items:center;"><strong>${nick}</strong><button onclick="window.openShiftDetails('${key}', ${isBackup ? backupIdx : -1})" style="background:var(--color-background-primary);border:1px solid var(--color-border-tertiary);border-radius:4px;padding:4px 8px;cursor:pointer;font-size:11px;font-weight:bold; color:var(--color-text-primary);">Podrobnosti</button></div>(Hodiny: ${totalHours})<br>${tasksTxt.join('<br>')}<br><strong style="color:#16A34A; margin-top:4px; display:block;">Celkem odměna: ${totalOverall} Kč</strong></div>`;
+    }
+  }
+  if(empty) html += '<div style="font-size:13px; color:var(--color-text-secondary); text-align:center; padding: 20px;">Zatím nejsou k dispozici žádné výkazy.</div>';
+  if (window.hasPermission('stat_reset') && !isBackup) { html += `<button class="btn-delete-room" onclick="window.resetShiftData()" style="width:100%; padding:12px; margin-top: 12px;">Vynulovat vše (Uzavřít měsíc)</button><div style="font-size:11px; color:var(--color-text-secondary); text-align:center; margin-top:6px;">Automaticky vytvoří zálohu do archivu (max 20)</div>`; }
+  panelContent.innerHTML = html;
+};
+window.resetShiftData = () => {
+  if(confirm('Chcete UZAVŘÍT a VYNULOVAT aktuální statistiky?\nAplikace vytvoří automatickou zálohu. (1/2)')) {
+    if(confirm('OPRAVDU to chcete udělat? Údaje budou vynulovány! (2/2)')) {
+      if (Object.keys(shiftData).length > 0) { shiftDataBackups.push({ date: Date.now(), data: JSON.parse(JSON.stringify(shiftData)) }); if (shiftDataBackups.length > 20) { shiftDataBackups.shift(); } }
+      shiftData = {}; window.saveToFirebase(); window.closeStatsModal();
+    }
+  }
+};
+window.renderStaffTasks = () => {
+  const wrap = document.getElementById('staffTasksWrap'); 
+  const list = document.getElementById('staffTasksList');
+  if (!window.hasPermission('task_view')) { wrap.style.display = 'none'; return; }
   
-  if (document.getElementById('loginPass')) document.getElementById('loginPass').addEventListener('keydown', function(e) { if(e.key === 'Enter') loginWithEmail(); });
-  if (document.getElementById('loginEmail')) document.getElementById('loginEmail').addEventListener('keydown', function(e) { if(e.key === 'Enter') document.getElementById('loginPass').focus(); });
-  if (document.getElementById('modalBg')) document.getElementById('modalBg').addEventListener('click', function(e) { if(e.target === this) closeModal(); });
-  if (document.getElementById('editBg')) document.getElementById('editBg').addEventListener('click', function(e) { if(e.target === this) closeEdit(); });
-  if (document.getElementById('usersAdminBg')) document.getElementById('usersAdminBg').addEventListener('click', function(e) { if(e.target === this) closeUsersAdmin(); });
-  if (document.getElementById('statsModalBg')) document.getElementById('statsModalBg').addEventListener('click', function(e) { if(e.target === this) closeStatsModal(); });
+  wrap.style.display = 'block'; 
+  if (!staffTasks.length) { list.innerHTML = '<div style="font-size:13px; color:var(--color-text-secondary); margin-bottom:12px;">Aktuálně nejsou žádné úkoly.</div>'; return; }
+  
+  const canEdit = window.hasPermission('task_edit');
+  list.innerHTML = staffTasks.map((t, i) => `<div class="task-item"><label class="task-label"><input type="checkbox" class="task-checkbox" ${t.done ? 'checked' : ''} onchange="window.toggleStaffTask(${i})"><span style="${t.done ? 'text-decoration:line-through; color:var(--color-text-secondary);' : 'color:var(--color-text-primary);'} font-size:14px; word-break:break-word;">${t.text}</span></label>${canEdit ? `<button class="del-btn" onclick="window.deleteStaffTask(${i})">✕</button>` : ''}</div>`).join('');
+};
+window.addStaffTask = () => { const input = document.getElementById('newStaffTask'); const text = input.value.trim(); if (!text) return; staffTasks.push({ text: text, done: false }); window.saveToFirebase(); input.value = ''; };
+window.toggleStaffTask = (i) => { staffTasks[i].done = !staffTasks[i].done; window.saveToFirebase(); };
+window.deleteStaffTask = (i) => { staffTasks.splice(i, 1); window.saveToFirebase(); };
+
+async function requestNotificationPermission(userEmailKey) {
+  try {
+    const permission = await Notification.requestPermission();
+    if (permission === 'granted') {
+      const currentToken = await getToken(messaging, { vapidKey: 'BIoCmJ-hEN_QLVC2sVdcBtHc-n92Ojf7No6T2GYPX90oydHJQLkGFvnBR7N2JLVzPgisDn_ZzFXvmCmVIVHW7BU' });
+      if (currentToken) { await set(ref(db, `authorizedUsers/${userEmailKey}/notificationToken`), currentToken); }
+    }
+  } catch (error) { console.error('Chyba notifikací:', error); }
+}
+
+window.renderRooms = () => {
+  autoDirtyCheck();
+  const g = document.getElementById('roomsGrid'); const canEditRoom = window.hasPermission('room_edit');
+  g.innerHTML = rooms.map((r, i) => {
+    const occupied = isRoomOccupied(i); const stateClass = getRoomStateClass(i); let badgesHtml = '';
+    if (!r.hideDefaultStatus && !occupied) { badgesHtml += `<div class="room-status-badge ${r.isDirty ? 'status-dirty' : 'status-clean'}">${r.isDirty ? '🔴 Špinavý' : '🟢 Uklizený'}</div>`; }
+    if (r.customStatuses) { r.customStatuses.forEach(cs => { const rTxt = cs.textRed || cs.label; const gTxt = cs.textGreen || (cs.label + ' (Hotovo)'); const txt = cs.isDone ? `🟢 ${gTxt}` : `🔴 ${rTxt}`; const cls = cs.isDone ? 'status-clean' : 'status-dirty'; badgesHtml += `<div class="room-status-badge ${cls}">${txt}</div>`; }); }
+    const animStyle = initialRoomsRender ? `animation: cardSlideUp 0.4s ease-out forwards; opacity: 0; animation-delay: ${i * 0.04}s` : `opacity: 1;`;
+    return `<div class="room-card ${stateClass}" onclick="window.openRoom(${i})" style="${animStyle}"><div class="room-img"><span class="emoji">${r.emoji}</span>${canEditRoom ? `<button class="edit-btn" onclick="event.stopPropagation();window.openEdit(${i})" title="Upravit/Smazat">✎</button>` : ''}<div class="room-badges-wrap">${badgesHtml}</div></div><div class="room-label"><div class="room-name">${r.name}</div><div class="room-num">${(bookings[i]||[]).length} rezervací</div></div></div>`;
+  }).join('');
+  initialRoomsRender = false;
+};
+window.renderEditPaidTasks = () => {
+  const list = document.getElementById('editPaidTasksList'); if (!tempPaidTasks || tempPaidTasks.length === 0) { list.innerHTML = ''; return; }
+  list.innerHTML = tempPaidTasks.map((pt, idx) => `<div class="edit-custom-item"><div style="flex:1; font-size:13px; color:var(--color-text-primary);"><strong>${pt.name}</strong> (${pt.price} Kč)</div><button type="button" class="del-btn" onclick="window.removePaidTaskFromEdit(${idx})">✕</button></div>`).join('');
+};
+window.addPaidTaskToEdit = () => {
+  const name = document.getElementById('newPaidTaskName').value.trim(); const price = parseFloat(document.getElementById('newPaidTaskPrice').value) || 0;
+  if (!name) return; tempPaidTasks.push({ name, price }); document.getElementById('newPaidTaskName').value = ''; document.getElementById('newPaidTaskPrice').value = ''; window.renderEditPaidTasks();
+};
+window.removePaidTaskFromEdit = (idx) => { tempPaidTasks.splice(idx, 1); window.renderEditPaidTasks(); };
+window.renderEditCustomItems = () => {
+  const list = document.getElementById('editCustomItemsList'); if (!tempCustomItems || tempCustomItems.length === 0) { list.innerHTML = ''; return; }
+  list.innerHTML = tempCustomItems.map((item, idx) => `<div class="edit-custom-item"><div style="flex:1; font-size:13px; color:var(--color-text-primary);"><strong>${item.text}</strong>${item.link ? `<br><a href="${item.link}" target="_blank" style="color:var(--color-text-secondary);font-size:11px;">${item.link}</a>` : ''}</div><button type="button" class="del-btn" onclick="window.removeCustomItemFromEdit(${idx})">✕</button></div>`).join('');
+};
+window.addCustomItemToEdit = () => {
+  const text = document.getElementById('newCustomText').value.trim(); const link = document.getElementById('newCustomLink').value.trim();
+  if (!text) return; tempCustomItems.push({ text, link }); document.getElementById('newCustomText').value = ''; document.getElementById('newCustomLink').value = ''; window.renderEditCustomItems();
+};
+window.removeCustomItemFromEdit = (idx) => { tempCustomItems.splice(idx, 1); window.renderEditCustomItems(); };
+window.renderEditCustomStatuses = () => {
+  const list = document.getElementById('editCustomStatusesList'); if (!tempCustomStatuses || tempCustomStatuses.length === 0) { list.innerHTML = ''; return; }
+  list.innerHTML = tempCustomStatuses.map((cs, idx) => `<div class="edit-custom-item"><div style="flex:1; font-size:13px; color:var(--color-text-primary);">🔴 ${cs.textRed || cs.label} <br> 🟢 ${cs.textGreen || (cs.label + ' (Hotovo)')}</div><button type="button" class="del-btn" onclick="window.removeCustomStatusFromEdit(${idx})">✕</button></div>`).join('');
+};
+window.addCustomStatusToEdit = () => {
+  const red = document.getElementById('newCustomStatusRed').value.trim(); const green = document.getElementById('newCustomStatusGreen').value.trim();
+  if (!red) return; tempCustomStatuses.push({ textRed: red, textGreen: green || (red + ' (Hotovo)'), isDone: false });
+  document.getElementById('newCustomStatusRed').value = ''; document.getElementById('newCustomStatusGreen').value = ''; window.renderEditCustomStatuses();
+};
+window.removeCustomStatusFromEdit = (idx) => { tempCustomStatuses.splice(idx, 1); window.renderEditCustomStatuses(); };
+window.openEdit = (i) => {
+  editIdx = i; const isNew = (i === -1);
+  document.getElementById('editModalTitle').textContent = isNew ? 'Přidat nový pokoj' : 'Upravit pokoj'; document.getElementById('editName').value = isNew ? '' : rooms[i].name; document.getElementById('editHideDefaultStatus').checked = !isNew && rooms[i].hideDefaultStatus;
+  document.getElementById('editShowInTimeline').checked = isNew ? true : (rooms[i].showInTimeline !== false);
+  const curEmoji = isNew ? EMOJIS[0] : rooms[i].emoji; const isCustomEmoji = !EMOJIS.includes(curEmoji);
+  document.getElementById('emojiPick').innerHTML = EMOJIS.map(e => `<span class="${(!isCustomEmoji && e===curEmoji)?'sel':''}" onclick="window.selEmoji(this)">${e}</span>`).join('');
+  document.getElementById('customEmojiInput').value = isCustomEmoji ? curEmoji : '';
+  document.getElementById('newPaidTaskName').value = ''; document.getElementById('newPaidTaskPrice').value = ''; document.getElementById('newCustomText').value = ''; document.getElementById('newCustomLink').value = ''; document.getElementById('newCustomStatusRed').value = ''; document.getElementById('newCustomStatusGreen').value = '';
+  tempPaidTasks = (isNew || !rooms[i].paidTasks) ? [] : JSON.parse(JSON.stringify(rooms[i].paidTasks)); window.renderEditPaidTasks();
+  tempCustomItems = (isNew || !rooms[i].customItems) ? [] : JSON.parse(JSON.stringify(rooms[i].customItems)); window.renderEditCustomItems();
+  tempCustomStatuses = (isNew || !rooms[i].customStatuses) ? [] : JSON.parse(JSON.stringify(rooms[i].customStatuses)); window.renderEditCustomStatuses();
+  let lrHtml = '<label style="margin-top:20px;">Propojit s pokoji (zašpiní se, když z nich někdo odjede):</label><div class="linked-rooms-list">';
+  const curLinked = (!isNew && rooms[i].linkedRooms) ? rooms[i].linkedRooms : []; let hasOthers = false;
+  rooms.forEach((r, idx) => { if (idx !== i) { hasOthers = true; const isChecked = curLinked.includes(idx); lrHtml += `<label><input type="checkbox" value="${idx}" class="link-cb" ${isChecked ? 'checked' : ''}> ${r.name}</label>`; } });
+  lrHtml += '</div>'; document.getElementById('linkedRoomsWrap').innerHTML = hasOthers ? lrHtml : ''; document.getElementById('delRoomBtn').style.display = isNew ? 'none' : 'block'; document.getElementById('editBg').classList.add('open');
+};
+window.selEmoji = (el) => { document.querySelectorAll('.emoji-pick span').forEach(s => s.classList.remove('sel')); el.classList.add('sel'); document.getElementById('customEmojiInput').value = ''; };
+window.clearEmojiSelection = () => { document.querySelectorAll('.emoji-pick span').forEach(s => s.classList.remove('sel')); };
+window.saveEdit = () => {
+  const name = document.getElementById('editName').value.trim(); let finalEmoji = document.getElementById('customEmojiInput').value.trim();
+  if(!finalEmoji) { const sel = document.querySelector('.emoji-pick span.sel'); finalEmoji = sel ? sel.textContent : '🛏️'; }
+  const pendingPaidName = document.getElementById('newPaidTaskName').value.trim(); if (pendingPaidName) { const pendingPaidPrice = parseFloat(document.getElementById('newPaidTaskPrice').value) || 0; tempPaidTasks.push({ name: pendingPaidName, price: pendingPaidPrice }); }
+  const pendingCustomText = document.getElementById('newCustomText').value.trim(); if (pendingCustomText) { const pendingCustomLink = document.getElementById('newCustomLink').value.trim(); tempCustomItems.push({ text: pendingCustomText, link: pendingCustomLink }); }
+  const pendingRed = document.getElementById('newCustomStatusRed').value.trim(); if (pendingRed) { const pendingGreen = document.getElementById('newCustomStatusGreen').value.trim(); tempCustomStatuses.push({ textRed: pendingRed, textGreen: pendingGreen || (pendingRed + ' (Hotovo)'), isDone: false }); }
+  const hideDefault = document.getElementById('editHideDefaultStatus').checked;
+  const showInTimeline = document.getElementById('editShowInTimeline').checked;
+  const linkedRooms = Array.from(document.querySelectorAll('.link-cb:checked')).map(cb => parseInt(cb.value));
+  const existingPhotos = (editIdx !== -1 && rooms[editIdx].photos) ? rooms[editIdx].photos : [];
+  if(name && finalEmoji) {
+    const pt = JSON.parse(JSON.stringify(tempPaidTasks)); const ci = JSON.parse(JSON.stringify(tempCustomItems)); const cs = JSON.parse(JSON.stringify(tempCustomStatuses));
+    if(editIdx === -1) { rooms.push({name, emoji: finalEmoji, isDirty: false, linkedRooms, paidTasks: pt, customItems: ci, customStatuses: cs, hideDefaultStatus: hideDefault, showInTimeline: showInTimeline, photos: existingPhotos});
+    } else { rooms[editIdx] = {name, emoji: finalEmoji, isDirty: rooms[editIdx].isDirty, linkedRooms, paidTasks: pt, customItems: ci, customStatuses: cs, hideDefaultStatus: hideDefault, showInTimeline: showInTimeline, photos: existingPhotos}; } window.saveToFirebase();
+  } window.closeEdit();
+};
+window.deleteRoom = () => {
+  if(!confirm('Opravdu smazat?')) return;
+  rooms.forEach(r => { if (r.linkedRooms) { r.linkedRooms = r.linkedRooms.filter(idx => idx !== editIdx).map(idx => idx > editIdx ? idx - 1 : idx); } }); rooms.splice(editIdx, 1);
+  let newBookings = {}; let newNotes = {}; const oldLen = rooms.length + 1;
+  for(let j=0; j < oldLen; j++) { if (j < editIdx) { if (bookings[j]) newBookings[j] = bookings[j]; if (notes[j]) newNotes[j] = notes[j]; } else if (j > editIdx) { if (bookings[j]) newBookings[j-1] = bookings[j]; if (notes[j]) newNotes[j-1] = notes[j]; } } bookings = newBookings; notes = newNotes; window.saveToFirebase(); window.closeEdit();
+};
+window.closeEdit = () => { document.getElementById('editBg').classList.remove('open'); };
+window.toggleDirty = () => { if(!window.hasPermission('room_toggle_status')) return; rooms[curRoom].isDirty = !rooms[curRoom].isDirty; if (rooms[curRoom].isDirty && rooms[curRoom].customStatuses) { rooms[curRoom].customStatuses.forEach(cs => cs.isDone = false); } window.saveToFirebase(); };
+window.toggleCustomStatus = (idx) => { if(!window.hasPermission('room_toggle_status')) return; rooms[curRoom].customStatuses[idx].isDone = !rooms[curRoom].customStatuses[idx].isDone; window.saveToFirebase(); };
+window.updateStatusBtn = () => {
+  const btn = document.getElementById('toggleStatusBtn'); const canToggle = window.hasPermission('room_toggle_status'); const occupied = isRoomOccupied(curRoom);
+  if (rooms[curRoom].hideDefaultStatus || occupied) { btn.style.display = 'none'; } else {
+    btn.style.display = 'inline-block';
+    if (rooms[curRoom].isDirty) { btn.textContent = canToggle ? '🧹 Označit jako Uklizený' : '🔴 Pokoj: Špinavý'; btn.className = 'toggle-status-btn btn-dirty'; }
+    else { btn.textContent = canToggle ? '🔴 Označit jako Špinavý' : '🟢 Pokoj: Uklizený'; btn.className = 'toggle-status-btn btn-clean'; } btn.disabled = !canToggle;
+  }
+};
+window.renderRoomCustomStatuses = () => {
+  const wrap = document.getElementById('customStatusesWrap'); const statuses = rooms[curRoom].customStatuses || []; const canToggle = window.hasPermission('room_toggle_status');
+  wrap.innerHTML = statuses.map((cs, idx) => {
+    const btnClass = cs.isDone ? 'btn-clean' : 'btn-dirty'; const rTxt = cs.textRed || cs.label; const gTxt = cs.textGreen || (cs.label + ' (Hotovo)');
+    const icon = cs.isDone ? '🟢' : '🔴'; const text = cs.isDone ? gTxt : rTxt;
+    return `<button class="toggle-status-btn ${btnClass}" style="margin-top:0;" ${!canToggle ? 'disabled' : ''} onclick="window.toggleCustomStatus(${idx})">${icon} ${text}</button>`;
+  }).join('');
+};
+window.openRoom = (i) => {
+  curRoom = i; window.resetBookingSelection();
+  document.getElementById('modalTitle').textContent = rooms[i].name; document.getElementById('modalSub').textContent = 'Pokoj '+(i+1)+' · sdílený kalendář';
+  document.getElementById('roomNotes').value = notes[i]||'';
+  const customItemsWrap = document.getElementById('roomCustomItemsWrap'); const cItems = rooms[i].customItems || [];
+  customItemsWrap.innerHTML = cItems.map(item => { if(item.link) { return `<a href="${item.link}" target="_blank" class="custom-btn">${item.text}</a>`; } else { return `<span class="custom-badge">${item.text}</span>`; } }).join('');
+  
+  window.updateStatusBtn(); window.renderRoomCustomStatuses(); window.renderPhotos();
+  
+  document.getElementById('openBookingBtn').style.display = window.hasPermission('book_add') ? 'block' : 'none';
+  document.getElementById('roomNotes').disabled = !window.hasPermission('note_edit');
+  document.getElementById('saveNoteBtn').style.display = window.hasPermission('note_edit') ? 'inline-block' : 'none';
+  document.getElementById('photoUploadLabel').style.display = window.hasPermission('photo_edit') ? 'inline-block' : 'none';
+
+  window.renderRoomCalendar(); window.renderBookings(); document.getElementById('modalBg').classList.add('open');
+  setTimeout(() => { window.autoResize(document.getElementById('roomNotes')); }, 10);
+};
+window.closeModal = () => { document.getElementById('modalBg').classList.remove('open'); };
+window.changeMonth = (d) => {
+  calMon += d; if(calMon > 11) { calMon = 0; calYear++; } if(calMon < 0) { calMon = 11; calYear--; }
+  window.renderRoomCalendar();
+  if(document.getElementById('bookingModalBg').classList.contains('open')) { window.renderBookingCalendar(); }
+};
+function getBookedDaysMap(ignoreIdx = -1) {
+  const map = {};
+  (bookings[curRoom]||[]).forEach((b, i) => {
+    if (i === ignoreIdx) return; const color = BOOKING_COLORS[i % BOOKING_COLORS.length];
+    let d = new Date(b.from + 'T00:00:00'); const end = new Date(b.to + 'T00:00:00');
+    while(d <= end) {
+      const ds = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+      if(!map[ds]) map[ds] = []; if(!map[ds].includes(color)) map[ds].push(color); d.setDate(d.getDate() + 1);
+    }
+  });
+  return map;
+}
+window.renderRoomCalendar = () => {
+  document.getElementById('calMonth').textContent = MONTHS[calMon] + ' ' + calYear; const g = document.getElementById('calGrid');
+  const dayMap = getBookedDaysMap(-1); const today = new Date();
+  let html = DAYS.map(d => `<div class="cal-header">${d}</div>`).join('');
+  const first = new Date(calYear, calMon, 1); let startDay = (first.getDay() + 6) % 7;
+  for(let i=0; i<startDay; i++) { html += `<div class="cal-day empty"></div>`; }
+  const days = new Date(calYear, calMon+1, 0).getDate();
+  for(let d=1; d<=days; d++) {
+    const ds = `${calYear}-${String(calMon+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isT = today.getFullYear()===calYear && today.getMonth()===calMon && today.getDate()===d;
+    let cls = 'cal-day' + (isT ? ' today' : ''); let style = '';
+    if(dayMap[ds]) {
+      cls += ' booked';
+      if(dayMap[ds].length === 1) style = `background: ${dayMap[ds][0]}; border-color: rgba(0,0,0,0.1);`;
+      else style = `background: linear-gradient(135deg, ${dayMap[ds][0]} 50%, ${dayMap[ds][1]} 50%); border-color: rgba(0,0,0,0.1);`;
+    }
+    html += `<div class="${cls}" style="${style}" onclick="window.bookingCalDayClick('${ds}')">${d}</div>`;
+  } g.innerHTML = html;
+};
+window.openBookingModal = (idx = -1) => {
+  editBookingIdx = idx;
+  if (idx > -1) {
+    const b = bookings[curRoom][idx]; selStart = b.from; selEnd = b.to;
+    document.getElementById('bBookingNote').value = b.note || ''; document.getElementById('bookingModalTitle').textContent = 'Upravit rezervaci';
+    document.getElementById('saveBookingBtn').textContent = '💾 Uložit úpravy'; document.getElementById('saveBookingBtn').style.background = '#16A34A';
+    const sd = new Date(selStart + 'T00:00:00'); calYear = sd.getFullYear(); calMon = sd.getMonth();
+  } else {
+    selStart = null; selEnd = null; document.getElementById('bBookingNote').value = '';
+    document.getElementById('bookingModalTitle').textContent = 'Nová rezervace';
+    document.getElementById('saveBookingBtn').textContent = '+ Přidat rezervaci'; document.getElementById('saveBookingBtn').style.background = '';
+  }
+  document.getElementById('bDateFrom').value = selStart ? fmt(selStart) : ''; document.getElementById('bDateTo').value = selEnd ? fmt(selEnd) : (selStart ? fmt(selStart) : '');
+  window.renderBookingCalendar(); document.getElementById('bookingModalBg').classList.add('open');
+  setTimeout(() => { window.autoResize(document.getElementById('bBookingNote')); }, 10);
+};
+window.closeBookingModal = () => { document.getElementById('bookingModalBg').classList.remove('open'); window.renderRoomCalendar(); };
+window.bookingCalDayClick = (ds) => {
+  if (!window.hasPermission('book_add') && !window.hasPermission('book_edit_del')) return;
+  if (!selStart || (selStart && selEnd)) { selStart = ds; selEnd = null; }
+  else { if (ds < selStart) { selEnd = selStart; selStart = ds; } else { selEnd = ds; } }
+  document.getElementById('bDateFrom').value = selStart ? fmt(selStart) : ''; document.getElementById('bDateTo').value = selEnd ? fmt(selEnd) : (selStart ? fmt(selStart) : '');
+  window.renderBookingCalendar();
+};
+window.resetBookingSelection = () => { selStart = null; selEnd = null; document.getElementById('bDateFrom').value = ''; document.getElementById('bDateTo').value = ''; window.renderBookingCalendar(); };
+window.renderBookingCalendar = () => {
+  document.getElementById('bookingCalMonth').textContent = MONTHS[calMon] + ' ' + calYear; const g = document.getElementById('bookingCalGrid');
+  const dayMap = getBookedDaysMap(editBookingIdx); const today = new Date();
+  let html = DAYS.map(d => `<div class="cal-header">${d}</div>`).join('');
+  const first = new Date(calYear, calMon, 1); let startDay = (first.getDay() + 6) % 7;
+  for(let i=0; i<startDay; i++) { html += `<div class="cal-day empty"></div>`; }
+  const days = new Date(calYear, calMon+1, 0).getDate();
+  for(let d=1; d<=days; d++) {
+    const ds = `${calYear}-${String(calMon+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isT = today.getFullYear()===calYear && today.getMonth()===calMon && today.getDate()===d;
+    let cls = 'cal-day' + (isT ? ' today' : ''); let style = '';
+    if(dayMap[ds]) {
+      cls += ' booked';
+      if(dayMap[ds].length === 1) style = `background: ${dayMap[ds][0]}; border-color: rgba(0,0,0,0.1);`;
+      else style = `background: linear-gradient(135deg, ${dayMap[ds][0]} 50%, ${dayMap[ds][1]} 50%); border-color: rgba(0,0,0,0.1);`;
+    }
+    if (selStart === ds || selEnd === ds) { cls += ' sel-node'; style = ''; } else if (selStart && selEnd && ds > selStart && ds < selEnd) { cls += ' sel-mid'; style = ''; }
+    html += `<div class="${cls}" style="${style}" onclick="window.bookingCalDayClick('${ds}')">${d}</div>`;
+  } g.innerHTML = html;
+};
+window.saveBooking = () => {
+  if (!selStart || !selEnd) { alert('Prosím, vyberte termín kliknutím do kalendáře (Příjezd a Odjezd).'); return; }
+  if(!bookings[curRoom]) bookings[curRoom] = []; const note = document.getElementById('bBookingNote').value.trim();
+  if (editBookingIdx > -1) { bookings[curRoom][editBookingIdx].from = selStart; bookings[curRoom][editBookingIdx].to = selEnd; bookings[curRoom][editBookingIdx].note = note;
+  } else { bookings[curRoom].push({ from: selStart, to: selEnd, note: note, dirtyTriggered: false, addedAt: Date.now() }); }
+  window.saveToFirebase(); window.closeBookingModal(); window.renderRoomCalendar(); window.renderBookings(); window.renderTimeline();
+};
+window.renderBookings = () => {
+  const list = bookings[curRoom] || []; const el = document.getElementById('bookingsList');
+  const canDel = window.hasPermission('book_edit_del'); const canBook = window.hasPermission('book_edit_del');
+  if(!list.length) { el.innerHTML = ''; return; }
+  const sortedList = list.map((b, i) => ({ b, originalIndex: i })).sort((x, y) => x.b.from.localeCompare(y.b.from));
+  el.innerHTML = sortedList.map(item => {
+    const b = item.b; const i = item.originalIndex; const color = BOOKING_COLORS[i % BOOKING_COLORS.length];
+    return `<div class="booking-item" style="border-left: 4px solid ${color};"><div><div class="booking-dates">${fmt(b.from)} → ${fmt(b.to)}</div>${b.note ? `<div class="booking-note">${b.note}</div>` : ''}</div><div style="display:flex; gap:4px;">${canBook ? `<button class="del-btn" style="color:var(--color-text-primary); font-size:14px;" onclick="window.openBookingModal(${i})" title="Upravit">✎</button>` : ''} ${canDel ? `<button class="del-btn" style="font-size:14px;" onclick="window.delBooking(${i})" title="Smazat">✕</button>` : ''}</div></div>`;
+  }).join('');
+};
+function fmt(d) { const p = d.split('-'); return p[2] + '.' + p[1] + '.' + p[0]; }
+window.delBooking = (i) => {
+  if(!confirm('Opravdu smazat tuto rezervaci?')) return;
+  bookings[curRoom].splice(i, 1); window.saveToFirebase(); window.renderRoomCalendar(); window.renderBookings(); window.renderTimeline();
+};
+window.saveNote = () => {
+  notes[curRoom] = document.getElementById('roomNotes').value; window.saveToFirebase();
+  const s = document.getElementById('noteSaved'); s.classList.add('show'); setTimeout(() => s.classList.remove('show'), 1800);
+};
+window.saveGeneralNote = () => {
+  generalNotes = document.getElementById('generalNotes').value; window.saveToFirebase();
+  const s = document.getElementById('genNoteSaved'); s.classList.add('show'); setTimeout(() => s.classList.remove('show'), 1800);
+};
+window.handlePhotoUpload = (input) => {
+  const file = input.files[0]; if(!file) return; const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.createElement('canvas'); let w = img.width; let h = img.height; const MAX = 800;
+      if(w > MAX || h > MAX) { if(w > h) { h = Math.round((h * MAX) / w); w = MAX; } else { w = Math.round((w * MAX) / h); h = MAX; } }
+      canvas.width = w; canvas.height = h; const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, w, h);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+      if(!rooms[curRoom].photos) rooms[curRoom].photos = [];
+      rooms[curRoom].photos.push({ data: dataUrl, addedAt: Date.now() }); window.saveToFirebase(); window.renderPhotos();
+    }
+    img.src = e.target.result;
+  }
+  reader.readAsDataURL(file); input.value = '';
+};
+window.renderPhotos = () => {
+  const grid = document.getElementById('roomPhotosGrid'); const photos = rooms[curRoom].photos || [];
+  if(photos.length === 0) { grid.innerHTML = ''; return; }
+  grid.innerHTML = photos.map((p, idx) => `<div class="photo-wrap"><img src="${p.data}" class="photo-thumb" onclick="window.viewPhoto('${p.data}')">${window.hasPermission('photo_edit') ? `<button class="photo-del" onclick="window.deletePhoto(${idx})">✕</button>` : ''}</div>`).join('');
+};
+window.viewPhoto = (dataUrl) => { document.getElementById('photoViewerImg').src = dataUrl; document.getElementById('photoViewerBg').classList.add('open'); };
+window.deletePhoto = (idx) => { if(confirm("Opravdu smazat tuto fotku?")) { rooms[curRoom].photos.splice(idx, 1); window.saveToFirebase(); window.renderPhotos(); } };
+
+if (document.getElementById('loginPass')) document.getElementById('loginPass').addEventListener('keydown', function(e) { if(e.key === 'Enter') window.loginWithEmail(); });
+if (document.getElementById('loginEmail')) document.getElementById('loginEmail').addEventListener('keydown', function(e) { if(e.key === 'Enter') document.getElementById('loginPass').focus(); });
+if (document.getElementById('modalBg')) document.getElementById('modalBg').addEventListener('click', function(e) { if(e.target === this) window.closeModal(); });
+if (document.getElementById('editBg')) document.getElementById('editBg').addEventListener('click', function(e) { if(e.target === this) window.closeEdit(); });
+if (document.getElementById('usersAdminBg')) document.getElementById('usersAdminBg').addEventListener('click', function(e) { if(e.target === this) window.closeUsersAdmin(); });
+if (document.getElementById('statsModalBg')) document.getElementById('statsModalBg').addEventListener('click', function(e) { if(e.target === this) window.closeStatsModal(); });
+if (document.getElementById('rolesAdminBg')) document.getElementById('rolesAdminBg').addEventListener('click', function(e) { if(e.target === this) window.closeRolesAdmin(); });
 </script>
 </body>
 </html>
