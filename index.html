@@ -1109,7 +1109,16 @@ window.renderMiniStats = () => {
   const el = document.getElementById('miniStats'); if (!el) return;
   el.innerHTML = `<div class="stat-item">Příjezdy: <span class="stat-val">${arrivals}</span></div><div class="stat-item">Odjezdy: <span class="stat-val">${departures}</span></div><div class="stat-item">Úklidy: <span class="stat-val">${cleanings}</span></div>`;
 };
-window.saveToFirebase = () => { update(ref(db, '/'), { rooms, bookings, notes, generalNotes, staffTasks, authorizedUsers, shiftData, shiftDataBackups, tlCleanings, rolePermissions }); };
+window.saveToFirebase = () => { 
+  let dataToSave = { rooms, bookings, notes, generalNotes, staffTasks, shiftData, shiftDataBackups, tlCleanings };
+  
+  if (currentUser && (currentUser.role === 'owner' || currentUser.role === 'admin')) {
+    dataToSave.authorizedUsers = authorizedUsers;
+    dataToSave.rolePermissions = rolePermissions;
+  }
+  
+  update(ref(db, '/'), dataToSave); 
+};
 function getLocalIsoDate(daysOffset = 0) { const d = new Date(); d.setDate(d.getDate() + daysOffset); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
 function autoDirtyCheck() {
   const todayStr = getLocalIsoDate(); const currentHour = new Date().getHours(); let changed = false;
