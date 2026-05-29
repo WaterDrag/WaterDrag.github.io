@@ -589,7 +589,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-import { getDatabase, ref, onValue, set, get, child } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
+import { getDatabase, ref, onValue, set, update, get, child } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
 import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
 import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-messaging.js";
 
@@ -930,7 +930,7 @@ window.renderTimeline = () => {
       cells.appendChild(cell);
     });
 
-    rbks.forEach((b, bi) => {
+    rbks.forEach((b) => {
       const fromStr = window.tlTs(b.from); const toStr = window.tlTs(b.to);
       const si = dSt.indexOf(fromStr); const ei = dSt.indexOf(toStr);
       if (si === -1 && ei === -1 && (fromStr > dSt[TL_ND-1] || toStr < dSt[0])) return;
@@ -1109,7 +1109,7 @@ window.renderMiniStats = () => {
   const el = document.getElementById('miniStats'); if (!el) return;
   el.innerHTML = `<div class="stat-item">Příjezdy: <span class="stat-val">${arrivals}</span></div><div class="stat-item">Odjezdy: <span class="stat-val">${departures}</span></div><div class="stat-item">Úklidy: <span class="stat-val">${cleanings}</span></div>`;
 };
-window.saveToFirebase = () => { set(ref(db, '/'), { rooms, bookings, notes, generalNotes, staffTasks, authorizedUsers, shiftData, shiftDataBackups, tlCleanings, rolePermissions }); };
+window.saveToFirebase = () => { update(ref(db, '/'), { rooms, bookings, notes, generalNotes, staffTasks, authorizedUsers, shiftData, shiftDataBackups, tlCleanings, rolePermissions }); };
 function getLocalIsoDate(daysOffset = 0) { const d = new Date(); d.setDate(d.getDate() + daysOffset); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
 function autoDirtyCheck() {
   const todayStr = getLocalIsoDate(); const currentHour = new Date().getHours(); let changed = false;
