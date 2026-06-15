@@ -342,7 +342,6 @@
   <div id="miniStats" class="mini-stats-wrap"></div>
   <div class="rooms-grid" id="roomsGrid"></div>
 
-  <!-- TIMELINE WIDGET -->
   <div class="timeline-wrap" id="timelineWrap" style="display:none;">
     <div class="timeline-section-label">Přehled obsazenosti — Timeline</div>
     <div class="tl-wrap" id="tlMainWrap">
@@ -383,7 +382,6 @@
     </div>
   </div>
 
-  <!-- MODALS -->
   <div class="edit-modal-bg" id="shiftBg">
     <div class="edit-modal" style="width: min(450px, 100%)">
       <h3>💼 Moje směna</h3>
@@ -563,7 +561,6 @@
     </div>
   </div>
 
-  <!-- OKNO: SPRÁVA OPRÁVNĚNÍ ROLÍ -->
   <div class="edit-modal-bg" id="rolesAdminBg" style="z-index: 100005;">
     <div class="edit-modal" style="width: min(650px, 100%); max-height: 90vh; display: flex; flex-direction: column; padding: 1.5rem;">
       <h3>🔑 Správa oprávnění rolí</h3>
@@ -1090,18 +1087,54 @@ window.addEventListener('click', function(e) { const dropdown = document.getElem
 window.toggleTheme = () => { const isDark = document.body.classList.toggle('dark-mode'); localStorage.setItem('hr_theme', isDark ? 'dark' : 'light'); document.getElementById('menuThemeBtn').innerHTML = isDark ? '☀️ Vzhled: Světlý' : '🌙 Vzhled: Tmavý'; };
 window.toggleColorMode = () => { const isVivid = document.body.classList.toggle('vivid-colors'); localStorage.setItem('hr_color_mode', isVivid ? 'vivid' : 'pastel'); };
 
+
+// --- ZDE JE TA NOVÁ OPRAVENÁ FUNKCE NA NOTIFIKACE ---
 window.checkAndShowNewBookings = () => {
   if (hasShownNewBookingsModal || !currentUser || currentUser.role === 'owner') return;
-  let newBks = []; const lastViewed = currentUser.lastViewedBookings || 0;
-  for (const rIdx in bookings) { (bookings[rIdx] || []).forEach(b => { if (b.addedAt && b.addedAt > lastViewed) { newBks.push({ roomName: rooms[rIdx].name, from: b.from, to: b.to, note: b.note }); } }); }
+  let newBks = []; 
+  
+  // Kombinace paměti z databáze a paměti lokálního prohlížeče
+  const dbLastViewed = currentUser.lastViewedBookings || 0;
+  const localLastViewed = parseInt(localStorage.getItem('hr_lastViewed_' + currentUser.email) || '0');
+  const lastViewed = Math.max(dbLastViewed, localLastViewed);
+
+  for (const rIdx in bookings) { 
+    (bookings[rIdx] || []).forEach(b => { 
+      if (b.addedAt && b.addedAt > lastViewed) { 
+        newBks.push({ roomName: rooms[rIdx].name, from: b.from, to: b.to, note: b.note }); 
+      } 
+    }); 
+  }
+  
   if (newBks.length > 0) {
     const html = newBks.map(b => `<div style="background:var(--color-background-secondary); padding:8px 12px; border-radius:var(--border-radius-md); margin-bottom:8px; border:1px solid var(--color-border-secondary);"><strong style="color:var(--color-text-primary); font-size:15px;">${b.roomName}</strong><br><span style="font-size:14px; color:var(--color-text-secondary);">${fmt(b.from)} &rarr; ${fmt(b.to)}</span>${b.note ? `<br><span style="font-size:13px; color:var(--color-text-secondary); display:block; margin-top:4px;">Poznámka: ${b.note}</span>` : ''}</div>`).join('');
-    document.getElementById('newBookingsList').innerHTML = html; document.getElementById('newBookingsModalBg').classList.add('open');
+    document.getElementById('newBookingsList').innerHTML = html; 
+    document.getElementById('newBookingsModalBg').classList.add('open');
   }
   hasShownNewBookingsModal = true;
 };
 
-window.closeNewBookingsModal = () => { document.getElementById('newBookingsModalBg').classList.remove('open'); const myKey = currentUser.email.replace(/\./g, '_'); if (authorizedUsers[myKey]) { authorizedUsers[myKey].lastViewedBookings = Date.now(); currentUser.lastViewedBookings = authorizedUsers[myKey].lastViewedBookings; window.saveToFirebase(); } };
+window.closeNewBookingsModal = () => { 
+  document.getElementById('newBookingsModalBg').classList.remove('open'); 
+  const now = Date.now();
+  
+  // Bezpečný zápis do paměti lokálního prohlížeče (funguje vždy)
+  localStorage.setItem('hr_lastViewed_' + currentUser.email, now.toString());
+  
+  const myKey = currentUser.email.replace(/\./g, '_'); 
+  if (authorizedUsers[myKey]) { 
+    authorizedUsers[myKey].lastViewedBookings = now; 
+    currentUser.lastViewedBookings = now; 
+    
+    // Do Firebase to pošleme, jen pokud na to máme právo (Admin/Owner)
+    if (currentUser.role === 'owner' || currentUser.role === 'admin') {
+      window.saveToFirebase(); 
+    }
+  } 
+};
+// ---------------------------------------------------
+
+
 window.renderMiniStats = () => {
   let arrivals = 0; let departures = 0; let cleanings = 0; const todayStr = getLocalIsoDate(0);
   rooms.forEach((r, i) => { if (r.isDirty && !r.hideDefaultStatus) cleanings++; });
