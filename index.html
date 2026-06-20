@@ -101,7 +101,7 @@
   /* TIMELINE CSS */
   .timeline-wrap { max-width: 1200px; margin: 0 auto 2rem; padding: 0 24px; }
   .timeline-section-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--color-text-secondary); margin-bottom: 12px; }
-  .tl-wrap { background: var(--color-background-primary); border: 1px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; position: relative; }
+  .tl-wrap { background: var(--color-background-primary); border: 1px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow-x: auto; overflow-y: hidden; position: relative; }
   .tl-topbar { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 1px solid var(--color-border-tertiary); background: var(--color-background-secondary); }
   .tl-navbtn { background: var(--color-background-primary); border: 1px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--color-text-primary); font-size: 16px; transition: background 0.15s; }
   .tl-navbtn:hover { background: var(--color-background-secondary); }
@@ -843,6 +843,7 @@ function tlGetInitials(key) {
 }
 
 window.renderTimeline = () => {
+  const TL_ND = window.innerWidth < 640 ? 7 : 14;
   if (!currentUser) return;
   if (!window.hasPermission('tl_view')) {
       document.getElementById('timelineWrap').style.display = 'none';
@@ -1032,7 +1033,8 @@ window.openTlModal = (ri, roomName, cleanKey, dstr, type) => {
 
 window.closeTlModal = () => { document.getElementById('tlOv').classList.remove('open'); tlPend = null; };
 window.tlChangeWeek = (d) => { tlWo += d; window.renderTimeline(); };
-window.addEventListener('resize', () => { if (currentUser) window.renderTimeline(); });
+let _tlResizeTimer;
+window.addEventListener('resize', () => { clearTimeout(_tlResizeTimer); _tlResizeTimer = setTimeout(() => { if (currentUser) window.renderTimeline(); }, 120); });
 
 /* =========================================================================
  * SPRÁVA OPRÁVNĚNÍ ROLÍ
@@ -1138,11 +1140,11 @@ window.closeNewBookingsModal = () => {
 
 
 window.renderMiniStats = () => {
-  let arrivals = 0; let departures = 0; let cleanings = 0; const todayStr = getLocalIsoDate(0);
-  rooms.forEach((r, i) => { if (r.isDirty && !r.hideDefaultStatus) cleanings++; });
+  let arrivals = 0; let departures = 0; let cleanings = 0; let occupied = 0; const todayStr = getLocalIsoDate(0);
+  rooms.forEach((r, i) => { if (r.isDirty && !r.hideDefaultStatus) cleanings++; if (isRoomOccupied(i)) occupied++; });
   for (const roomIdx in bookings) { (bookings[roomIdx] || []).forEach(b => { if (b.from === todayStr) arrivals++; if (b.to === todayStr) departures++; }); }
   const el = document.getElementById('miniStats'); if (!el) return;
-  el.innerHTML = `<div class="stat-item">Příjezdy: <span class="stat-val">${arrivals}</span></div><div class="stat-item">Odjezdy: <span class="stat-val">${departures}</span></div><div class="stat-item">Úklidy: <span class="stat-val">${cleanings}</span></div>`;
+  el.innerHTML = `<div class="stat-item">Obsazeno: <span class="stat-val">${occupied}/${rooms.length}</span></div><div class="stat-item">Příjezdy: <span class="stat-val">${arrivals}</span></div><div class="stat-item">Odjezdy: <span class="stat-val">${departures}</span></div><div class="stat-item">Úklidy: <span class="stat-val">${cleanings}</span></div>`;
 };
 window.saveToFirebase = () => { 
   let dataToSave = { rooms, bookings, notes, generalNotes, staffTasks, shiftData, shiftDataBackups, tlCleanings };
@@ -1174,7 +1176,7 @@ function autoDirtyCheck() {
 }
 function isRoomOccupied(roomIdx) {
   const todayStr = getLocalIsoDate(); const currentHour = new Date().getHours(); const bks = bookings[roomIdx] || [];
-  for (const b of bks) { if (b.from <= todayStr && b.to >= todayStr) { if (b.from === todayStr && b.to === todayStr) { if (currentHour >= 15 && currentHour < 10) return true; } if (b.from === todayStr && currentHour < 15) continue; if (b.to === todayStr && currentHour >= 10) continue; return true; } } return false;
+  for (const b of bks) { if (b.from <= todayStr && b.to >= todayStr) { if (b.from === todayStr && b.to === todayStr) { if (currentHour >= 15 || currentHour < 10) return true; } if (b.from === todayStr && currentHour < 15) continue; if (b.to === todayStr && currentHour >= 10) continue; return true; } } return false;
 }
 function getRoomStateClass(roomIdx) {
   if (isRoomOccupied(roomIdx)) return 'bg-state-active';
