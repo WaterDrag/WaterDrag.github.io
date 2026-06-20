@@ -884,7 +884,9 @@ window.renderTimeline = () => {
 
   const tb = document.getElementById('tlTb'); tb.innerHTML = '';
   const wrapEl = document.getElementById('tlMainWrap');
-  const totalW = (wrapEl.offsetWidth || 700) - 120;
+  const rcol = wrapEl.querySelector('.tl-rcol');
+  const lblW = rcol ? rcol.offsetWidth : 120;
+  const totalW = (wrapEl.offsetWidth || 700) - lblW;
   const cw = totalW / TL_ND;
 
   rooms.forEach((room, ri) => {
