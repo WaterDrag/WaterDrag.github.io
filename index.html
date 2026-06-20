@@ -390,7 +390,16 @@
       <label>Placené úkony:</label>
       <div id="myShiftRoomsList" style="margin-bottom:16px; border-top:1px solid var(--color-border-secondary); padding-top:8px;"></div>
       <label>Odpracované hodiny:</label>
-      <input type="number" step="0.5" id="myShiftHours" placeholder="Počet hodin" style="margin-bottom:16px;">
+      <div style="display:flex; gap:8px; margin-bottom:16px;">
+        <div style="flex:1; display:flex; flex-direction:column; gap:4px;">
+          <span style="font-size:11px; color:var(--color-text-secondary); font-weight:700; letter-spacing:0.5px;">HOD</span>
+          <input type="number" min="0" max="23" id="myShiftH" placeholder="0" style="width:100%; padding:12px; border-radius:var(--border-radius-md); border:1px solid var(--color-border-secondary); background:var(--color-background-primary); color:var(--color-text-primary); font-family:'Lato',sans-serif; font-size:16px; outline:none; text-align:center;">
+        </div>
+        <div style="flex:1; display:flex; flex-direction:column; gap:4px;">
+          <span style="font-size:11px; color:var(--color-text-secondary); font-weight:700; letter-spacing:0.5px;">MIN</span>
+          <input type="number" min="0" max="59" id="myShiftM" placeholder="0" style="width:100%; padding:12px; border-radius:var(--border-radius-md); border:1px solid var(--color-border-secondary); background:var(--color-background-primary); color:var(--color-text-primary); font-family:'Lato',sans-serif; font-size:16px; outline:none; text-align:center;">
+        </div>
+      </div>
       <label>Poznámka:</label>
       <textarea id="myShiftNote" style="width:100%; min-height:60px; padding:12px; border-radius:var(--border-radius-md); border:1px solid var(--color-border-secondary); background:var(--color-background-primary); color:var(--color-text-primary); font-family:'Lato',sans-serif; resize:vertical; outline:none; margin-bottom:16px;"></textarea>
       <div class="edit-btns">
@@ -1156,6 +1165,7 @@ window.saveToFirebase = () => {
   
   update(ref(db, '/'), dataToSave); 
 };
+function fmtHours(h) { const hh = Math.floor(h); const mm = Math.round((h - hh) * 60); return mm === 0 ? hh + 'h' : hh + 'h ' + mm + 'min'; }
 function getLocalIsoDate(daysOffset = 0) { const d = new Date(); d.setDate(d.getDate() + daysOffset); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
 function autoDirtyCheck() {
   const todayStr = getLocalIsoDate(); const currentHour = new Date().getHours(); let changed = false;
@@ -1223,14 +1233,19 @@ window.openMyShift = () => {
   window.renderShiftFormForDate(); document.getElementById('shiftBg').classList.add('open');
 };
 window.saveShiftFormToTemp = () => {
-  const h = parseFloat(document.getElementById('myShiftHours').value) || 0; const n = document.getElementById('myShiftNote').value.trim();
+  const hVal = parseInt(document.getElementById('myShiftH').value) || 0;
+  const mVal = Math.min(59, Math.max(0, parseInt(document.getElementById('myShiftM').value) || 0));
+  const h = hVal + mVal / 60;
+  const n = document.getElementById('myShiftNote').value.trim();
   if (!tempMyShift.dailyLogs[currentShiftDate]) tempMyShift.dailyLogs[currentShiftDate] = { hours: 0, note: '', tasks: {} };
   tempMyShift.dailyLogs[currentShiftDate].hours = h; tempMyShift.dailyLogs[currentShiftDate].note = n;
 };
 window.changeShiftDate = () => { window.saveShiftFormToTemp(); currentShiftDate = document.getElementById('shiftDateSelect').value || getLocalIsoDate(); window.renderShiftFormForDate(); };
 window.renderShiftFormForDate = () => {
   const log = tempMyShift.dailyLogs[currentShiftDate] || { hours: 0, note: '', tasks: {} };
-  document.getElementById('myShiftHours').value = log.hours || ''; document.getElementById('myShiftNote').value = log.note || ''; window.renderMyShiftRooms();
+  const h = log.hours || 0; const hh = Math.floor(h); const mm = Math.round((h - hh) * 60);
+  document.getElementById('myShiftH').value = hh || ''; document.getElementById('myShiftM').value = mm || '';
+  document.getElementById('myShiftNote').value = log.note || ''; window.renderMyShiftRooms();
 };
 window.closeMyShift = () => { document.getElementById('shiftBg').classList.remove('open'); };
 window.renderMyShiftRooms = () => {
@@ -1280,11 +1295,11 @@ window.openShiftDetails = (key, backupIdx = -1) => {
         }
       }
       const noteTxt = log.note ? `<br>&nbsp;&nbsp;&nbsp;<em>Pozn.: ${log.note}</em>` : '';
-      logsHtml += `<div style="background:var(--color-background-secondary); padding:8px; border-radius:6px; margin-top:4px; font-size:13px;"><strong>${fmt(date)}:</strong> ${dayHours} hod${dayTasksHtml}${noteTxt}</div>`;
+      logsHtml += `<div style="background:var(--color-background-secondary); padding:8px; border-radius:6px; margin-top:4px; font-size:13px;"><strong>${fmt(date)}:</strong> ${fmtHours(dayHours)}${dayTasksHtml}${noteTxt}</div>`;
     });
   } else { logsHtml = '<div style="font-size:13px; color:var(--color-text-secondary); margin-top:12px;">Zatím nejsou zadány žádné směny.</div>'; }
   const hoursMoney = totalHours * rate; document.getElementById('sdName').textContent = `Výkaz: ${nick}`;
-  document.getElementById('sdContent').innerHTML = `<strong>Odpracováno:</strong> ${totalHours} hod (Sazba: ${rate} Kč/h = ${hoursMoney} Kč)<br><strong>Úkony (Celkem: ${overallTasksMoney} Kč)</strong>${logsHtml}<strong style="font-size:16px; color:#16A34A; margin-top:16px; display:block; border-top:1px solid var(--color-border-secondary); padding-top:8px;">K výplatě celkem: ${hoursMoney + overallTasksMoney} Kč</strong>`;
+  document.getElementById('sdContent').innerHTML = `<strong>Odpracováno:</strong> ${fmtHours(totalHours)} (Sazba: ${rate} Kč/h = ${hoursMoney} Kč)<br><strong>Úkony (Celkem: ${overallTasksMoney} Kč)</strong>${logsHtml}<strong style="font-size:16px; color:#16A34A; margin-top:16px; display:block; border-top:1px solid var(--color-border-secondary); padding-top:8px;">K výplatě celkem: ${hoursMoney + overallTasksMoney} Kč</strong>`;
   document.getElementById('shiftDetailsBg').classList.add('open');
 };
 window.closeShiftDetails = () => { document.getElementById('shiftDetailsBg').classList.remove('open'); };
@@ -1337,7 +1352,7 @@ window.renderStatsPanel = (mode = 'current', backupIdx = -1) => {
     const totalOverall = hoursMoney + tasksMoney;
     if(totalHours > 0 || tasksTxt.length > 0 || hasLogs) {
       empty = false;
-      html += `<div class="stats-panel-user"><div style="display:flex; justify-content:space-between; align-items:center;"><strong>${nick}</strong><button onclick="window.openShiftDetails('${key}', ${isBackup ? backupIdx : -1})" style="background:var(--color-background-primary);border:1px solid var(--color-border-tertiary);border-radius:4px;padding:4px 8px;cursor:pointer;font-size:11px;font-weight:bold; color:var(--color-text-primary);">Podrobnosti</button></div>(Hodiny: ${totalHours})<br>${tasksTxt.join('<br>')}<br><strong style="color:#16A34A; margin-top:4px; display:block;">Celkem odměna: ${totalOverall} Kč</strong></div>`;
+      html += `<div class="stats-panel-user"><div style="display:flex; justify-content:space-between; align-items:center;"><strong>${nick}</strong><button onclick="window.openShiftDetails('${key}', ${isBackup ? backupIdx : -1})" style="background:var(--color-background-primary);border:1px solid var(--color-border-tertiary);border-radius:4px;padding:4px 8px;cursor:pointer;font-size:11px;font-weight:bold; color:var(--color-text-primary);">Podrobnosti</button></div>(${fmtHours(totalHours)})<br>${tasksTxt.join('<br>')}<br><strong style="color:#16A34A; margin-top:4px; display:block;">Celkem odměna: ${totalOverall} Kč</strong></div>`;
     }
   }
   if(empty) html += '<div style="font-size:13px; color:var(--color-text-secondary); text-align:center; padding: 20px;">Zatím nejsou k dispozici žádné výkazy.</div>';
