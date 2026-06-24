@@ -337,6 +337,7 @@
     <button id="btnAddRoom" class="add-btn" style="display:none;" onclick="window.openEdit(-1)">+ Přidat nový pokoj</button>
     <button id="btnManageUsers" class="save-note-btn" style="display:none;" onclick="window.openUsersAdmin()">👥 Správa uživatelů</button>
     <button id="btnManageRoles" class="save-note-btn" style="display:none;" onclick="window.openRolesAdmin()">🔑 Správa oprávnění</button>
+    <button id="btnManageBackups" class="save-note-btn" style="display:none;" onclick="window.openBackupModal()">💾 Zálohy dat</button>
   </div>
 
   <div id="miniStats" class="mini-stats-wrap"></div>
@@ -432,6 +433,23 @@
       <div id="newBookingsList" style="max-height: 400px; overflow-y: auto; margin-bottom: 16px; padding: 8px;"></div>
       <div class="edit-btns">
         <button class="btn-save" onclick="window.closeNewBookingsModal()">Rozumím, zavřít</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-bg" id="backupModalBg">
+    <div class="modal" style="width:min(540px,100%);">
+      <div class="modal-top">
+        <div class="modal-room-title">💾 Zálohy dat</div>
+        <div class="modal-room-sub">ULOŽENO ODDĚLENĚ — BEZPEČNÉ</div>
+        <button class="close-btn" onclick="window.closeBackupModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <button id="createBackupBtn" class="add-btn" style="width:100%; margin-bottom:12px;" onclick="window.createBackup()">+ Vytvořit zálohu teď</button>
+        <div style="font-size:12px; color:var(--color-text-secondary); margin-bottom:16px; padding:8px 12px; background:var(--color-background-secondary); border-radius:var(--border-radius-md); border:1px solid var(--color-border-secondary);">
+          Zálohy jsou uloženy v samostatné části databáze a automatické ukládání je nemůže přepsat. Uchovává se max. 10 posledních záloh.
+        </div>
+        <div id="backupsList" style="display:flex; flex-direction:column; gap:8px;"></div>
       </div>
     </div>
   </div>
@@ -651,7 +669,8 @@ const PERM_DEFS = {
   ]},
   admin: { title: "5. Administrace systému", items: [
     { key: 'admin_users', label: 'Spravovat uživatele (přidávání, e-maily, sazby)' },
-    { key: 'admin_roles', label: 'Spravovat přístupová práva rolí (tato sekce)' }
+    { key: 'admin_roles', label: 'Spravovat přístupová práva rolí (tato sekce)' },
+    { key: 'backup_manage', label: 'Spravovat zálohy dat (vytvářet, obnovovat, mazat)' }
   ]}
 };
 
@@ -671,6 +690,7 @@ let rooms = []; let bookings = {}; let notes = {}; let generalNotes = ''; let st
 let shiftData = {}; let shiftDataBackups = []; let tempMyShift = {dailyLogs:{}}; let currentShiftDate = '';
 let tempCustomItems = []; let tempCustomStatuses = []; let tempPaidTasks = [];
 let currentUser=null; let dbListenerObj = null; let editIdx=-1,curRoom=-1; let editingUserKey=null; let autoRefreshInterval=null;
+let lastFirebaseReceived = 0; let isFirebaseConnected = false;
 let calYear=new Date().getFullYear(),calMon=new Date().getMonth();
 let hasShownNewBookingsModal = false;
 let selStart = null, selEnd = null, editBookingIdx = -1;
@@ -746,10 +766,12 @@ function applyUIPermissions() {
   const canAdminUsers = window.hasPermission('admin_users');
   const canAdminRoles = window.hasPermission('admin_roles');
   
-  document.getElementById('adminActionsWrap').style.display = (canRoomEdit || canAdminUsers || canAdminRoles) ? 'flex' : 'none';
+  const canBackup = window.hasPermission('backup_manage');
+  document.getElementById('adminActionsWrap').style.display = (canRoomEdit || canAdminUsers || canAdminRoles || canBackup) ? 'flex' : 'none';
   document.getElementById('btnAddRoom').style.display = canRoomEdit ? 'inline-block' : 'none';
   document.getElementById('btnManageUsers').style.display = canAdminUsers ? 'inline-block' : 'none';
   document.getElementById('btnManageRoles').style.display = canAdminRoles ? 'inline-block' : 'none';
+  document.getElementById('btnManageBackups').style.display = canBackup ? 'inline-block' : 'none';
   
   document.getElementById('staffTasksWrap').style.display = window.hasPermission('task_view') ? 'block' : 'none';
   document.getElementById('addTaskForm').style.display = window.hasPermission('task_edit') ? 'flex' : 'none';
@@ -760,7 +782,9 @@ function applyUIPermissions() {
 
 function startDatabaseListener() {
   if (dbListenerObj) return;
+  onValue(ref(db, '.info/connected'), (snap) => { isFirebaseConnected = !!snap.val(); });
   dbListenerObj = onValue(ref(db, '/'), (snapshot) => {
+    lastFirebaseReceived = Date.now();
     const data = snapshot.val();
     if (data) {
       let r = data.rooms || [...defaultRooms];
@@ -791,6 +815,7 @@ function startDatabaseListener() {
       
       window.renderRooms(); window.renderMiniStats(); window.renderStaffTasks(); window.renderTimeline();
       window.checkAndShowNewBookings();
+      checkAutoBackup();
       if(document.getElementById('usersAdminBg').classList.contains('open')) { window.renderUsersAdmin(); }
       if(document.getElementById('rolesAdminBg').classList.contains('open')) { window.renderRolePermissions(); }
       if(document.getElementById('modalBg').classList.contains('open') && curRoom !== -1) {
@@ -1093,6 +1118,110 @@ window.saveRolePermissions = () => {
 };
 
 /* =========================================================================
+ * ZÁLOHY DAT
+ * ========================================================================= */
+async function _backupCleanup() {
+  const snap = await get(ref(db, 'manualBackups'));
+  if (!snap.exists()) return;
+  const keys = Object.keys(snap.val()).sort();
+  if (keys.length > 10) {
+    for (const old of keys.slice(0, keys.length - 10)) {
+      await set(ref(db, 'manualBackups/' + old), null);
+    }
+  }
+}
+
+function checkAutoBackup() {
+  if (!currentUser || !window.hasPermission('backup_manage')) return;
+  if (!isFirebaseConnected) return;
+  const today = getLocalIsoDate();
+  if (localStorage.getItem('pz_lastAutoBackup') === today) return;
+  localStorage.setItem('pz_lastAutoBackup', today);
+  window.createAutoBackup();
+}
+
+window.createAutoBackup = async () => {
+  try {
+    const ts = Date.now();
+    await set(ref(db, 'manualBackups/' + ts), {
+      createdAt: ts, createdBy: 'auto', auto: true,
+      data: { rooms, bookings, notes, generalNotes, staffTasks, shiftData, tlCleanings, rolePermissions, authorizedUsers }
+    });
+    await _backupCleanup();
+  } catch(e) { console.warn('Auto backup failed:', e.message); }
+};
+
+window.openBackupModal = async () => {
+  document.getElementById('backupModalBg').classList.add('open');
+  await window.renderBackups();
+};
+window.closeBackupModal = () => { document.getElementById('backupModalBg').classList.remove('open'); };
+
+window.createBackup = async () => {
+  const btn = document.getElementById('createBackupBtn');
+  btn.disabled = true; btn.textContent = 'Ukládám...';
+  try {
+    const ts = Date.now();
+    await set(ref(db, 'manualBackups/' + ts), {
+      createdAt: ts, createdBy: currentUser.email,
+      data: { rooms, bookings, notes, generalNotes, staffTasks, shiftData, tlCleanings, rolePermissions, authorizedUsers }
+    });
+    await _backupCleanup();
+    await window.renderBackups();
+  } catch(e) { alert('Chyba při vytváření zálohy: ' + e.message); }
+  btn.disabled = false; btn.textContent = '+ Vytvořit zálohu teď';
+};
+
+window.renderBackups = async () => {
+  const list = document.getElementById('backupsList');
+  list.innerHTML = '<div style="color:var(--color-text-secondary);font-size:13px;">Načítám...</div>';
+  try {
+    const snap = await get(ref(db, 'manualBackups'));
+    if (!snap.exists()) {
+      list.innerHTML = '<div style="color:var(--color-text-secondary);font-size:13px;">Zatím nejsou žádné zálohy.</div>';
+      return;
+    }
+    const backups = snap.val();
+    const keys = Object.keys(backups).sort().reverse();
+    list.innerHTML = keys.map(ts => {
+      const b = backups[ts];
+      const d = new Date(parseInt(ts));
+      const dateStr = d.getDate() + '.' + (d.getMonth()+1) + '.' + d.getFullYear() + ' ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+      const rd = b.data && b.data.rooms ? (Array.isArray(b.data.rooms) ? b.data.rooms.length : Object.keys(b.data.rooms).length) : '?';
+      const bkCount = b.data && b.data.bookings ? Object.values(b.data.bookings).reduce((s,a) => s + (Array.isArray(a) ? a.length : 0), 0) : '?';
+      const autoTag = b.auto ? ' <span style="background:#E0F2FE;color:#0369A1;font-size:10px;padding:2px 6px;border-radius:4px;font-weight:700;vertical-align:middle;">AUTO</span>' : '';
+      return `<div style="background:var(--color-background-secondary);border:1px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+        <div>
+          <div style="font-size:14px;font-weight:700;color:var(--color-text-primary);">${dateStr}${autoTag}</div>
+          <div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px;">${b.auto ? 'automatická' : b.createdBy} · ${rd} pokojů · ${bkCount} rezervací</div>
+        </div>
+        <div style="display:flex;gap:8px;flex-shrink:0;">
+          <button onclick="window.restoreBackup('${ts}','${dateStr}')" style="padding:6px 12px;border-radius:var(--border-radius-md);border:1px solid #166534;background:#DCFCE7;color:#166534;font-size:12px;font-weight:700;cursor:pointer;font-family:'Lato',sans-serif;">↩ Obnovit</button>
+          <button onclick="window.deleteBackup('${ts}')" style="padding:6px 12px;border-radius:var(--border-radius-md);border:1px solid var(--color-text-danger);background:none;color:var(--color-text-danger);font-size:12px;font-weight:700;cursor:pointer;font-family:'Lato',sans-serif;">✕</button>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) { list.innerHTML = '<div style="color:var(--color-text-danger);font-size:13px;">Chyba při načítání záloh.</div>'; }
+};
+
+window.restoreBackup = async (ts, dateStr) => {
+  if (!confirm('Opravdu obnovit zálohu z ' + dateStr + '?\n\nVšechna současná data budou nahrazena touto zálohou!')) return;
+  try {
+    const snap = await get(ref(db, 'manualBackups/' + ts + '/data'));
+    if (!snap.exists()) { alert('Záloha nenalezena.'); return; }
+    await update(ref(db, '/'), snap.val());
+    alert('Záloha úspěšně obnovena!');
+    window.closeBackupModal();
+  } catch(e) { alert('Chyba při obnově zálohy: ' + e.message); }
+};
+
+window.deleteBackup = async (ts) => {
+  if (!confirm('Smazat tuto zálohu? Tato akce je nevratná.')) return;
+  await set(ref(db, 'manualBackups/' + ts), null);
+  await window.renderBackups();
+};
+
+/* =========================================================================
  * PŮVODNÍ FUNKCE
  * ========================================================================= */
 window.toggleSettingsMenu = (event) => { event.stopPropagation(); document.getElementById('settingsDropdown').classList.toggle('show'); };
@@ -1155,7 +1284,8 @@ window.renderMiniStats = () => {
   const el = document.getElementById('miniStats'); if (!el) return;
   el.innerHTML = `<div class="stat-item">Obsazeno: <span class="stat-val">${occupied}/${rooms.length}</span></div><div class="stat-item">Příjezdy: <span class="stat-val">${arrivals}</span></div><div class="stat-item">Odjezdy: <span class="stat-val">${departures}</span></div><div class="stat-item">Úklidy: <span class="stat-val">${cleanings}</span></div>`;
 };
-window.saveToFirebase = () => { 
+window.saveToFirebase = (isAutoSave = false) => {
+  if (isAutoSave && (!isFirebaseConnected || Date.now() - lastFirebaseReceived > 30 * 60 * 1000)) return;
   let dataToSave = { rooms, bookings, notes, generalNotes, staffTasks, shiftData, shiftDataBackups, tlCleanings };
   
   if (currentUser && (currentUser.role === 'owner' || currentUser.role === 'admin')) {
@@ -1182,7 +1312,7 @@ function autoDirtyCheck() {
       }
     });
   });
-  if(changed) window.saveToFirebase();
+  if(changed) window.saveToFirebase(true);
 }
 function isRoomOccupied(roomIdx) {
   const todayStr = getLocalIsoDate(); const currentHour = new Date().getHours(); const bks = bookings[roomIdx] || [];
