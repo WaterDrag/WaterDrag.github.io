@@ -1131,6 +1131,10 @@ async function _backupCleanup() {
   }
 }
 
+function _snapshotData() {
+  return JSON.parse(JSON.stringify({ rooms, bookings, notes, generalNotes, staffTasks, shiftData, tlCleanings, rolePermissions, authorizedUsers }));
+}
+
 function checkAutoBackup() {
   if (!currentUser || !window.hasPermission('backup_manage')) return;
   if (!isFirebaseConnected) return;
@@ -1143,13 +1147,23 @@ function checkAutoBackup() {
 window.createAutoBackup = async () => {
   try {
     const ts = Date.now();
-    await set(ref(db, 'manualBackups/' + ts), {
-      createdAt: ts, createdBy: 'auto', auto: true,
-      data: { rooms, bookings, notes, generalNotes, staffTasks, shiftData, tlCleanings, rolePermissions, authorizedUsers }
-    });
+    await set(ref(db, 'manualBackups/' + ts), { createdAt: ts, createdBy: 'auto', auto: true, label: 'Denní záloha', data: _snapshotData() });
     await _backupCleanup();
   } catch(e) { console.warn('Auto backup failed:', e.message); }
 };
+
+let _lastEventBackupTs = 0;
+async function triggerBackup(label) {
+  if (!currentUser || !window.hasPermission('backup_manage')) return;
+  const now = Date.now();
+  if (now - _lastEventBackupTs < 3 * 60 * 1000) return;
+  _lastEventBackupTs = now;
+  const snapshot = _snapshotData();
+  try {
+    await set(ref(db, 'manualBackups/' + now), { createdAt: now, createdBy: currentUser.email, auto: true, label: label, data: snapshot });
+    await _backupCleanup();
+  } catch(e) { console.warn('Event backup failed:', e.message); }
+}
 
 window.openBackupModal = async () => {
   document.getElementById('backupModalBg').classList.add('open');
@@ -1190,9 +1204,11 @@ window.renderBackups = async () => {
       const rd = b.data && b.data.rooms ? (Array.isArray(b.data.rooms) ? b.data.rooms.length : Object.keys(b.data.rooms).length) : '?';
       const bkCount = b.data && b.data.bookings ? Object.values(b.data.bookings).reduce((s,a) => s + (Array.isArray(a) ? a.length : 0), 0) : '?';
       const autoTag = b.auto ? ' <span style="background:#E0F2FE;color:#0369A1;font-size:10px;padding:2px 6px;border-radius:4px;font-weight:700;vertical-align:middle;">AUTO</span>' : '';
+      const labelLine = b.label ? `<div style="font-size:12px;font-weight:700;color:var(--color-text-primary);margin-top:1px;">${b.label}</div>` : '';
       return `<div style="background:var(--color-background-secondary);border:1px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
         <div>
-          <div style="font-size:14px;font-weight:700;color:var(--color-text-primary);">${dateStr}${autoTag}</div>
+          <div style="font-size:13px;color:var(--color-text-secondary);">${dateStr}${autoTag}</div>
+          ${labelLine}
           <div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px;">${b.auto ? 'automatická' : b.createdBy} · ${rd} pokojů · ${bkCount} rezervací</div>
         </div>
         <div style="display:flex;gap:8px;flex-shrink:0;">
@@ -1344,7 +1360,7 @@ window.addUserRole = () => {
   if(!email) return; const key = email.replace(/\./g, '_'); if(editingUserKey && editingUserKey !== key) { delete authorizedUsers[editingUserKey]; }
   const curLastViewed = authorizedUsers[key] ? authorizedUsers[key].lastViewedBookings : 0;
   authorizedUsers[key] = { email: email, role: role, nickname: nick, hourlyRate: hr, lastViewedBookings: curLastViewed || 0 };
-  editingUserKey = null; document.getElementById('addBtnAdmin').textContent = 'Přidat'; window.saveToFirebase();
+  editingUserKey = null; document.getElementById('addBtnAdmin').textContent = 'Přidat'; triggerBackup('Změna uživatele'); window.saveToFirebase();
   document.getElementById('newUserEmail').value = ''; document.getElementById('newUserNick').value = ''; document.getElementById('newUserHourlyRate').value = ''; window.renderUsersAdmin();
 };
 window.deleteUserRole = (key) => { if(confirm('Odebrat přístup?')) { delete authorizedUsers[key]; window.saveToFirebase(); window.renderUsersAdmin(); } };
@@ -1402,7 +1418,7 @@ window.saveMyShift = () => {
     const log = tempMyShift.dailyLogs[d]; const hasTasks = log.tasks && Object.values(log.tasks).some(v => v > 0);
     if ((!log.hours || log.hours === 0) && !log.note && !hasTasks) { delete tempMyShift.dailyLogs[d]; }
   }
-  shiftData[myKey] = tempMyShift; window.saveToFirebase(); window.closeMyShift();
+  shiftData[myKey] = tempMyShift; triggerBackup('Uložení směny'); window.saveToFirebase(); window.closeMyShift();
 };
 window.openShiftDetails = (key, backupIdx = -1) => {
   const sourceData = backupIdx === -1 ? shiftData : shiftDataBackups[backupIdx].data;
@@ -1725,6 +1741,7 @@ window.saveBooking = () => {
   if(!bookings[curRoom]) bookings[curRoom] = []; const note = document.getElementById('bBookingNote').value.trim();
   if (editBookingIdx > -1) { bookings[curRoom][editBookingIdx].from = selStart; bookings[curRoom][editBookingIdx].to = selEnd; bookings[curRoom][editBookingIdx].note = note;
   } else { bookings[curRoom].push({ from: selStart, to: selEnd, note: note, dirtyTriggered: false, addedAt: Date.now() }); }
+  triggerBackup(editBookingIdx > -1 ? 'Úprava rezervace' : 'Nová rezervace');
   window.saveToFirebase(); window.closeBookingModal(); window.renderRoomCalendar(); window.renderBookings(); window.renderTimeline();
 };
 window.renderBookings = () => {
@@ -1740,6 +1757,7 @@ window.renderBookings = () => {
 function fmt(d) { const p = d.split('-'); return p[2] + '.' + p[1] + '.' + p[0]; }
 window.delBooking = (i) => {
   if(!confirm('Opravdu smazat tuto rezervaci?')) return;
+  triggerBackup('Před smazáním rezervace');
   bookings[curRoom].splice(i, 1); window.saveToFirebase(); window.renderRoomCalendar(); window.renderBookings(); window.renderTimeline();
 };
 window.saveNote = () => {
