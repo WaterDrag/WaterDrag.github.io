@@ -1074,8 +1074,8 @@ window.closeTlModal = () => { document.getElementById('tlOv').classList.remove('
 window.openTlBookingModal = (ri, room, b) => {
   tlPend = null;
   document.getElementById('tlMt').textContent = room.emoji + ' ' + room.name;
-  const fromFmt = b.from.split('-').reverse().join('.');
-  const toFmt = b.to.split('-').reverse().join('.');
+  const fromFmt = window.tlTs(b.from).split('-').reverse().join('.');
+  const toFmt = window.tlTs(b.to).split('-').reverse().join('.');
   document.getElementById('tlMs').textContent = fromFmt + ' → ' + toFmt;
   const mst = document.getElementById('tlMst'); mst.innerHTML = '';
   if (b.note) {
