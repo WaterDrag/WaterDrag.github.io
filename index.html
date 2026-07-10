@@ -997,9 +997,12 @@ window.renderTimeline = () => {
       const noteTxt = b.note ? ' · ' + b.note : '';
       const lbl2 = (si === -1 ? '← ' : '') + window.tlFd(fromStr) + '→' + window.tlFd(toStr) + (ei === -1 ? ' →' : '') + noteTxt;
       
-      bar.style.cssText = `position:absolute;top:6px;left:${leftPx}px;width:${barWidth}px;height:24px;border-radius:4px;display:flex;align-items:center;padding:0 6px;font-size:11px;font-weight:700;z-index:2;white-space:nowrap;overflow:hidden;pointer-events:none;background:${color};color:#18181b;box-shadow:0 1px 2px rgba(0,0,0,0.1);`;
+      bar.style.cssText = `position:absolute;top:6px;left:${leftPx}px;width:${barWidth}px;height:24px;border-radius:4px;display:flex;align-items:center;padding:0 6px;font-size:11px;font-weight:700;z-index:2;white-space:nowrap;overflow:hidden;cursor:pointer;background:${color};color:#18181b;box-shadow:0 1px 2px rgba(0,0,0,0.1);transition:filter 0.15s;`;
       bar.textContent = lbl2;
       bar.title = lbl2;
+      bar.addEventListener('mouseenter', () => { bar.style.filter = 'brightness(0.88)'; });
+      bar.addEventListener('mouseleave', () => { bar.style.filter = ''; });
+      bar.addEventListener('click', (e) => { e.stopPropagation(); window.openTlBookingModal(ri, room, b); });
       cells.appendChild(bar);
     });
 
@@ -1067,6 +1070,31 @@ window.openTlModal = (ri, roomName, cleanKey, dstr, type) => {
 };
 
 window.closeTlModal = () => { document.getElementById('tlOv').classList.remove('open'); tlPend = null; };
+
+window.openTlBookingModal = (ri, room, b) => {
+  tlPend = null;
+  document.getElementById('tlMt').textContent = room.emoji + ' ' + room.name;
+  const fromFmt = b.from.split('-').reverse().join('.');
+  const toFmt = b.to.split('-').reverse().join('.');
+  document.getElementById('tlMs').textContent = fromFmt + ' → ' + toFmt;
+  const mst = document.getElementById('tlMst'); mst.innerHTML = '';
+  if (b.note) {
+    const noteEl = document.createElement('div');
+    noteEl.style.cssText = 'font-size:13px;color:var(--color-text-secondary);background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 12px;margin-bottom:10px;';
+    noteEl.textContent = b.note;
+    mst.appendChild(noteEl);
+  }
+  if (window.hasPermission('book_edit_del')) {
+    const btn = document.createElement('button'); btn.className = 'tl-mbtn confirm'; btn.textContent = '✎ Otevřít pokoj';
+    btn.addEventListener('click', () => { window.closeTlModal(); window.openRoom(ri); });
+    mst.appendChild(btn);
+  }
+  const closeBtn = document.createElement('button'); closeBtn.className = 'tl-cbtn'; closeBtn.textContent = 'Zavřít';
+  closeBtn.addEventListener('click', window.closeTlModal);
+  mst.appendChild(closeBtn);
+  document.getElementById('tlOv').classList.add('open');
+};
+
 window.tlChangeWeek = (d) => { tlWo += d; window.renderTimeline(); };
 let _tlResizeTimer;
 window.addEventListener('resize', () => { clearTimeout(_tlResizeTimer); _tlResizeTimer = setTimeout(() => { if (currentUser) window.renderTimeline(); }, 120); });
