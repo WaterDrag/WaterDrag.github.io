@@ -1089,9 +1089,6 @@ window.openTlBookingModal = (ri, room, b) => {
     btn.addEventListener('click', () => { window.closeTlModal(); window.openRoom(ri); });
     mst.appendChild(btn);
   }
-  const closeBtn = document.createElement('button'); closeBtn.className = 'tl-cbtn'; closeBtn.textContent = 'Zavřít';
-  closeBtn.addEventListener('click', window.closeTlModal);
-  mst.appendChild(closeBtn);
   document.getElementById('tlOv').classList.add('open');
 };
 
