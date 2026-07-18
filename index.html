@@ -1335,7 +1335,9 @@ window.saveToFirebase = (isAutoSave = false) => {
     dataToSave.rolePermissions = rolePermissions;
   }
   
-  update(ref(db, '/'), dataToSave); 
+  const p = update(ref(db, '/'), dataToSave);
+  p.catch(e => console.error('Uložení do Firebase selhalo:', e));
+  return p;
 };
 function fmtHours(h) { const hh = Math.floor(h); const mm = Math.round((h - hh) * 60); return mm === 0 ? hh + 'h' : hh + 'h ' + mm + 'min'; }
 function getLocalIsoDate(daysOffset = 0) { const d = new Date(); d.setDate(d.getDate() + daysOffset); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
@@ -1438,13 +1440,23 @@ window.changeShiftTask = (taskKey, delta) => {
   if (!tempMyShift.dailyLogs[currentShiftDate].tasks) tempMyShift.dailyLogs[currentShiftDate].tasks = {};
   let t = tempMyShift.dailyLogs[currentShiftDate].tasks; if (!t[taskKey]) t[taskKey] = 0; t[taskKey] += delta; if (t[taskKey] < 0) t[taskKey] = 0; window.renderMyShiftRooms();
 };
-window.saveMyShift = () => {
+window.saveMyShift = async () => {
   window.saveShiftFormToTemp(); const myKey = currentUser.email.replace(/\./g, '_');
   for (const d in tempMyShift.dailyLogs) {
     const log = tempMyShift.dailyLogs[d]; const hasTasks = log.tasks && Object.values(log.tasks).some(v => v > 0);
     if ((!log.hours || log.hours === 0) && !log.note && !hasTasks) { delete tempMyShift.dailyLogs[d]; }
   }
-  shiftData[myKey] = tempMyShift; triggerBackup('Uložení směny'); window.saveToFirebase(); window.closeMyShift();
+  shiftData[myKey] = tempMyShift; triggerBackup('Uložení směny');
+  const btn = document.querySelector('#shiftBg .btn-save');
+  const orig = btn.textContent; btn.textContent = 'Ukládám...'; btn.disabled = true;
+  try {
+    await window.saveToFirebase();
+    window.closeMyShift();
+  } catch(e) {
+    alert('Uložení směny selhalo: ' + (e.message || e) + '\nZkuste to prosím znovu.');
+  } finally {
+    btn.textContent = orig; btn.disabled = false;
+  }
 };
 window.openShiftDetails = (key, backupIdx = -1) => {
   const sourceData = backupIdx === -1 ? shiftData : shiftDataBackups[backupIdx].data;
