@@ -1170,25 +1170,32 @@ function checkAutoBackup() {
   window.createAutoBackup();
 }
 
-window.createAutoBackup = async () => {
-  try {
-    const ts = Date.now();
-    await set(ref(db, 'manualBackups/' + ts), { createdAt: ts, createdBy: 'auto', auto: true, label: 'Denní záloha', data: _snapshotData() });
-    await _backupCleanup();
-  } catch(e) { console.warn('Auto backup failed:', e.message); }
+window.createAutoBackup = () => {
+  // Odloženo o 10s, aby velký zápis zálohy neblokoval akce hned po otevření aplikace
+  setTimeout(async () => {
+    try {
+      const ts = Date.now();
+      await set(ref(db, 'manualBackups/' + ts), { createdAt: ts, createdBy: 'auto', auto: true, label: 'Denní záloha', data: _snapshotData() });
+      await _backupCleanup();
+    } catch(e) { console.warn('Auto backup failed:', e.message); }
+  }, 10000);
 };
 
 let _lastEventBackupTs = 0;
-async function triggerBackup(label) {
+function triggerBackup(label) {
   if (!currentUser || !window.hasPermission('backup_manage')) return;
   const now = Date.now();
   if (now - _lastEventBackupTs < 3 * 60 * 1000) return;
   _lastEventBackupTs = now;
   const snapshot = _snapshotData();
-  try {
-    await set(ref(db, 'manualBackups/' + now), { createdAt: now, createdBy: currentUser.email, auto: true, label: label, data: snapshot });
-    await _backupCleanup();
-  } catch(e) { console.warn('Event backup failed:', e.message); }
+  const email = currentUser.email;
+  // Zápis zálohy odložíme, aby velký upload neblokoval frontu před hlavním uložením dat
+  setTimeout(async () => {
+    try {
+      await set(ref(db, 'manualBackups/' + now), { createdAt: now, createdBy: email, auto: true, label: label, data: snapshot });
+      await _backupCleanup();
+    } catch(e) { console.warn('Event backup failed:', e.message); }
+  }, 5000);
 }
 
 window.openBackupModal = async () => {
