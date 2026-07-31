@@ -186,6 +186,28 @@
   .cal-day.sel-node { background: var(--color-text-primary) !important; color: var(--color-background-primary) !important; border-color: var(--color-text-primary) !important; font-weight:bold; transform: scale(1.05); z-index:6; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
   .cal-day.sel-mid { background: var(--color-border-secondary) !important; color: var(--color-text-primary) !important; }
 
+  /* Částečné vybarvení dne (příjezd / odjezd) */
+  .pfill { position: relative; }
+  .pfill::before { content:''; position:absolute; inset:0; border-radius:inherit; background: var(--pc); z-index:0; }
+  .pfill > span { position: relative; z-index: 1; }
+  .pf-half-l::before { clip-path: inset(0 50% 0 0); }
+  .pf-half-r::before { clip-path: inset(0 0 0 50%); }
+  .pf-tri-tl::before { clip-path: polygon(0 0, 100% 0, 0 100%); }
+  .pf-tri-br::before { clip-path: polygon(100% 0, 100% 100%, 0 100%); }
+  .cal-day.pfill { font-weight: 700; color: var(--color-text-primary); text-shadow: -1px -1px 0 var(--color-background-primary), 1px -1px 0 var(--color-background-primary), -1px 1px 0 var(--color-background-primary), 1px 1px 0 var(--color-background-primary); }
+  .cal-day.pfill.sel-node::before, .cal-day.pfill.sel-mid::before { display: none; }
+
+  /* Nastavení – dlaždice s náhledem stylu */
+  .set-label { font-size: 12px; font-weight: 700; color: var(--color-text-secondary); margin-top: 6px; text-transform: none; letter-spacing: 0.3px; }
+  .style-opts { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+  .style-opt { flex: 1; min-width: 84px; border: 2px solid var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 10px 6px; background: var(--color-background-primary); cursor: pointer; text-align: center; transition: border-color 0.15s, transform 0.1s; }
+  .style-opt:active { transform: scale(0.96); }
+  .style-opt.active { border-color: var(--color-text-primary); background: var(--color-background-secondary); }
+  .style-opt .so-lbl { font-size: 11px; font-weight: 700; color: var(--color-text-primary); margin-top: 8px; }
+  .cal-prev { width: 40px; height: 34px; margin: 0 auto; border-radius: var(--border-radius-md); border: 1px solid var(--color-border-tertiary); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--color-text-primary); background: var(--color-background-primary); text-shadow: -1px -1px 0 var(--color-background-primary), 1px -1px 0 var(--color-background-primary), -1px 1px 0 var(--color-background-primary), 1px 1px 0 var(--color-background-primary); }
+  .set-hint { font-size: 11px; line-height: 1.55; color: var(--color-text-secondary); background: var(--color-background-secondary); border: 1px solid var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 9px 11px; }
+  .set-num { width: 90px; padding: 10px; border-radius: var(--border-radius-md); border: 1px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); font-family: 'Lato', sans-serif; font-size: 15px; text-align: center; outline: none; }
+
   .add-btn, .login-btn, .btn-save, .btn-cancel, .btn-delete-room, .toggle-status-btn, .shift-counter-btn, .del-btn, .google-btn, .cal-nav-btn, .custom-btn { transition: transform 0.1s ease, background 0.2s, opacity 0.2s; }
   .add-btn:active, .login-btn:active, .btn-save:active, .btn-cancel:active, .btn-delete-room:active, .toggle-status-btn:active, .shift-counter-btn:active, .google-btn:active, .cal-nav-btn:active, .custom-btn:active { transform: scale(0.95); }
   .del-btn:active, .close-btn:active { transform: scale(0.85); }
@@ -326,6 +348,7 @@
         <div class="settings-dropdown" id="settingsDropdown">
           <button onclick="window.toggleColorMode()">🎨 Sytost barev</button>
           <button onclick="window.toggleTheme()" id="menuThemeBtn">🌙 Vzhled</button>
+          <button onclick="window.openCalStyle()">📅 Zobrazení rezervací</button>
           <div class="menu-divider"></div>
           <button onclick="window.doLogout()" style="color: var(--color-text-danger);">🚪 Odhlásit</button>
         </div>
@@ -338,6 +361,7 @@
     <button id="btnManageUsers" class="save-note-btn" style="display:none;" onclick="window.openUsersAdmin()">👥 Správa uživatelů</button>
     <button id="btnManageRoles" class="save-note-btn" style="display:none;" onclick="window.openRolesAdmin()">🔑 Správa oprávnění</button>
     <button id="btnManageBackups" class="save-note-btn" style="display:none;" onclick="window.openBackupModal()">💾 Zálohy dat</button>
+    <button id="btnRetention" class="save-note-btn" style="display:none;" onclick="window.openRetention()">🗑️ Mazání rezervací</button>
   </div>
 
   <div id="miniStats" class="mini-stats-wrap"></div>
@@ -610,6 +634,57 @@
     </div>
   </div>
 
+  <div class="edit-modal-bg" id="calStyleBg" style="z-index: 100005;">
+    <div class="edit-modal" style="width: min(620px, 100%); max-height: 90vh; display: flex; flex-direction: column; padding: 1.5rem;">
+      <h3>📅 Zobrazení rezervací</h3>
+      <p style="font-size:12px; color:var(--color-text-secondary); margin-bottom:1rem;">Jak se v kalendáři pokoje vybarví první a poslední den rezervace. Nastavení platí jen pro toto zařízení.</p>
+
+      <div style="overflow-y: auto; flex: 1; margin-bottom: 16px; padding-right: 4px;">
+        <div class="perm-group">
+          <div class="perm-items">
+            <div class="set-label">Den odjezdu (host ráno odjíždí)</div>
+            <div class="style-opts" id="optDeparture"></div>
+            <div class="set-label">Den příjezdu (host odpoledne přijíždí)</div>
+            <div class="style-opts" id="optArrival"></div>
+            <div class="set-label">Odjezd i příjezd v jeden den (výměna hostů)</div>
+            <div class="style-opts" id="optTurnover"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="edit-btns" style="margin-top: 0;">
+        <button class="btn-save" onclick="window.saveCalStyle()">Uložit</button>
+        <button class="btn-cancel" onclick="window.closeCalStyle()">Zavřít</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="edit-modal-bg" id="retentionBg" style="z-index: 100005;">
+    <div class="edit-modal" style="width: min(560px, 100%); max-height: 90vh; display: flex; flex-direction: column; padding: 1.5rem;">
+      <h3>🗑️ Mazání starých rezervací</h3>
+      <p style="font-size:12px; color:var(--color-text-secondary); margin-bottom:1rem;">Nastavení je společné pro všechny uživatele.</p>
+
+      <div style="overflow-y: auto; flex: 1; margin-bottom: 16px; padding-right: 4px;">
+        <div class="perm-group">
+          <div class="perm-items">
+            <label class="perm-item"><input type="checkbox" id="setAutoDel" onchange="window.onAutoDelToggle()"> Automaticky mazat staré rezervace</label>
+            <div id="keepDaysWrap" style="display:flex; align-items:center; gap:10px; font-size:13px; color:var(--color-text-primary);">
+              <span>Uchovat rezervace</span>
+              <input type="number" min="1" max="3650" id="setKeepDays" class="set-num" oninput="window.renderSettingsHint()">
+              <span>dní po odjezdu</span>
+            </div>
+            <div class="set-hint" id="setDelHint"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="edit-btns" style="margin-top: 0;">
+        <button class="btn-save" onclick="window.saveRetention()">Uložit nastavení</button>
+        <button class="btn-cancel" onclick="window.closeRetention()">Zavřít</button>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <script type="module">
@@ -660,7 +735,8 @@ const PERM_DEFS = {
     { key: 'book_add', label: 'Přidávat nové rezervace' },
     { key: 'book_edit_del', label: 'Upravovat a mazat existující rezervace' },
     { key: 'note_edit', label: 'Upravovat poznámky k pokoji a nástěnce' },
-    { key: 'photo_edit', label: 'Přidávat a mazat fotografie pokoje' }
+    { key: 'photo_edit', label: 'Přidávat a mazat fotografie pokoje' },
+    { key: 'book_retention', label: 'Nastavovat automatické mazání starých rezervací' }
   ]},
   stats: { title: "4. Výkazy a peníze", items: [
     { key: 'shift_log', label: 'Zadávat vlastní odpracované hodiny (tlačítko Moje směna)' },
@@ -686,6 +762,16 @@ window.hasPermission = function(key) {
 const EMOJIS=['🛏️','🏨','🍳','🍽️','☕','🚗','🚲','⛺','🌊','🌿','🔑','🛁','🍾','🌅','🌙','🏔️','🌸','🎋','🦋','🕯️','🍷','🐶','🚿','🔥'];
 const BOOKING_COLORS = ['#60A5FA', '#FB923C', '#84CC16', '#F472B6', '#FBBF24', '#C084FC', '#2DD4BF', '#F87171'];
 const defaultRooms=[{name:'Pokoj 101',emoji:'🛏️', isDirty: false}, {name:'Deluxe Suite',emoji:'🏨', isDirty: false}];
+
+// Mazání starých rezervací – společné pro všechny, uložené v databázi
+const DEFAULT_SETTINGS = { bookingAutoDelete: true, bookingKeepDays: 14 };
+let appSettings = Object.assign({}, DEFAULT_SETTINGS);
+
+// Vzhled okrajových dnů rezervace – osobní předvolba každého zařízení (jako téma a sytost barev)
+// 'full' = celý den, 'half' = polovina, 'triangle' = trojúhelník
+const DEFAULT_CAL_STYLE = { arrival: 'full', departure: 'half', turnover: 'triangle' };
+let calStyle = Object.assign({}, DEFAULT_CAL_STYLE);
+try { calStyle = Object.assign(calStyle, JSON.parse(localStorage.getItem('pz_calStyle') || '{}')); } catch(e) {}
 
 let rooms = []; let bookings = {}; let notes = {}; let generalNotes = ''; let staffTasks = []; let authorizedUsers = {};
 let shiftData = {}; let shiftDataBackups = []; let tempMyShift = {dailyLogs:{}}; let currentShiftDate = '';
@@ -768,11 +854,13 @@ function applyUIPermissions() {
   const canAdminRoles = window.hasPermission('admin_roles');
   
   const canBackup = window.hasPermission('backup_manage');
-  document.getElementById('adminActionsWrap').style.display = (canRoomEdit || canAdminUsers || canAdminRoles || canBackup) ? 'flex' : 'none';
+  const canRetention = window.hasPermission('book_retention');
+  document.getElementById('adminActionsWrap').style.display = (canRoomEdit || canAdminUsers || canAdminRoles || canBackup || canRetention) ? 'flex' : 'none';
   document.getElementById('btnAddRoom').style.display = canRoomEdit ? 'inline-block' : 'none';
   document.getElementById('btnManageUsers').style.display = canAdminUsers ? 'inline-block' : 'none';
   document.getElementById('btnManageRoles').style.display = canAdminRoles ? 'inline-block' : 'none';
   document.getElementById('btnManageBackups').style.display = canBackup ? 'inline-block' : 'none';
+  document.getElementById('btnRetention').style.display = canRetention ? 'inline-block' : 'none';
   
   document.getElementById('staffTasksWrap').style.display = window.hasPermission('task_view') ? 'block' : 'none';
   document.getElementById('addTaskForm').style.display = window.hasPermission('task_edit') ? 'flex' : 'none';
@@ -804,8 +892,10 @@ function startDatabaseListener() {
       shiftDataBackups = Array.isArray(sdb) ? sdb : Object.values(sdb);
       tlCleanings = data.tlCleanings || {};
       rolePermissions = data.rolePermissions || {};
+      appSettings = Object.assign({}, DEFAULT_SETTINGS, data.appSettings || {});
     } else {
       rooms = [...defaultRooms]; bookings = {}; notes = {}; generalNotes = ''; staffTasks = []; shiftData = {}; shiftDataBackups = {}; tlCleanings = {}; rolePermissions = {};
+      appSettings = Object.assign({}, DEFAULT_SETTINGS);
     }
 
     if(currentUser && document.getElementById('screenApp').classList.contains('active')) {
@@ -1144,6 +1234,115 @@ window.saveRolePermissions = () => {
 };
 
 /* =========================================================================
+ * NASTAVENÍ APLIKACE
+ * ========================================================================= */
+const SET_C1 = '#60A5FA'; const SET_C2 = '#FB923C';
+
+function calPreviewCell(role, style) {
+  if (role === 'turnover') {
+    const deg = (style === 'half') ? '90deg' : '135deg';
+    return `<div class="cal-prev" style="background:linear-gradient(${deg}, ${SET_C1} 50%, ${SET_C2} 50%); color:#18181b; text-shadow:none;"><span>15</span></div>`;
+  }
+  const c = (role === 'departure') ? SET_C1 : SET_C2;
+  if (style === 'full') return `<div class="cal-prev" style="background:${c}; color:#18181b; text-shadow:none;"><span>15</span></div>`;
+  const pf = (role === 'departure')
+    ? (style === 'half' ? 'pf-half-l' : 'pf-tri-tl')
+    : (style === 'half' ? 'pf-half-r' : 'pf-tri-br');
+  return `<div class="cal-prev pfill ${pf}" style="--pc:${c};"><span>15</span></div>`;
+}
+
+// Vzhled upravujeme v dočasné kopii, do calStyle se propíše až při uložení
+let tempCalStyle = {};
+
+function renderStyleOpts(wrapId, role, opts) {
+  const cur = tempCalStyle[role];
+  document.getElementById(wrapId).innerHTML = opts.map(o =>
+    `<div class="style-opt${cur === o.key ? ' active' : ''}" onclick="window.pickCalStyle('${wrapId}','${role}','${o.key}')">${calPreviewCell(role, o.key)}<div class="so-lbl">${o.label}</div></div>`
+  ).join('');
+}
+
+const EDGE_OPTS = [{ key:'full', label:'Celý' }, { key:'half', label:'Polovina' }, { key:'triangle', label:'Trojúhelník' }];
+const TURN_OPTS = [{ key:'triangle', label:'Trojúhelník' }, { key:'half', label:'Poloviny' }];
+
+window.pickCalStyle = (wrapId, role, val) => {
+  tempCalStyle[role] = val;
+  renderStyleOpts(wrapId, role, role === 'turnover' ? TURN_OPTS : EDGE_OPTS);
+};
+
+window.onAutoDelToggle = () => {
+  document.getElementById('keepDaysWrap').style.display = document.getElementById('setAutoDel').checked ? 'flex' : 'none';
+  window.renderSettingsHint();
+};
+
+window.renderSettingsHint = () => {
+  let count = 0;
+  for (const k in bookings) { count += (bookings[k] || []).length; }
+  const kb = Math.round(count * 0.16);
+  const on = document.getElementById('setAutoDel').checked;
+  const days = parseInt(document.getElementById('setKeepDays').value) || 0;
+  let txt = `Právě evidujete <strong>${count}</strong> rezervací (zhruba ${kb < 1 ? '<1' : kb} kB dat).`;
+  if (on) {
+    txt += ` Rezervace se smaže ${days} dní po datu odjezdu. Zůstane ale v zálohách dat.`;
+  } else {
+    txt += ` Mazání je vypnuté — rezervace zůstanou navždy.`;
+  }
+  txt += `<br><span style="opacity:0.85;">Pozn. k limitům: aplikace při každém otevření stáhne všechna data. Zdarma je 1 GB úložiště a 10 GB přenosu měsíčně, takže i tisíce rezervací se vejdou. Pomalejší načítání ale poznáte zhruba od 5 000 rezervací výš — pak je lepší mazání zapnout, nebo si dlouhou historii držet jen v zálohách.</span>`;
+  document.getElementById('setDelHint').innerHTML = txt;
+};
+
+/* --- Vzhled kalendáře (osobní, jen toto zařízení) --- */
+window.openCalStyle = () => {
+  const dd = document.getElementById('settingsDropdown'); if (dd) dd.classList.remove('show');
+  tempCalStyle = Object.assign({}, DEFAULT_CAL_STYLE, calStyle);
+  renderStyleOpts('optDeparture', 'departure', EDGE_OPTS);
+  renderStyleOpts('optArrival', 'arrival', EDGE_OPTS);
+  renderStyleOpts('optTurnover', 'turnover', TURN_OPTS);
+  document.getElementById('calStyleBg').classList.add('open');
+};
+
+window.closeCalStyle = () => { document.getElementById('calStyleBg').classList.remove('open'); };
+
+window.saveCalStyle = () => {
+  calStyle = Object.assign({}, tempCalStyle);
+  try { localStorage.setItem('pz_calStyle', JSON.stringify(calStyle)); } catch(e) {}
+  if (curRoom !== -1 && document.getElementById('modalBg').classList.contains('open')) window.renderRoomCalendar();
+  const btn = document.querySelector('#calStyleBg .btn-save');
+  const orig = btn.textContent; btn.textContent = '✓ Uloženo';
+  setTimeout(() => { btn.textContent = orig; window.closeCalStyle(); }, 700);
+};
+
+/* --- Mazání starých rezervací (společné, v databázi) --- */
+window.openRetention = () => {
+  document.getElementById('setAutoDel').checked = !!appSettings.bookingAutoDelete;
+  document.getElementById('setKeepDays').value = appSettings.bookingKeepDays || DEFAULT_SETTINGS.bookingKeepDays;
+  window.onAutoDelToggle();
+  document.getElementById('retentionBg').classList.add('open');
+};
+
+window.closeRetention = () => { document.getElementById('retentionBg').classList.remove('open'); };
+
+window.saveRetention = async () => {
+  const d = parseInt(document.getElementById('setKeepDays').value);
+  const next = {
+    bookingAutoDelete: document.getElementById('setAutoDel').checked,
+    bookingKeepDays: (isNaN(d) || d < 1) ? DEFAULT_SETTINGS.bookingKeepDays : Math.min(3650, d)
+  };
+  const btn = document.querySelector('#retentionBg .btn-save');
+  const orig = btn.textContent; btn.textContent = 'Ukládám...'; btn.disabled = true;
+  const prev = Object.assign({}, appSettings);
+  appSettings = Object.assign({}, appSettings, next);
+  try {
+    await window.saveToFirebase(false, ['appSettings']);
+    btn.textContent = '✓ Uloženo';
+    setTimeout(() => { btn.textContent = orig; btn.disabled = false; window.closeRetention(); }, 900);
+  } catch(e) {
+    appSettings = prev;
+    alert('Uložení nastavení selhalo: ' + (e.message || e));
+    btn.textContent = orig; btn.disabled = false;
+  }
+};
+
+/* =========================================================================
  * ZÁLOHY DAT
  * ========================================================================= */
 async function _backupCleanup() {
@@ -1158,7 +1357,7 @@ async function _backupCleanup() {
 }
 
 function _snapshotData() {
-  return JSON.parse(JSON.stringify({ rooms, bookings, notes, generalNotes, staffTasks, shiftData, tlCleanings, rolePermissions, authorizedUsers }));
+  return JSON.parse(JSON.stringify({ rooms, bookings, notes, generalNotes, staffTasks, shiftData, tlCleanings, rolePermissions, authorizedUsers, appSettings }));
 }
 
 function checkAutoBackup() {
@@ -1335,7 +1534,7 @@ window.renderMiniStats = () => {
 };
 window.saveToFirebase = (isAutoSave = false, keys = null) => {
   if (isAutoSave && (!isFirebaseConnected || Date.now() - lastFirebaseReceived > 30 * 60 * 1000)) return;
-  const all = { rooms, bookings, notes, generalNotes, staffTasks, shiftData, shiftDataBackups, tlCleanings };
+  const all = { rooms, bookings, notes, generalNotes, staffTasks, shiftData, shiftDataBackups, tlCleanings, appSettings };
 
   if (currentUser && (currentUser.role === 'owner' || currentUser.role === 'admin')) {
     all.authorizedUsers = authorizedUsers;
@@ -1358,9 +1557,12 @@ function fmtHours(h) { const hh = Math.floor(h); const mm = Math.round((h - hh) 
 function getLocalIsoDate(daysOffset = 0) { const d = new Date(); d.setDate(d.getDate() + daysOffset); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
 function autoDirtyCheck() {
   const todayStr = getLocalIsoDate(); const currentHour = new Date().getHours(); let changed = false;
-  const cutoffDate = new Date(); cutoffDate.setDate(cutoffDate.getDate() - 14);
-  const cutoffStr = cutoffDate.getFullYear() + '-' + String(cutoffDate.getMonth()+1).padStart(2,'0') + '-' + String(cutoffDate.getDate()).padStart(2,'0');
-  for (const roomIdx in bookings) { if(bookings[roomIdx]) { const originalLen = bookings[roomIdx].length; bookings[roomIdx] = bookings[roomIdx].filter(b => b.to >= cutoffStr); if (bookings[roomIdx].length !== originalLen) changed = true; } }
+  if (appSettings.bookingAutoDelete) {
+    const keepDays = Math.max(1, parseInt(appSettings.bookingKeepDays) || DEFAULT_SETTINGS.bookingKeepDays);
+    const cutoffDate = new Date(); cutoffDate.setDate(cutoffDate.getDate() - keepDays);
+    const cutoffStr = cutoffDate.getFullYear() + '-' + String(cutoffDate.getMonth()+1).padStart(2,'0') + '-' + String(cutoffDate.getDate()).padStart(2,'0');
+    for (const roomIdx in bookings) { if(bookings[roomIdx]) { const originalLen = bookings[roomIdx].length; bookings[roomIdx] = bookings[roomIdx].filter(b => b.to >= cutoffStr); if (bookings[roomIdx].length !== originalLen) changed = true; } }
+  }
   rooms.forEach((r, i) => {
     if(r.isDirty === undefined) { r.isDirty = false; changed = true; }
     (bookings[i]||[]).forEach(b => {
@@ -1720,10 +1922,45 @@ function getBookedDaysMap(ignoreIdx = -1) {
     let d = new Date(b.from + 'T00:00:00'); const end = new Date(b.to + 'T00:00:00');
     while(d <= end) {
       const ds = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-      if(!map[ds]) map[ds] = []; if(!map[ds].includes(color)) map[ds].push(color); d.setDate(d.getDate() + 1);
+      if(!map[ds]) map[ds] = { arrival: null, departure: null, mid: null, colors: [] };
+      const e = map[ds]; const isFirst = (ds === b.from); const isLast = (ds === b.to);
+      // Jednodenní rezervace bereme jako celý den, ne jako příjezd+odjezd
+      if (isFirst && isLast) { if (!e.mid) e.mid = color; }
+      else if (isFirst) { if (!e.arrival) e.arrival = color; }
+      else if (isLast) { if (!e.departure) e.departure = color; }
+      else { if (!e.mid) e.mid = color; }
+      if (!e.colors.includes(color)) e.colors.push(color);
+      d.setDate(d.getDate() + 1);
     }
   });
   return map;
+}
+// Vrátí { cls, style } pro obarvení jednoho dne v kalendáři podle nastavení
+function calDayFill(e) {
+  if (!e) return null;
+  const bc = 'border-color:rgba(0,0,0,0.1);';
+  // Uprostřed pobytu (nebo jednodenní rezervace) je den vždy vybarvený celý
+  if (e.mid) {
+    if (e.colors.length === 1) return { cls: ' booked', style: `background:${e.colors[0]};${bc}` };
+    return { cls: ' booked', style: `background:linear-gradient(135deg, ${e.colors[0]} 50%, ${e.colors[1]} 50%);${bc}` };
+  }
+  const arr = e.arrival, dep = e.departure;
+  if (arr && dep) {
+    const m = calStyle.turnover || 'triangle';
+    const deg = (m === 'half') ? '90deg' : '135deg';
+    return { cls: ' booked', style: `background:linear-gradient(${deg}, ${dep} 50%, ${arr} 50%);${bc}` };
+  }
+  if (dep) {
+    const m = calStyle.departure || 'half';
+    if (m === 'full') return { cls: ' booked', style: `background:${dep};${bc}` };
+    return { cls: ' pfill ' + (m === 'half' ? 'pf-half-l' : 'pf-tri-tl'), style: `--pc:${dep};` };
+  }
+  if (arr) {
+    const m = calStyle.arrival || 'full';
+    if (m === 'full') return { cls: ' booked', style: `background:${arr};${bc}` };
+    return { cls: ' pfill ' + (m === 'half' ? 'pf-half-r' : 'pf-tri-br'), style: `--pc:${arr};` };
+  }
+  return null;
 }
 window.renderRoomCalendar = () => {
   document.getElementById('calMonth').textContent = MONTHS[calMon] + ' ' + calYear; const g = document.getElementById('calGrid');
@@ -1736,12 +1973,9 @@ window.renderRoomCalendar = () => {
     const ds = `${calYear}-${String(calMon+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const isT = today.getFullYear()===calYear && today.getMonth()===calMon && today.getDate()===d;
     let cls = 'cal-day' + (isT ? ' today' : ''); let style = '';
-    if(dayMap[ds]) {
-      cls += ' booked';
-      if(dayMap[ds].length === 1) style = `background: ${dayMap[ds][0]}; border-color: rgba(0,0,0,0.1);`;
-      else style = `background: linear-gradient(135deg, ${dayMap[ds][0]} 50%, ${dayMap[ds][1]} 50%); border-color: rgba(0,0,0,0.1);`;
-    }
-    html += `<div class="${cls}" style="${style}" onclick="window.bookingCalDayClick('${ds}')">${d}</div>`;
+    const fill = calDayFill(dayMap[ds]);
+    if(fill) { cls += fill.cls; style = fill.style; }
+    html += `<div class="${cls}" style="${style}" onclick="window.bookingCalDayClick('${ds}')"><span>${d}</span></div>`;
   } g.innerHTML = html;
 };
 window.openBookingModal = (idx = -1) => {
@@ -1780,13 +2014,12 @@ window.renderBookingCalendar = () => {
     const ds = `${calYear}-${String(calMon+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const isT = today.getFullYear()===calYear && today.getMonth()===calMon && today.getDate()===d;
     let cls = 'cal-day' + (isT ? ' today' : ''); let style = '';
-    if(dayMap[ds]) {
-      cls += ' booked';
-      if(dayMap[ds].length === 1) style = `background: ${dayMap[ds][0]}; border-color: rgba(0,0,0,0.1);`;
-      else style = `background: linear-gradient(135deg, ${dayMap[ds][0]} 50%, ${dayMap[ds][1]} 50%); border-color: rgba(0,0,0,0.1);`;
-    }
-    if (selStart === ds || selEnd === ds) { cls += ' sel-node'; style = ''; } else if (selStart && selEnd && ds > selStart && ds < selEnd) { cls += ' sel-mid'; style = ''; }
-    html += `<div class="${cls}" style="${style}" onclick="window.bookingCalDayClick('${ds}')">${d}</div>`;
+    const isSelNode = (selStart === ds || selEnd === ds);
+    const isSelMid = (selStart && selEnd && ds > selStart && ds < selEnd);
+    if (isSelNode) { cls += ' sel-node'; }
+    else if (isSelMid) { cls += ' sel-mid'; }
+    else { const fill = calDayFill(dayMap[ds]); if(fill) { cls += fill.cls; style = fill.style; } }
+    html += `<div class="${cls}" style="${style}" onclick="window.bookingCalDayClick('${ds}')"><span>${d}</span></div>`;
   } g.innerHTML = html;
 };
 window.saveBooking = () => {
@@ -1860,6 +2093,8 @@ if (document.getElementById('editBg')) document.getElementById('editBg').addEven
 if (document.getElementById('usersAdminBg')) document.getElementById('usersAdminBg').addEventListener('click', function(e) { if(e.target === this) window.closeUsersAdmin(); });
 if (document.getElementById('statsModalBg')) document.getElementById('statsModalBg').addEventListener('click', function(e) { if(e.target === this) window.closeStatsModal(); });
 if (document.getElementById('rolesAdminBg')) document.getElementById('rolesAdminBg').addEventListener('click', function(e) { if(e.target === this) window.closeRolesAdmin(); });
+if (document.getElementById('calStyleBg')) document.getElementById('calStyleBg').addEventListener('click', function(e) { if(e.target === this) window.closeCalStyle(); });
+if (document.getElementById('retentionBg')) document.getElementById('retentionBg').addEventListener('click', function(e) { if(e.target === this) window.closeRetention(); });
 </script>
 </body>
 </html>
