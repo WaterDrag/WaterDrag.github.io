@@ -544,6 +544,17 @@
     </div>
   </div>
 
+  <div class="edit-modal-bg" id="calendarOfferBg" style="z-index: 100010;" role="dialog" aria-modal="true" aria-labelledby="calendarOfferTitle">
+    <div class="edit-modal" style="width: min(420px, 100%)">
+      <h3 id="calendarOfferTitle">📅 Přidat úklid do kalendáře?</h3>
+      <p id="calendarOfferText" style="font-size:13px; color:var(--color-text-secondary); line-height:1.5; margin-bottom:18px;"></p>
+      <div class="edit-btns" style="margin-top:0; flex-direction:column;">
+        <button class="btn-save" onclick="window.downloadPendingCalendar()">Uložit událost (.ics)</button>
+        <button class="btn-cancel" onclick="window.closeCalendarOffer()">Teď ne</button>
+      </div>
+    </div>
+  </div>
+
   <div class="edit-modal-bg" id="editBg">
     <div class="edit-modal">
       <h3 id="editModalTitle">Upravit pokoj</h3>
@@ -690,7 +701,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
 import { getDatabase, ref, onValue, set, update, get, child } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
-import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+import { getAuth, onAuthStateChanged, signInWithPopup, reauthenticateWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
 import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-messaging.js";
 
 const firebaseConfig = {
@@ -709,6 +720,7 @@ const db = getDatabase(app);
 const auth = getAuth(app);
 const messaging = getMessaging(app);
 const googleProvider = new GoogleAuthProvider();
+googleProvider.addScope('https://www.googleapis.com/auth/calendar.events');
 
 const ROLE_DEF = {
   staff: { role:'staff', label:'Zaměstnanec', badge:'badge-staff' },
@@ -836,6 +848,9 @@ onAuthStateChanged(auth, async (user) => {
     } catch(e) { errEl.textContent = 'Chyba při čtení oprávnění ze serveru.'; signOut(auth); }
   } else {
     currentUser = null; hasShownNewBookingsModal = false; initialRoomsRender = true;
+    sessionStorage.removeItem('pz_google_calendar_token');
+    sessionStorage.removeItem('pz_google_calendar_token_expires');
+    sessionStorage.removeItem('pz_auth_method');
     if(dbListenerObj) { dbListenerObj(); dbListenerObj = null; }
     if(autoRefreshInterval) { clearInterval(autoRefreshInterval); autoRefreshInterval = null; }
     document.getElementById('screenApp').classList.remove('active'); document.getElementById('screenLogin').classList.add('active');
@@ -947,8 +962,74 @@ function tlGetRoomBookings(roomIdx) {
 
 function tlIsBusy(dstr, roomIdx) { return (bookings[roomIdx] || []).some(b => b.from <= dstr && b.to >= dstr); }
 function tlGetCleaning(key) { return tlCleanings[key] || null; }
-window.tlSetCleaning = (key, staffKey, day) => { tlCleanings[key] = { staffKey, day }; window.saveToFirebase(false, ['tlCleanings']); };
-window.tlClearCleaning = (key) => { delete tlCleanings[key]; window.saveToFirebase(false, ['tlCleanings']); };
+window.tlSetCleaning = async (key, staffKey, day) => {
+  const cleaning = { staffKey, day };
+  const tokenPromise = isGoogleCalendarLogin()
+    ? requestGoogleCalendarAccessToken().catch(error => { console.warn('Google Calendar authorization failed:', error); return null; })
+    : null;
+  tlCleanings[key] = cleaning;
+  try {
+    await window.saveToFirebase(false, ['tlCleanings']);
+  } catch (error) {
+    delete tlCleanings[key];
+    alert('Přihlášení k úklidu se nepodařilo uložit. Zkuste to prosím znovu.');
+    return;
+  }
+
+  const room = rooms[Number(key.split('_')[0])];
+  if (!room) return;
+  const event = calendarEventForCleaning(cleaning, room);
+  const filename = `uklid-${room.name.replace(/[^a-z0-9-]/gi, '-')}.ics`;
+  const accessToken = tokenPromise ? await tokenPromise : null;
+  if (accessToken) {
+    try {
+      await saveCleaningToGoogleCalendar(key, cleaning, room, accessToken);
+      alert('Úklid byl přidán do vašeho Google kalendáře s připomenutím den předem a v den úklidu.');
+      return;
+    } catch (error) {
+      console.error('Uložení úklidu do Google kalendáře selhalo:', error);
+      window.openCalendarOffer(event, filename, true);
+      return;
+    }
+  }
+  window.openCalendarOffer(event, filename, !!tokenPromise);
+};
+
+window.tlClearCleaning = async (key) => {
+  const cleaning = tlGetCleaning(key);
+  if (!cleaning) return;
+  const canRemoveFromGoogle = !!cleaning.googleCalendarEventId &&
+    cleaning.googleCalendarOwnerUid === auth.currentUser?.uid &&
+    isGoogleCalendarLogin();
+  const tokenPromise = canRemoveFromGoogle
+    ? requestGoogleCalendarAccessToken().catch(error => { console.warn('Google Calendar authorization failed:', error); return null; })
+    : null;
+
+  delete tlCleanings[key];
+  try {
+    await window.saveToFirebase(false, ['tlCleanings']);
+  } catch (error) {
+    tlCleanings[key] = cleaning;
+    alert('Odhlášení z úklidu se nepodařilo uložit. Zkuste to prosím znovu.');
+    return;
+  }
+
+  if (cleaning.googleCalendarEventId && cleaning.googleCalendarOwnerUid === auth.currentUser?.uid) {
+    const accessToken = tokenPromise ? await tokenPromise : null;
+    if (!accessToken) {
+      alert('Z úklidu jste se odhlásil/a. Událost se nepodařilo odstranit z Google kalendáře; smažte ji prosím ručně.');
+      return;
+    }
+    try {
+      await deleteCleaningFromGoogleCalendar(cleaning.googleCalendarEventId, accessToken);
+    } catch (error) {
+      console.error('Odstranění úklidu z Google kalendáře selhalo:', error);
+      alert('Z úklidu jste se odhlásil/a, ale událost se nepodařilo odstranit z Google kalendáře. Zkontrolujte připojení a případně ji smažte ručně.');
+    }
+  } else if (cleaning.googleCalendarEventId) {
+    alert('Úklid byl odebrán. Událost v Google kalendáři původního přihlášeného uživatele musí odstranit její vlastník.');
+  }
+};
 
 const TL_STAFF_COLORS = [
   { bg: '#B5D4F4', fg: '#0C447C' }, { bg: '#C0DD97', fg: '#27500A' }, { bg: '#F4C0D1', fg: '#72243E' },
@@ -1585,8 +1666,192 @@ function getRoomStateClass(roomIdx) {
   for (const b of bks) { if (b.from > todayStr && b.from <= plus3Str) return 'bg-state-soon'; } return 'bg-state-free';
 }
 
-window.loginWithEmail = () => { const e = document.getElementById('loginEmail').value.trim(); const p = document.getElementById('loginPass').value; const err = document.getElementById('loginErr'); err.textContent = 'Přihlašování...'; signInWithEmailAndPassword(auth, e, p).catch(() => { err.textContent = 'Špatný e-mail nebo heslo.'; }); };
-window.loginWithGoogle = () => { const err = document.getElementById('loginErr'); err.textContent = 'Otevírám Google...'; signInWithPopup(auth, googleProvider).catch(() => { err.textContent = 'Přihlášení zrušeno nebo selhalo.'; }); };
+const GOOGLE_CALENDAR_TOKEN_KEY = 'pz_google_calendar_token';
+const GOOGLE_CALENDAR_TOKEN_EXPIRY_KEY = 'pz_google_calendar_token_expires';
+const GOOGLE_CALENDAR_API = 'https://www.googleapis.com/calendar/v3/calendars/primary/events';
+let pendingCalendarDownload = null;
+
+function isGoogleCalendarLogin() {
+  if (sessionStorage.getItem('pz_auth_method') === 'password') return false;
+  return !!auth.currentUser?.providerData?.some(provider => provider.providerId === 'google.com');
+}
+
+function storeGoogleCalendarToken(token) {
+  if (!token) return;
+  sessionStorage.setItem(GOOGLE_CALENDAR_TOKEN_KEY, token);
+  // OAuth access tokens normally last an hour; expire the cached copy a little early.
+  sessionStorage.setItem(GOOGLE_CALENDAR_TOKEN_EXPIRY_KEY, String(Date.now() + 55 * 60 * 1000));
+}
+
+function getStoredGoogleCalendarToken() {
+  const token = sessionStorage.getItem(GOOGLE_CALENDAR_TOKEN_KEY);
+  const expiresAt = Number(sessionStorage.getItem(GOOGLE_CALENDAR_TOKEN_EXPIRY_KEY) || 0);
+  if (token && expiresAt > Date.now()) return token;
+  sessionStorage.removeItem(GOOGLE_CALENDAR_TOKEN_KEY);
+  sessionStorage.removeItem(GOOGLE_CALENDAR_TOKEN_EXPIRY_KEY);
+  return null;
+}
+
+function clearGoogleCalendarToken() {
+  sessionStorage.removeItem(GOOGLE_CALENDAR_TOKEN_KEY);
+  sessionStorage.removeItem(GOOGLE_CALENDAR_TOKEN_EXPIRY_KEY);
+}
+
+async function requestGoogleCalendarAccessToken() {
+  const cachedToken = getStoredGoogleCalendarToken();
+  if (cachedToken) return cachedToken;
+  if (!isGoogleCalendarLogin() || !auth.currentUser) return null;
+
+  const result = await reauthenticateWithPopup(auth.currentUser, googleProvider);
+  const credential = GoogleAuthProvider.credentialFromResult(result);
+  if (!credential?.accessToken) throw new Error('Google neposkytl přístup ke kalendáři.');
+  storeGoogleCalendarToken(credential.accessToken);
+  return credential.accessToken;
+}
+
+function createCalendarEventId() {
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('');
+}
+
+function calendarEventForCleaning(cleaning, room) {
+  return {
+    summary: `Úklid – ${room.name}`,
+    description: `Úklid pokoje ${room.name}.\nDatum: ${fmt(cleaning.day)}`,
+    start: { date: cleaning.day },
+    end: { date: getLocalIsoDateFrom(cleaning.day, 1) },
+    reminders: {
+      useDefault: false,
+      overrides: [
+        { method: 'popup', minutes: 1440 },
+        { method: 'popup', minutes: 0 }
+      ]
+    }
+  };
+}
+
+async function saveCleaningToGoogleCalendar(key, cleaning, room, accessToken) {
+  const currentCleaning = tlCleanings[key] || cleaning;
+  currentCleaning.googleCalendarEventId ||= createCalendarEventId();
+  currentCleaning.googleCalendarOwnerUid = auth.currentUser.uid;
+  currentCleaning.googleCalendarSyncStatus = 'pending';
+  await window.saveToFirebase(false, ['tlCleanings']);
+
+  const url = `${GOOGLE_CALENDAR_API}/${encodeURIComponent(currentCleaning.googleCalendarEventId)}`;
+  const headers = { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' };
+  let response = await fetch(GOOGLE_CALENDAR_API, {
+    method: 'POST', headers,
+    body: JSON.stringify({ id: currentCleaning.googleCalendarEventId, ...calendarEventForCleaning(cleaning, room) })
+  });
+  // A previous request may have reached Google even if the browser did not receive its reply.
+  if (response.status === 409) {
+    response = await fetch(url, {
+      method: 'PATCH', headers,
+      body: JSON.stringify(calendarEventForCleaning(cleaning, room))
+    });
+  }
+  if (!response.ok) {
+    let details = '';
+    try { details = (await response.json()).error?.message || ''; } catch (e) {}
+    if (response.status === 401 || response.status === 403) clearGoogleCalendarToken();
+    throw new Error(details || `Google Calendar odpověděl chybou ${response.status}.`);
+  }
+
+  (tlCleanings[key] || currentCleaning).googleCalendarSyncStatus = 'synced';
+  await window.saveToFirebase(false, ['tlCleanings']);
+}
+
+async function deleteCleaningFromGoogleCalendar(eventId, accessToken) {
+  const response = await fetch(`${GOOGLE_CALENDAR_API}/${encodeURIComponent(eventId)}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${accessToken}` }
+  });
+  if (response.ok || response.status === 404 || response.status === 410) return;
+  if (response.status === 401 || response.status === 403) clearGoogleCalendarToken();
+  throw new Error(`Google Calendar odpověděl chybou ${response.status}.`);
+}
+
+function getLocalIsoDateFrom(dateString, daysOffset) {
+  const date = new Date(`${dateString}T00:00:00`);
+  date.setDate(date.getDate() + daysOffset);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
+function escapeIcsText(value) {
+  return String(value || '').replace(/\\/g, '\\\\').replace(/\r?\n/g, '\\n').replace(/,/g, '\\,').replace(/;/g, '\\;');
+}
+
+function createCleaningIcs(event) {
+  const dateForIcs = date => date.replace(/-/g, '');
+  const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+  const uid = `${createCalendarEventId()}@penzionmanagement`;
+  const lines = [
+    'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Penzion management//Uklid//CS',
+    'CALSCALE:GREGORIAN', 'BEGIN:VEVENT', `UID:${uid}`, `DTSTAMP:${stamp}`,
+    `DTSTART;VALUE=DATE:${dateForIcs(event.start.date)}`,
+    `DTEND;VALUE=DATE:${dateForIcs(event.end.date)}`,
+    `SUMMARY:${escapeIcsText(event.summary)}`,
+    `DESCRIPTION:${escapeIcsText(event.description)}`,
+    'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:Připomenutí úklidu', 'TRIGGER:-P1D', 'END:VALARM',
+    'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:Úklid je dnes', 'TRIGGER:PT0M', 'END:VALARM',
+    'END:VEVENT', 'END:VCALENDAR'
+  ];
+  return lines.join('\r\n');
+}
+
+window.openCalendarOffer = (event, filename, automaticError = false) => {
+  pendingCalendarDownload = { event, filename };
+  const message = automaticError
+    ? 'Úklid je přihlášený, ale automatické vložení do Google kalendáře se nepodařilo. Můžete si událost přesto uložit ručně.'
+    : 'Chcete uložit úklid do svého kalendáře? Soubor události můžete otevřít v Google, Apple, Outlooku i dalších kalendářích. Připomenutí je nastavené na den předem a na den úklidu.';
+  document.getElementById('calendarOfferText').textContent = `${message}\n${event.summary}: ${fmt(event.start.date)}`;
+  document.getElementById('calendarOfferBg').classList.add('open');
+};
+
+window.closeCalendarOffer = () => {
+  document.getElementById('calendarOfferBg').classList.remove('open');
+  pendingCalendarDownload = null;
+};
+
+window.downloadPendingCalendar = () => {
+  if (!pendingCalendarDownload) return;
+  const { event, filename } = pendingCalendarDownload;
+  const file = new Blob([createCleaningIcs(event)], { type: 'text/calendar;charset=utf-8' });
+  const url = URL.createObjectURL(file);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  window.closeCalendarOffer();
+};
+
+window.loginWithEmail = async () => {
+  const e = document.getElementById('loginEmail').value.trim();
+  const p = document.getElementById('loginPass').value;
+  const err = document.getElementById('loginErr');
+  err.textContent = 'Přihlašování...';
+  try {
+    await signInWithEmailAndPassword(auth, e, p);
+    sessionStorage.setItem('pz_auth_method', 'password');
+    sessionStorage.removeItem(GOOGLE_CALENDAR_TOKEN_KEY);
+    sessionStorage.removeItem(GOOGLE_CALENDAR_TOKEN_EXPIRY_KEY);
+  } catch (error) { err.textContent = 'Špatný e-mail nebo heslo.'; }
+};
+window.loginWithGoogle = async () => {
+  const err = document.getElementById('loginErr');
+  err.textContent = 'Otevírám Google...';
+  try {
+    const result = await signInWithPopup(auth, googleProvider);
+    sessionStorage.setItem('pz_auth_method', 'google');
+    const credential = GoogleAuthProvider.credentialFromResult(result);
+    storeGoogleCalendarToken(credential?.accessToken);
+    err.textContent = '';
+  } catch (error) { err.textContent = 'Přihlášení zrušeno nebo selhalo.'; }
+};
 window.doLogout = () => { signOut(auth); };
 window.autoResize = (el) => { if(!el) return; el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; };
 
